@@ -1,0 +1,25 @@
+{
+  "name": "platin-ico",
+  "version": "1.0.0",
+  "description": "Platin TGE and ICO solidity contracts",
+  "main": "contracts",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "eth-hd-wallet": "^0.4.0",
+    "truffle-hdwallet-provider": "0.0.5",
+    "unix-timestamp": "^0.2.0",
+    "openzeppelin-solidity": "1.10.0"
+  },
+  "devDependencies": {
+    "solium": "^1.1.8"
+  },
+  "scripts": {
+    "compile": "truffle compile",
+    "migrate": "truffle migrate",
+    "test": "truffle test"
+  },
+  "author": "Anatolii Kucheruk <anatolii@platin.io>",
+  "license": "MIT"  
+}

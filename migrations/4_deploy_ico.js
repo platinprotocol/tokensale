@@ -10,12 +10,12 @@ module.exports =  function(deployer, network, accounts) {
 
     if (network == "mainnet") {
         wallet = accounts[0]; // TODO change to the real one
-        openingTime = timestamp.fromDate('2018-08-01 12:00:00'); // TODO change to the real one
+        openingTime = timestamp.fromDate('2018-09-01 12:00:00'); // TODO change to the real one
         closingTime = timestamp.fromDate('2018-10-01 12:00:00'); // TODO change to the real one
     } else {
         wallet = accounts[0];
-        openingTime = timestamp.fromDate('2018-07-17 12:00:00');
-        closingTime = timestamp.fromDate('2018-08-01 12:00:00');       
+        openingTime = timestamp.fromDate('2018-09-01 12:00:00');
+        closingTime = timestamp.fromDate('2018-10-01 12:00:00');
     }
 
     deployer.deploy(

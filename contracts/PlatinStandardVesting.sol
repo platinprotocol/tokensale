@@ -15,7 +15,7 @@ contract PlatinStandardVesting is PlatinVesting {
     uint8 public constant VESTING_MONTHS = 24;
 
     // vesting release dates
-    // TODO revise vesting dates before going live
+    // TODO revise vesting timestamps before going live
     uint256[VESTING_MONTHS] public VESTING_RELEASE_DATES = [ // solium-disable-line mixedcase
         1535803200, 1538395200, 1541073600, 1543665600, // 2018-09-01, 2018-10-01, 2018-11-01, 2018-12-01,
         1546344000, 1549022400, 1551441600, 1554120000, // 2019-01-01, 2019-02-01, 2019-03-01, 2019-04-01,

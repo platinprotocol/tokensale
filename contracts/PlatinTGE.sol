@@ -30,25 +30,25 @@ contract PlatinTGE is Ownable {
     // SALES = PRE_ICO (current contract) + ICO (ico contract), unsold amount will be sent to the UNSOLD_ICO_RESERVE
     address public constant HOLDER01 = 0x378135f66fFC9F70Bb522b3c9b25ed4b8c23dE50;
     address public constant HOLDER02_01 = 0xe74f74f5Ac3988108FC5a0015277Ff13E130CfAF;
-    address public constant HOLDER02_02 = 0xef34779Ad86Cd818E86e0ec1096186D35377c474; // TODO change to the real one  
+    address public constant HOLDER02_02 = 0x5ffc1543EA4Dd01d10FB3435502735f7d68d4547;
     address public constant HOLDER02_03 = 0x588eFc28322Df49f44D0fbF9A436F20ac9b521a3;
     address public constant HOLDER03 = 0x4575479B1dF9305c0594542Dc66cdAD37932177F;
     address public constant HOLDER04 = 0x4fFcaee0380Da173538A333d01E7718c533b935f;
     address public constant HOLDER05_01 = 0xef34779Ad86Cd818E86e0ec1096186D35377c474; // TODO change to the real one 
-    address public constant HOLDER05_02 = 0xef34779Ad86Cd818E86e0ec1096186D35377c474; // TODO change to the real one
+    address public constant HOLDER05_02 = 0xe446Af5D384B3151C14932030318a01dde34Cce9;
     address public constant HOLDER05_03 = 0xef34779Ad86Cd818E86e0ec1096186D35377c474; // TODO change to the real one
     address public constant HOLDER05_04 = 0xef34779Ad86Cd818E86e0ec1096186D35377c474; // TODO change to the real one
     address public constant HOLDER05_05 = 0xef34779Ad86Cd818E86e0ec1096186D35377c474; // TODO change to the real one
     address public constant HOLDER05_06 = 0x3Eb6024C93f961Cf251c9c94749A868DdCc8Cb64;
     address public constant HOLDER05_07 = 0x0E135b99e6012C1A0e1BC1c8CAb7921499f84Ba9;
-    address public constant HOLDER05_08 = 0xef34779Ad86Cd818E86e0ec1096186D35377c474; // TODO change to the real one
+    address public constant HOLDER05_08 = 0xd9cE7d631EE19546348a4447882eFCee816eCE01;
     address public constant HOLDER05_09 = 0xef34779Ad86Cd818E86e0ec1096186D35377c474; // TODO change to the real one
     address public constant HOLDER06_01 = 0xca6aDDEDc6264c48bDd059E04C351f7abc3f667B;
     address public constant HOLDER06_02 = 0xE375e16FFbc36216F2708D668eBa131E64A4aC81;  
 
     // AMOUNTS AS PART OF SUPPLY
-    uint256 public constant PRE_ICO_AMOUNT = 112672180 * (10 ** uint256(decimals)); // 112,672,180 PTNX
-    uint256 public constant ICO_AMOUNT = 2887327820 * (10 ** uint256(decimals)); // 2,887,327,820 PTNX    
+    uint256 public constant PRE_ICO_AMOUNT = 103472416 * (10 ** uint256(decimals)); // 103,472,416 PTNX
+    uint256 public constant ICO_AMOUNT = 2896527584 * (10 ** uint256(decimals)); // 2,896,527,584 PTNX
     uint256 public constant HOLDER02_01_AMOUNT = 1235000000 * (10 ** uint256(decimals)); // 1,235,000,000 PTNX
     uint256 public constant HOLDER02_02_AMOUNT = 665000000 * (10 ** uint256(decimals)); // 665,000,000 PTNX
     uint256 public constant HOLDER02_03_AMOUNT =  100000000 * (10 ** uint256(decimals)); // 100,000,000 PTNX

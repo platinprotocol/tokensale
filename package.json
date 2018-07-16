@@ -10,7 +10,7 @@
     "eth-hd-wallet": "^0.4.0",
     "truffle-hdwallet-provider": "0.0.5",
     "unix-timestamp": "^0.2.0",
-    "openzeppelin-solidity": "1.10.0"
+    "openzeppelin-solidity": "1.11.0"
   },
   "devDependencies": {
     "solium": "^1.1.8"
@@ -21,5 +21,5 @@
     "test": "truffle test"
   },
   "author": "Anatolii Kucheruk <anatolii@platin.io>",
-  "license": "MIT"  
+  "license": "MIT"
 }

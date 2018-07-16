@@ -1,6 +1,5 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/validation/TimedCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
@@ -13,8 +12,11 @@ import "./PlatinTGE.sol";
 /**
  * @title PlatinICO
  */
-contract PlatinICO is FinalizableCrowdsale, WhitelistedCrowdsale, Pausable {
+contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
     using SafeMath for uint256;
+
+    // copied from "openzeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol";
+    bool public isFinalized = false; 
 
     // Lockup purchase
     bool lockup;
@@ -24,6 +26,9 @@ contract PlatinICO is FinalizableCrowdsale, WhitelistedCrowdsale, Pausable {
 
     // Platin TGE contract
     PlatinTGE public tge;
+
+    // copied from "openzeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol";
+    event Finalized();   
 
     // tgeIsSet modifier
     modifier tgeIsSet() {
@@ -93,7 +98,22 @@ contract PlatinICO is FinalizableCrowdsale, WhitelistedCrowdsale, Pausable {
         super._processPurchase(_beneficiary, _tokenAmount);
     }
 
-    // finalization
+    /**
+     * @dev Must be called after crowdsale ends, to do some extra finalization
+     * work. Calls the contract's finalization function.
+     * copied from "openzeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol";
+     */
+    function finalize() onlyOwner public {
+        require(!isFinalized);
+        require(hasClosed());
+
+        finalization();
+        emit Finalized();
+
+        isFinalized = true;
+    }
+
+    // finalization, transfer unsold tokens to unsold tokens reserve
     function finalization() internal {
         token.transfer(tge.UNSOLD_ICO_RESERVE(), token.balanceOf(this));
     }

@@ -30,20 +30,21 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
     // copied from "openzeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol";
     event Finalized();   
 
-    // tgeIsSet modifier
-    modifier tgeIsSet() {
-        require(tge != address(0), ""); // TODO: provide an error msg
-        _;
-    }
-
 
     /**
      * @dev Constructor
      */  
-    constructor(uint256 _rate, address _wallet, ERC20 _token, uint256 _openingTime, uint256 _closingTime) // solium-disable-line arg-overflow
-        Crowdsale(_rate, _wallet, _token) 
-        TimedCrowdsale(_openingTime, _closingTime)
-    public {}
+    constructor(
+        uint256 _rate, 
+        address _wallet, 
+        ERC20 _token, 
+        uint256 _openingTime, 
+        uint256 _closingTime
+    )
+    Crowdsale(_rate, _wallet, _token) 
+    TimedCrowdsale(_openingTime, _closingTime)
+    public 
+    {}
 
     // set TGE contract
     function setTGE(PlatinTGE _tge) public onlyOwner {
@@ -62,6 +63,21 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
     }  
 
     /**
+     * @dev Must be called after crowdsale ends, to do some extra finalization
+     * work. Calls the contract's finalization function.
+     * copied from "openzeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol";
+     */
+    function finalize() public onlyOwner {
+        require(!isFinalized, ""); // TODO: provide an error msg
+        require(hasClosed(), ""); // TODO: provide an error msg
+
+        finalization();
+        emit Finalized();
+
+        isFinalized = true;
+    }     
+
+    /**
      * @dev  Extend parent behavior to deliver purchase
      * @param _beneficiary Address performing the token purchase
      * @param _tokenAmount Number of tokens to be emitted
@@ -72,7 +88,13 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
     )
         internal
     {
-        require(token.transfer(_beneficiary, _tokenAmount), ""); // TODO: provide an error msg
+        if (lockup) {
+            // TODO: provide an error msg
+            require(PlatinToken(token).transferWithLockup(_beneficiary, _tokenAmount, block.timestamp + tge.ICO_LOCKUP_PERIOD()), ""); // solium-disable-line security/no-block-members
+            lockup = false;   
+        } else {
+            require(PlatinToken(token).transfer(_beneficiary, _tokenAmount), ""); // TODO: provide an error msg
+        }
     }
 
     /**
@@ -87,39 +109,39 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
         internal
     {
         require(sold.add(_tokenAmount) <= tge.ICO_AMOUNT(), ""); // TODO: provide an error msg
-
         sold = sold.add(_tokenAmount);
-
-        if (lockup) {
-            PlatinToken(token).lockup(_beneficiary, _tokenAmount);
-            lockup = false;
-        }    
-
         super._processPurchase(_beneficiary, _tokenAmount);
-    }
+    }  
 
-    /**
-     * @dev Must be called after crowdsale ends, to do some extra finalization
-     * work. Calls the contract's finalization function.
-     * copied from "openzeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol";
-     */
-    function finalize() onlyOwner public {
-        require(!isFinalized);
-        require(hasClosed());
-
-        finalization();
-        emit Finalized();
-
-        isFinalized = true;
-    }
-
-    // finalization, transfer unsold tokens to unsold tokens reserve
+    // finalization, transfer unsold tokens to the unsold tokens holders
     function finalization() internal {
-        token.transfer(tge.UNSOLD_ICO_RESERVE(), token.balanceOf(this));
+        uint256 _unsold = token.balanceOf(this);
+        if (_unsold > 0) {
+            uint256 _share;
+            
+            // transfer holder01 unsold share
+            _share = _unsold.mul(tge.UNSOLD_HOLDER01_SHARE()).div(100);
+            token.transfer(tge.HOLDER01(), _share);
+
+            // transfer holder04 unsold share, with unsold vesting
+            _share = _unsold.mul(tge.UNSOLD_HOLDER04_SHARE()).div(100);
+            PlatinToken(token).transferWithVesting(tge.HOLDER04(), _share, tge.unsoldVesting());
+
+            // transfer holder06_02 share
+            _share = _unsold.mul(tge.UNSOLD_HOLDER06_02_SHARE()).div(100);
+            token.transfer(tge.HOLDER06_02(), _share);
+
+            // transfer Platin Payout Program share
+            _share = _unsold.mul(tge.UNSOLD_PPP_SHARE()).div(100);
+            token.transfer(tge.ppp(), _share);
+
+            // transfer remains to the Platin Payout Program contract
+            token.transfer(tge.ppp(), token.balanceOf(this));
+        }
     }
 
     /**
-     * @dev Extend parent behavior requiring contract to be not paused and tge has been set and the min payment amount is received.
+     * @dev Extend parent behavior requiring contract to be not paused and the min payment amount is received.
      * @param _beneficiary Token beneficiary
      * @param _weiAmount Amount of wei contributed
      */
@@ -129,11 +151,10 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
     )
         internal
         whenNotPaused
-        tgeIsSet
     {
         require(_weiAmount >= tge.MIN_PURCHASE_AMOUNT(), ""); // TODO: provide an error msg
         super._preValidatePurchase(_beneficiary, _weiAmount);
-    }
+    } 
 
     /**
      * @dev Override parent behavior to process lockup purchase if needed

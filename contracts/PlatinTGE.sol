@@ -1,9 +1,11 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "./PlatinVesting.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "./capabilities/IVesting.sol";
+import "./PlatinPayoutProgram.sol";
 import "./PlatinToken.sol";
+import "./PlatinPreICO.sol";
 import "./PlatinICO.sol";
 
 
@@ -16,6 +18,9 @@ contract PlatinTGE is Ownable {
     // Token decimals
     uint8 public constant decimals = 18; // solium-disable-line uppercase
 
+    // Total Tokens Supply
+    uint256 public constant TOTAL_SUPPLY = 10000000000 * (10 ** uint256(decimals)); // 10,000,000,000 PTNX
+
     // SUPPLY
     // TOTAL_SUPPLY = 10,000,000,000 PTNX, is distributed as follows:
     uint256 public constant SALES_SUPPLY = 3000000000 * (10 ** uint256(decimals)); // 3,000,000,000 PTNX - 30%
@@ -27,7 +32,7 @@ contract PlatinTGE is Ownable {
     uint256 public constant SUPPLY06 = 300000000 * (10 ** uint256(decimals)); // 300,000,000 PTNX - 3%
 
     // HOLDERS
-    // SALES = PRE_ICO (current contract) + ICO (ico contract), unsold amount will be sent to the UNSOLD_ICO_RESERVE
+    // SALES HOLDERS = PRE_ICO + ICO
     address public constant HOLDER01 = 0x378135f66fFC9F70Bb522b3c9b25ed4b8c23dE50;
     address public constant HOLDER02_01 = 0xe74f74f5Ac3988108FC5a0015277Ff13E130CfAF;
     address public constant HOLDER02_02 = 0x5ffc1543EA4Dd01d10FB3435502735f7d68d4547;
@@ -64,12 +69,27 @@ contract PlatinTGE is Ownable {
     uint256 public constant HOLDER06_01_AMOUNT = 2200 * (10 ** uint256(decimals)); // 2200 PTNX
     uint256 public constant HOLDER06_02_AMOUNT = 299997800 * (10 ** uint256(decimals)); // 299,997,800 PTNX
 
-    // unsold ICO reserve
-    address public constant UNSOLD_ICO_RESERVE = 0xef34779Ad86Cd818E86e0ec1096186D35377c474;
+    // unsold holder01 share, %
+    uint256 public constant UNSOLD_HOLDER01_SHARE = 10;
 
-    // tokens locked up release date
-    uint256 public constant LOCKUP_RELEASE_DATE = 1533124800; // TODO change to the real one    
+    // unsold holder04 share, %
+    uint256 public constant UNSOLD_HOLDER04_SHARE = 40; 
 
+    // unsold holder06_02 share, %
+    uint256 public constant UNSOLD_HOLDER06_02_SHARE = 30;     
+
+    // unsold Platin Payout Program share, %
+    uint256 public constant UNSOLD_PPP_SHARE = 20;    
+    
+    // tokens ico lockup period
+    uint256 public constant ICO_LOCKUP_PERIOD = 365 days;
+
+    // tokens ppp lockup period
+    uint256 public constant PPP_LOCKUP_PERIOD = 365 days;
+
+    // ppp multiplier
+    uint256 public constant PPP_MULTILPIER = 2;
+    
     // Platin Token ICO rate, regular
     uint256 public constant TOKEN_RATE = 1000; 
 
@@ -84,36 +104,78 @@ contract PlatinTGE is Ownable {
     string public constant SUPPLY_CHECK_ERROR = "Supply check error";
     string public constant TOTAL_SUPPLY_CHECK_ERROR = "Total supply check error";
 
+    // Role for internal crosscontracts calls
+    string public constant ROLE_INTERNAL = "internal";
+
     // HOLDER VESTING
     mapping (address => address) public HOLDER_VESTING; // solium-disable-line mixedcase
+
+    // LOCKUP AUTORIZED
+    mapping (address => bool) public LOCKUP_AUTHORIZED; // solium-disable-line mixedcase
+
+    // VESTING AUTORIZED
+    mapping (address => bool) public VESTING_AUTHORIZED; // solium-disable-line mixedcase    
 
     // Platin Token contract
     PlatinToken public token;
 
+    // Platin preICO contract
+    PlatinPreICO public preIco;
+
     // Platin ICO contract
     PlatinICO public ico;
 
-    // Platin Standard Vesting contract
-    PlatinVesting public vesting;
+    // Platin Payout Program contract
+    PlatinPayoutProgram public ppp;
 
-    // PreICO distributed
-    uint256 preIcoDistributed;
+    // Platin Vesting contract for the tge holders
+    IVesting public holderVesting;
 
+    // Platin Vesting contract for the unsold vesting
+    IVesting public unsoldVesting;
+    
 
     /**
      * @dev Constructor
      */  
-    constructor(PlatinToken _token, PlatinICO _ico, PlatinVesting _vesting) public {
+    constructor(
+        PlatinToken _token, 
+        PlatinPreICO _preIco, 
+        PlatinICO _ico, 
+        PlatinPayoutProgram _ppp,
+        IVesting _holderVesting, 
+        IVesting _unsoldVesting
+    ) public {
         require(_token != address(0), ""); // TODO: provide an error msg
+        require(_preIco != address(0), ""); // TODO: provide an error msg
         require(_ico != address(0), ""); // TODO: provide an error msg
-        require(_vesting != address(0), ""); // TODO: provide an error msg
+        require(_ppp != address(0), ""); // TODO: provide an error msg        
+        require(_holderVesting != address(0), ""); // TODO: provide an error msg
+        require(_unsoldVesting != address(0), ""); // TODO: provide an error msg
 
         token = _token;
+        preIco = _preIco;
         ico = _ico;
-        vesting = _vesting;
+        ppp = _ppp;
+        holderVesting = _holderVesting;
+        unsoldVesting = _unsoldVesting;
+
+        // Lockup Authorized
+        LOCKUP_AUTHORIZED[ico] = true;
+        LOCKUP_AUTHORIZED[ppp] = true;
+
+        // Vesting Authorized
+        VESTING_AUTHORIZED[HOLDER02_03] = true;
+        VESTING_AUTHORIZED[preIco] = true;
+        VESTING_AUTHORIZED[ico] = true;
 
         // Holders Vesting
-        HOLDER_VESTING[HOLDER05_07] = vesting;
+        HOLDER_VESTING[HOLDER02_01] = holderVesting;
+        HOLDER_VESTING[HOLDER02_02] = holderVesting;  
+        HOLDER_VESTING[HOLDER05_02] = holderVesting;     
+        HOLDER_VESTING[HOLDER05_06] = holderVesting;
+        HOLDER_VESTING[HOLDER05_07] = holderVesting; 
+        HOLDER_VESTING[HOLDER05_08] = holderVesting;
     }
 
     // TGE, allocate Tokens
@@ -121,7 +183,7 @@ contract PlatinTGE is Ownable {
         uint256 _supplyCheck;
 
         // SALES          
-        require(token.allocate(address(this), PRE_ICO_AMOUNT, address(0)), ALLOCATION_ERROR);
+        require(token.allocate(address(preIco), PRE_ICO_AMOUNT, address(0)), ALLOCATION_ERROR);
         _supplyCheck = PRE_ICO_AMOUNT;
         require(token.allocate(address(ico), ICO_AMOUNT, address(0)), ALLOCATION_ERROR);
         _supplyCheck = _supplyCheck.add(ICO_AMOUNT);
@@ -178,31 +240,6 @@ contract PlatinTGE is Ownable {
         _supplyCheck = 0;          
 
         // Check Token Total Supply
-        require(token.totalSupply() == token.TOTAL_SUPPLY(), TOTAL_SUPPLY_CHECK_ERROR);
-    }
-
-    // TGE, preICO sale 
-    function preICOSale(address _beneficiary, uint256 _amount, address _vesting) public onlyOwner {
-        require(token.balanceOf(_beneficiary) == 0, ""); // TODO: provide an error msg
-        require(preIcoDistributed.add(_amount) <= PRE_ICO_AMOUNT, "");  // TODO: provide an error msg
-        require(token.transferWithVesting(_beneficiary, _amount, _vesting), ""); // TODO: provide an error msg  
-        preIcoDistributed = preIcoDistributed.add(_amount);
-    }
-
-    // TGE, many preICO sales. Not overloaded due to limitations with truffle testing.
-    function manyPreICOSales(address[] _beneficiaries, uint256[] _amounts, address[] _vestings) public onlyOwner {
-        require(_beneficiaries.length == _amounts.length, ""); // TODO: provide an error msg
-        require(_beneficiaries.length == _vestings.length, ""); // TODO: provide an error msg
-
-        for (uint256 i = 0; i < _beneficiaries.length; i++) {
-            address _beneficiary = _beneficiaries[i];
-            uint256 _amount = _amounts[i];
-            address _vesting = _vestings[i];
-
-            require(token.balanceOf(_beneficiary) == 0, ""); // TODO: provide an error msg
-            require(preIcoDistributed.add(_amount) <= PRE_ICO_AMOUNT, "");  // TODO: provide an error msg
-            require(token.transferWithVesting(_beneficiary, _amount, _vesting), ""); // TODO: provide an error msg
-            preIcoDistributed = preIcoDistributed.add(_amount);
-        }     
+        require(token.totalSupply() == TOTAL_SUPPLY, TOTAL_SUPPLY_CHECK_ERROR);
     }
 }

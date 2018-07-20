@@ -15,6 +15,6 @@ module.exports =  function(deployer) {
         PlatinPayoutProgram.address,
         PlatinStandardVesting.address,
         PlatinUnsoldVesting.address,
-        { gas: 6500000}
+        { gas: 6200000}
     );
 };

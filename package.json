@@ -1,6 +1,6 @@
 {
   "name": "platin-ico",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "Platin TGE and ICO solidity contracts",
   "main": "contracts",
   "directories": {
@@ -8,14 +8,16 @@
   },
   "dependencies": {
     "eth-hd-wallet": "^0.4.0",
+    "openzeppelin-solidity": "1.11.0",
     "truffle-hdwallet-provider": "0.0.5",
-    "unix-timestamp": "^0.2.0",
-    "openzeppelin-solidity": "1.11.0"
+    "unix-timestamp": "^0.2.0"
   },
   "devDependencies": {
+    "solidity-coverage": "^0.5.5",
     "solium": "^1.1.8"
   },
   "scripts": {
+    "coverage": "./node_modules/.bin/solidity-coverage",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
     "test": "truffle test"

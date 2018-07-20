@@ -1,6 +1,5 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./capabilities/IVesting.sol";
 import "./PlatinPayoutProgram.sol";
@@ -11,8 +10,12 @@ import "./PlatinICO.sol";
 
 /**
  * @title PlatinTGE
+ * @dev Platin Token Generation Event contract. It holds token supplies, shares, rules, contracts addresses 
+ * and other token economic constants and makes initial token allocation (with/without vesting). 
+ * Initial token allocation function should be called outside the blockchain at the TGE moment of time, 
+ * from here on out, Platin Token, preICO, ICO and PPP contracts become functional.
  */
-contract PlatinTGE is Ownable {
+contract PlatinTGE {
     using SafeMath for uint256;
     
     // Token decimals
@@ -56,7 +59,7 @@ contract PlatinTGE is Ownable {
     uint256 public constant ICO_AMOUNT = 2896527584 * (10 ** uint256(decimals)); // 2,896,527,584 PTNX
     uint256 public constant HOLDER02_01_AMOUNT = 1235000000 * (10 ** uint256(decimals)); // 1,235,000,000 PTNX
     uint256 public constant HOLDER02_02_AMOUNT = 665000000 * (10 ** uint256(decimals)); // 665,000,000 PTNX
-    uint256 public constant HOLDER02_03_AMOUNT =  100000000 * (10 ** uint256(decimals)); // 100,000,000 PTNX
+    uint256 public constant HOLDER02_03_AMOUNT = 100000000 * (10 ** uint256(decimals)); // 100,000,000 PTNX
     uint256 public constant HOLDER05_01_AMOUNT = 50000000 * (10 ** uint256(decimals)); // 50,000,000 PTNX 
     uint256 public constant HOLDER05_02_AMOUNT = 25000000 * (10 ** uint256(decimals)); // 25,000,000 PTNX
     uint256 public constant HOLDER05_03_AMOUNT = 100000 * (10 ** uint256(decimals)); // 100,000 PTNX
@@ -93,7 +96,7 @@ contract PlatinTGE is Ownable {
     // Platin Token ICO rate, regular
     uint256 public constant TOKEN_RATE = 1000; 
 
-    // Platin Token ICO rate, with lockup, 20% bonus
+    // Platin Token ICO rate with lockup, 20% bonus
     uint256 public constant TOKEN_RATE_LOCKUP = 1200;
 
     // Platin ICO min purchase amount
@@ -103,9 +106,6 @@ contract PlatinTGE is Ownable {
     string public constant ALLOCATION_ERROR = "Token allocation error";
     string public constant SUPPLY_CHECK_ERROR = "Supply check error";
     string public constant TOTAL_SUPPLY_CHECK_ERROR = "Total supply check error";
-
-    // Role for internal crosscontracts calls
-    string public constant ROLE_INTERNAL = "internal";
 
     // HOLDER VESTING
     mapping (address => address) public HOLDER_VESTING; // solium-disable-line mixedcase
@@ -137,6 +137,12 @@ contract PlatinTGE is Ownable {
 
     /**
      * @dev Constructor
+     * @param _token address Address of the Platin Token contract       
+     * @param _preIco address Address of the Platin PreICO contract  
+     * @param _ico address Address of the Platin ICO contract 
+     * @param _ppp address Address of the Platin Payout Program contract 
+     * @param _holderVesting address Address of the Vesting contract to use for the token holder vesting
+     * @param _unsoldVesting address Address of the Vesting contract to use for the unsold tokens vesting
      */  
     constructor(
         PlatinToken _token, 
@@ -146,12 +152,12 @@ contract PlatinTGE is Ownable {
         IVesting _holderVesting, 
         IVesting _unsoldVesting
     ) public {
-        require(_token != address(0), ""); // TODO: provide an error msg
-        require(_preIco != address(0), ""); // TODO: provide an error msg
-        require(_ico != address(0), ""); // TODO: provide an error msg
-        require(_ppp != address(0), ""); // TODO: provide an error msg        
-        require(_holderVesting != address(0), ""); // TODO: provide an error msg
-        require(_unsoldVesting != address(0), ""); // TODO: provide an error msg
+        require(_token != address(0), "Token address can't be zero.");
+        require(_preIco != address(0), "PreICO address can't be zero.");
+        require(_ico != address(0), "ICO address can't be zero.");
+        require(_ppp != address(0), "PPP address can't be zero.");        
+        require(_holderVesting != address(0), "Holder Vesting address can't be zero.");
+        require(_unsoldVesting != address(0), "Unsold Vesting address can't be zero.");
 
         token = _token;
         preIco = _preIco;
@@ -169,7 +175,7 @@ contract PlatinTGE is Ownable {
         VESTING_AUTHORIZED[preIco] = true;
         VESTING_AUTHORIZED[ico] = true;
 
-        // Holders Vesting
+        // Holder Vesting
         HOLDER_VESTING[HOLDER02_01] = holderVesting;
         HOLDER_VESTING[HOLDER02_02] = holderVesting;  
         HOLDER_VESTING[HOLDER05_02] = holderVesting;     
@@ -178,7 +184,10 @@ contract PlatinTGE is Ownable {
         HOLDER_VESTING[HOLDER05_08] = holderVesting;
     }
 
-    // TGE, allocate Tokens
+    /**
+     * @dev Allocate function. Token Generation Event entry point.
+     * It makes initial token allocation according to the token supply constants.
+     */
     function allocate() public {
         uint256 _supplyCheck;
 

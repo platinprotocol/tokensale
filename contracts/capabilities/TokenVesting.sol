@@ -7,36 +7,50 @@ import "./IVesting.sol";
 
 /**
  * @title Token Vesting Mixin
- * @dev Token should have spotTransfer check for transfer and transferFrom functions 
+ * @dev Token mixin that gives possibility for token holders to have vested amounts of tokens on their balances. 
+ * Vesting rules are controlled by vesting contracts that should implement IVesting.sol interface contract.
+ * Token should check a balance spot for transfer and transferFrom functions to use this feature.
  */
 contract TokenVesting is ERC20 {
     using SafeMath for uint256;  
 
     // Vested struct
     struct Vested {
-        uint256 amount;
-        IVesting vesting;
+        uint256 amount; // vested amount
+        IVesting vesting; // vesting contract
     }
 
-    // list of vested amount and vesting contract address
+    // list of vested amounts and vesting contract addresses
     mapping (address => Vested[]) public vested;
 
-    // onlyVestingAuthorized modifier
+    // onlyVestingAuthorized modifier, override to restrict transfers with vestings
     modifier onlyVestingAuthorized() {
         _;
     }
 
-    // vested list count
+    /**
+     * @dev Get the vested list count
+     * @param _who address Address owns vested list
+     * @return uint256 Vested list count     
+     */
     function vestedCount(address _who) public view returns (uint256) {
         return vested[_who].length;
     }
 
-    // has address vested amount
+    /**
+     * @dev Find out if the address has vested amounts
+     * @param _who address Address checked for vested amounts
+     * @return bool Returns true if address has vested amounts     
+     */  
     function hasVested(address _who) public view returns (bool) {
         return vested[_who].length > 0;
     }
 
-    // balance vested
+    /**
+     * @dev Get balance vested to the current moment of time
+     * @param _who address Address owns vested amounts
+     * @return uint256 Balance vested to the current moment of time     
+     */       
     function balanceVested(address _who) public view returns (uint256) {
         uint256 _balanceVested;
         for (uint256 i; i < vested[_who].length; i++) {
@@ -45,7 +59,13 @@ contract TokenVesting is ERC20 {
         return _balanceVested;
     } 
 
-    // transfer tokens with vesting 
+    /**
+     * @dev Transfer tokens from one address to another with vesting
+     * @param _to address The address which you want to transfer to
+     * @param _value uint256 The amount of tokens to be transferred
+     * @param _vesting address Address of vesting contract (could be zero to omit vesting)     
+     * @return bool Returns true if the transfer was succeeded
+     */
     function transferWithVesting(
         address _to, 
         uint256 _value, 
@@ -57,7 +77,14 @@ contract TokenVesting is ERC20 {
         return transfer(_to, _value);
     }       
 
-    // transferFrom tokens with vesting 
+    /**
+     * @dev Transfer tokens from one address to another with vesting
+     * @param _from address The address which you want to send tokens from
+     * @param _to address The address which you want to transfer to
+     * @param _value uint256 The amount of tokens to be transferred
+     * @param _vesting address Address of vesting contract (could be zero to omit vesting)     
+     * @return bool Returns true if the transfer was succeeded
+     */
     function transferFromWithVesting(
         address _from, 
         address _to, 
@@ -70,13 +97,17 @@ contract TokenVesting is ERC20 {
         return transferFrom(_from, _to, _value);
     }   
 
-    // vesting internal function
+    /**
+     * @dev Make vesting for the amount using contract with vesting rules
+     * @param _who address Address gets the vested amount
+     * @param _amount uint256 Amount to vest
+     * @param _vesting address Address of vesting contract (could be zero to omit vesting)     
+     */ 
     function vesting(address _who, uint256 _amount, address _vesting) internal {
         if (_vesting != address(0)) {
-            require(_who != address(0), ""); // TODO: provide an error msg
-            require(_amount > 0, ""); // TODO: provide an error msg
+            require(_who != address(0), "Vesting target address can't be zero.");
+            require(_amount > 0, "Vesting amount should be > 0.");
             vested[_who].push(Vested(_amount, IVesting(_vesting)));
         }
     }        
-
 }

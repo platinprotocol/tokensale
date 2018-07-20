@@ -6,6 +6,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 /**
  * @title Holders Token
+ * @dev Extension to the OpenZepellin's StandardToken contract to track token holders.
  */
 contract HoldersToken is StandardToken {
     using SafeMath for uint256;    
@@ -13,27 +14,44 @@ contract HoldersToken is StandardToken {
     // holders list
     address[] public holders;
 
-    // holder number
+    // holder number in the list
     mapping (address => uint256) public holderNumber;
 
-    // get holders count
-    function getHoldersCount() public view returns (uint256) {
+    /**
+     * @dev Get the holders count
+     * @return uint256 Holders count
+     */
+    function holdersCount() public view returns (uint256) {
         return holders.length;
     }
 
-    // standard transfer function with preserve holders call
+    /**
+     * @dev Transfer tokens from one address to another preserving token holders
+     * @param _to address The address which you want to transfer to
+     * @param _value uint256 The amount of tokens to be transferred
+     * @return bool Returns true if the transfer was succeeded
+     */
     function transfer(address _to, uint256 _value) public returns (bool) {
         preserveHolders(msg.sender, _to, _value);
         return super.transfer(_to, _value);
     }
 
-    // standard transferFrom function with preserve holders call
+    /**
+     * @dev Transfer tokens from one address to another preserving token holders
+     * @param _from address The address which you want to send tokens from
+     * @param _to address The address which you want to transfer to
+     * @param _value uint256 The amount of tokens to be transferred
+     * @return bool Returns true if the transfer was succeeded
+     */
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
         preserveHolders(_from, _to, _value);
         return super.transferFrom(_from, _to, _value);
     }
 
-    // remove holder from the holders list
+    /**
+     * @dev Remove holder from the holders list
+     * @param _holder address Address of the holder to remove
+     */
     function removeHolder(address _holder) internal {
         uint256 _number = holderNumber[_holder];
 
@@ -53,7 +71,10 @@ contract HoldersToken is StandardToken {
         holders.length = _lastIndex;
     } 
 
-    // add holder to the holders list
+    /**
+     * @dev Add holder to the holders list
+     * @param _holder address Address of the holder to add   
+     */
     function addHolder(address _holder) internal {
         if (holderNumber[_holder] == 0) {
             holders.push(_holder);
@@ -61,7 +82,12 @@ contract HoldersToken is StandardToken {
         }
     }
 
-    // preserve holders
+    /**
+     * @dev Preserve holders during transfers
+     * @param _from address The address which you want to send tokens from
+     * @param _to address The address which you want to transfer to
+     * @param _value uint256 the amount of tokens to be transferred
+     */
     function preserveHolders(address _from, address _to, uint256 _value) internal {
         addHolder(_to);   
         if (balanceOf(_from).sub(_value) == 0) 

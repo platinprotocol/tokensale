@@ -6,7 +6,8 @@ import "./capabilities/PlatinVesting.sol";
 
 /**
  * @title PlatinUnsoldVesting
- * @dev Platin Unsold Vesting contract
+ * @dev Platin Unsold Vesting contract using standard vesting implementation
+ * An amount become vested using 4 parts for 4 years, vesting starts from the end of the ICO.
  */
 contract PlatinUnsoldVesting is PlatinVesting {
     using SafeMath for uint256;
@@ -14,7 +15,7 @@ contract PlatinUnsoldVesting is PlatinVesting {
     // vesting parts count
     uint8 public constant VESTING_PARTS = 4;
 
-    // vesting release dates
+    // vesting release timestamps
     // TODO revise vesting timestamps before going live
     uint256[] public VESTING_RELEASES = [ // solium-disable-line mixedcase
         1569931200, 1601553600, 1633089600, 1664625600 // 2019-10-01, 2020-10-01, 2021-10-01, 2022-10-01 @ 12:00:00 GMT

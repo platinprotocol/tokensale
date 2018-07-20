@@ -6,7 +6,8 @@ import "./capabilities/PlatinVesting.sol";
 
 /**
  * @title PlatinStandardVesting
- * @dev Platin Standard Vesting contract
+ * @dev Platin Standard Vesting contract using standard vesting implementation
+ * An amount bacome vested using 24 parts for 24 months, vesting starts from the TGE moment of time.
  */
 contract PlatinStandardVesting is PlatinVesting {
     using SafeMath for uint256;
@@ -14,7 +15,7 @@ contract PlatinStandardVesting is PlatinVesting {
     // vesting parts count
     uint256 public constant VESTING_PARTS = 24;
 
-    // vesting release dates
+    // vesting release timestamps
     // TODO revise vesting timestamps before going live
     uint256[] public VESTING_RELEASES = [ // solium-disable-line mixedcase
         1535803200, 1538395200, 1541073600, 1543665600, // 2018-09-01, 2018-10-01, 2018-11-01, 2018-12-01,

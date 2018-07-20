@@ -8,6 +8,10 @@ import "./PlatinTGE.sol";
 
 /**
  * @title Platin Payout Program
+ * @dev This contract holds a part of the unsold amount of tokens remaining from the ICO.
+ * A token holder can send tokens to this contract and than gets back multiplied token amount,
+ * but this amount will be locked up for the PPP lockup period of time. The multiplier and
+ * the PPP lockup period are stored as constants in the TGE contract.
  */
 contract PlatinPayoutProgram is Ownable {
     using SafeMath for uint256;
@@ -18,34 +22,43 @@ contract PlatinPayoutProgram is Ownable {
     // Platin TGE contract
     PlatinTGE public tge;
 
-    // onlyToken modifier
+    // onlyToken modifier, restrict to the Token contract only
     modifier onlyToken() {
-        require(msg.sender == address(token), ""); // TODO: provide an error msg
+        require(msg.sender == address(token), "Token only method");
         _;
     }
 
 
     /**
      * @dev Constructor
+     * @param _token address PlatinToken contract address  
      */  
     constructor(
         PlatinToken _token
     ) public {
-        require(_token != address(0), ""); // TODO: provide an error msg
+        require(_token != address(0), "Token address can't be zero.");
         token = _token;
     }
 
-    // set TGE contract
-    function setTGE(PlatinTGE _tge) public onlyOwner {
-        require(tge == address(0), ""); // TODO: provide an error msg
-        require(_tge != address(0), ""); // TODO: provide an error msg
+    /**
+     * @dev Set TGE contract
+     * @param _tge address PlatinTGE contract address    
+     */
+    function setTGE(PlatinTGE _tge) external onlyOwner {
+        require(tge == address(0), "TGE is already set.");
+        require(_tge != address(0), "TGE address can't be zero.");
         tge = _tge;
     }
 
-    // payout
-    function payout(address _beneficiary, uint256 _amount) public onlyToken returns (bool) {
+    /**
+     * @dev Payout and lockup tokens back to the sent tokens.
+     * @param _beneficiary address Address sent tokens and gets payout 
+     * @param _amount uint256 Amount of sent tokens
+     * @return bool Returns true if the payout was succeeded
+     */
+    function payout(address _beneficiary, uint256 _amount) external onlyToken returns (bool) {
         uint256 _payout = _amount.mul(tge.PPP_MULTILPIER());
-        require(_payout <= token.balanceOf(this), ""); // TODO: provide an error msg
+        require(_payout <= token.balanceOf(this), "Insufficient PPP balance to make the payout.");
         // solium-disable-next-line security/no-block-members
         return token.transferWithLockup(_beneficiary, _payout, block.timestamp + tge.PPP_LOCKUP_PERIOD());
     }

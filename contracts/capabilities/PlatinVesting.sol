@@ -7,12 +7,13 @@ import "./IVesting.sol";
 /**
  * @title PlatinVesting
  * @dev Platin Vesting standard implementation contract 
+ * Uses number of vesting parts and list of timestamps when the next part should be released.
  */
 contract PlatinVesting is IVesting {
     using SafeMath for uint256;
 
     // vesting parts count
-    uint256 public vestingParts; // solium-disable-line mixedcase
+    uint256 public vestingParts;
 
     // vesting releases timestamps
     uint256[] public vestingReleases;
@@ -20,15 +21,21 @@ contract PlatinVesting is IVesting {
 
     /**
      * @dev Constructor
+     * @param _vestingParts uint256 Vesting parts count
+     * @param _vestingReleases uint256[] Timestamps when the next part should be released
      */  
     constructor(uint256 _vestingParts, uint256[] _vestingReleases) public {
-        require(_vestingParts > 0, ""); // TODO: provide an error msg 
-        require(_vestingReleases.length == _vestingParts, ""); // TODO: provide an error msg
+        require(_vestingParts > 0, "Vesting parts count should be > 0.");
+        require(_vestingReleases.length == _vestingParts, "Vesting releases count should be equal to the vesting parts count.");
         vestingParts = _vestingParts;
         vestingReleases = _vestingReleases;
     }
 
-    // balance vested to the current moment of time
+    /**
+     * @dev Balance vested to the current moment of time
+     * @param _vested uint256 Amount of vested tokens
+     * @return uint256 Balance vested to the current moment of time     
+     */
     function balanceVested(uint256 _vested) public view returns (uint256) {
         uint256 _timestamp = block.timestamp; // solium-disable-line security/no-block-members
         uint256 _vestingEnd = vestingReleases[vestingParts];

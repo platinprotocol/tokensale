@@ -8,6 +8,9 @@ import "./PlatinTGE.sol";
 
 /**
  * @title PlatinPreICO
+ * @dev PreICO contract that distributes tokens sold during the private preICO stage.
+ * Appropriate distribute* functions should be called outside the blockchain to 
+ * distribute the preIco amount to the preIco token holders.
  */
 contract PlatinPreICO is Ownable {
     using SafeMath for uint256;
@@ -16,9 +19,9 @@ contract PlatinPreICO is Ownable {
     PlatinToken public token;
 
     // Platin TGE contract
-    PlatinTGE public tge;
+    PlatinTGE public tge;    
 
-    // PreICO distributed
+    // PreICO distributed amount
     uint256 public preIcoDistributed;
 
     // distribute event logging
@@ -27,36 +30,50 @@ contract PlatinPreICO is Ownable {
 
     /**
      * @dev Constructor
-     */  
+     * @param _token address PlatinToken contract address  
+     */
     constructor(PlatinToken _token) public {
-        require(_token != address(0), ""); // TODO: provide an error msg
+        require(_token != address(0), "Token address can't be zero.");
         token = _token;       
     }
 
-    // set TGE contract
-    function setTGE(PlatinTGE _tge) public onlyOwner {
-        require(tge == address(0), ""); // TODO: provide an error msg
-        require(_tge != address(0), ""); // TODO: provide an error msg
+    /**
+     * @dev Set TGE contract
+     * @param _tge address PlatinTGE contract address    
+     */
+    function setTGE(PlatinTGE _tge) external onlyOwner {
+        require(tge == address(0), "TGE is already set.");
+        require(_tge != address(0), "TGE address can't be zero.");
         tge = _tge;
-    }
+    }    
 
-    // distribute preICO sale 
-    function distributePreICOSale(address _beneficiary, uint256 _amount, address _vesting) public onlyOwner {
-        require(token.balanceOf(_beneficiary) == 0, ""); // TODO: provide an error msg
-        require(preIcoDistributed.add(_amount) <= tge.PRE_ICO_AMOUNT(), "");  // TODO: provide an error msg
-        require(token.transferWithVesting(_beneficiary, _amount, _vesting), ""); // TODO: provide an error msg  
-
-        emit Distribute(_beneficiary, _amount);
-        preIcoDistributed = preIcoDistributed.add(_amount);
-    }
-
-    // distribute many preICO sales.
-    function distributeManyPreICOSales(address[] _beneficiaries, uint256[] _amounts, address[] _vestings) public onlyOwner {
-        require(_beneficiaries.length == _amounts.length, ""); // TODO: provide an error msg
-        require(_beneficiaries.length == _vestings.length, ""); // TODO: provide an error msg
+    /**
+     * @dev Distribute many preICO sale token amounts, every single amount could be vested
+     * @param _beneficiaries address[] List of addresses who get the tokens
+     * @param _amounts uint256[] Amounts of the distribution
+     * @param _vestings address[] List of vesting contracts for the distribution (could be zero address to omit vesting)
+     */
+    function distributeManyPreICOSales(address[] _beneficiaries, uint256[] _amounts, address[] _vestings) external onlyOwner {
+        require(_beneficiaries.length == _amounts.length, "Beneficiaries and amounts lists should have the same length.");
+        require(_beneficiaries.length == _vestings.length, "Beneficiaries and vestings lists should have the same length.");
 
         for (uint256 i = 0; i < _beneficiaries.length; i++) {
             distributePreICOSale(_beneficiaries[i], _amounts[i], _vestings[i]);
         }     
+    }    
+    
+    /**
+     * @dev Distribute preICO sale token amount, amount could be vested
+     * @param _beneficiary address Address who gets the tokens
+     * @param _amount uint256 Amount of the distribution
+     * @param _vesting address Vesting contract for the distribution (could be zero address to omit vesting)
+     */
+    function distributePreICOSale(address _beneficiary, uint256 _amount, address _vesting) public onlyOwner {
+        require(token.balanceOf(_beneficiary) == 0, "PreIco tokens are already distributed to the current beneficiary.");
+        require(preIcoDistributed.add(_amount) <= tge.PRE_ICO_AMOUNT(), "Can't distribute more than preIco amount.");
+        require(token.transferWithVesting(_beneficiary, _amount, _vesting), "TranferWithVesting is failed during preIco distribution.");  
+
+        emit Distribute(_beneficiary, _amount);
+        preIcoDistributed = preIcoDistributed.add(_amount);
     }
 }

@@ -32,7 +32,7 @@ contract HoldersToken is StandardToken {
      * @return bool Returns true if the transfer was succeeded
      */
     function transfer(address _to, uint256 _value) public returns (bool) {
-        preserveHolders(msg.sender, _to, _value);
+        _preserveHolders(msg.sender, _to, _value);
         return super.transfer(_to, _value);
     }
 
@@ -44,7 +44,7 @@ contract HoldersToken is StandardToken {
      * @return bool Returns true if the transfer was succeeded
      */
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
-        preserveHolders(_from, _to, _value);
+        _preserveHolders(_from, _to, _value);
         return super.transferFrom(_from, _to, _value);
     }
 
@@ -52,7 +52,7 @@ contract HoldersToken is StandardToken {
      * @dev Remove holder from the holders list
      * @param _holder address Address of the holder to remove
      */
-    function removeHolder(address _holder) internal {
+    function _removeHolder(address _holder) internal {
         uint256 _number = holderNumber[_holder];
 
         if (_number == 0 || holders.length == 0 || _number > holders.length)
@@ -75,7 +75,7 @@ contract HoldersToken is StandardToken {
      * @dev Add holder to the holders list
      * @param _holder address Address of the holder to add   
      */
-    function addHolder(address _holder) internal {
+    function _addHolder(address _holder) internal {
         if (holderNumber[_holder] == 0) {
             holders.push(_holder);
             holderNumber[_holder] = holders.length;
@@ -88,9 +88,9 @@ contract HoldersToken is StandardToken {
      * @param _to address The address which you want to transfer to
      * @param _value uint256 the amount of tokens to be transferred
      */
-    function preserveHolders(address _from, address _to, uint256 _value) internal {
-        addHolder(_to);   
+    function _preserveHolders(address _from, address _to, uint256 _value) internal {
+        _addHolder(_to);   
         if (balanceOf(_from).sub(_value) == 0) 
-            removeHolder(_from);
+            _removeHolder(_from);
     }
 }

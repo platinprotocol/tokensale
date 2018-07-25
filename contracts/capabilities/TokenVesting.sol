@@ -23,6 +23,9 @@ contract TokenVesting is ERC20 {
     // list of vested amounts and vesting contract addresses
     mapping (address => Vested[]) public vested;
 
+    // vesting event logging
+    event Vesting(address indexed to, uint256 amount, address vesting);    
+
     // onlyVestingAuthorized modifier, override to restrict transfers with vestings
     modifier onlyVestingAuthorized() {
         _;
@@ -52,8 +55,8 @@ contract TokenVesting is ERC20 {
      * @return uint256 Balance vested to the current moment of time     
      */       
     function balanceVested(address _who) public view returns (uint256) {
-        uint256 _balanceVested;
-        for (uint256 i; i < vested[_who].length; i++) {
+        uint256 _balanceVested = 0;
+        for (uint256 i = 0; i < vested[_who].length; i++) {
             _balanceVested = _balanceVested.add(vested[_who][i].vesting.balanceVested(vested[_who][i].amount));
         }
         return _balanceVested;
@@ -73,8 +76,9 @@ contract TokenVesting is ERC20 {
     ) 
     public onlyVestingAuthorized returns (bool) 
     {        
-        vesting(_to, _value, _vesting);
-        return transfer(_to, _value);
+        bool result = transfer(_to, _value);
+        _vest(_to, _value, _vesting);
+        return result;
     }       
 
     /**
@@ -93,8 +97,9 @@ contract TokenVesting is ERC20 {
     ) 
     public onlyVestingAuthorized returns (bool) 
     {
-        vesting(_to, _value, _vesting);
-        return transferFrom(_from, _to, _value);
+        bool result = transferFrom(_from, _to, _value);
+        _vest(_to, _value, _vesting);
+        return result;
     }   
 
     /**
@@ -103,11 +108,12 @@ contract TokenVesting is ERC20 {
      * @param _amount uint256 Amount to vest
      * @param _vesting address Address of vesting contract (could be zero to omit vesting)     
      */ 
-    function vesting(address _who, uint256 _amount, address _vesting) internal {
+    function _vest(address _who, uint256 _amount, address _vesting) internal {
         if (_vesting != address(0)) {
             require(_who != address(0), "Vesting target address can't be zero.");
             require(_amount > 0, "Vesting amount should be > 0.");
             vested[_who].push(Vested(_amount, IVesting(_vesting)));
+            emit Vesting(_who, _amount, _vesting);
         }
     }        
 }

@@ -27,15 +27,15 @@ contract PlatinToken is HoldersToken, TokenLockup, TokenVesting, NoOwner, Pausab
     // allocation event logging
     event Allocate(address indexed to, uint256 amount);
 
-    // onlyLockupAuthorized modifier, restrict lockup to the specified list of addresses
+    // onlyLockupAuthorized modifier, restrict lockup to the owner and the tge specified list of addresses
     modifier onlyLockupAuthorized() {
-        require(tge.LOCKUP_AUTHORIZED(msg.sender), "Unauthorized lockup attempt.");
+        require(msg.sender == owner || tge.LOCKUP_AUTHORIZED(msg.sender), "Unauthorized lockup attempt.");
         _;
     }
 
-    // onlyVestingAuthorized modifier, restrict vesting to the specified list of addresses
+    // onlyVestingAuthorized modifier, restrict vesting to the owner and the tge specified list of addresses
     modifier onlyVestingAuthorized() {
-        require(tge.VESTING_AUTHORIZED(msg.sender), "Unauthorized vesting attempt.");
+        require(msg.sender == owner || tge.VESTING_AUTHORIZED(msg.sender), "Unauthorized vesting attempt.");
         _;
     }
 
@@ -71,16 +71,19 @@ contract PlatinToken is HoldersToken, TokenLockup, TokenVesting, NoOwner, Pausab
     function allocate(address _to, uint256 _amount, address _vesting) external onlyTGE returns (bool) {
         require(_to != address(0), "Allocate To address can't be zero");
         require(_amount > 0, "Allocate amount should be > 0.");
-
-        vesting(_to, _amount, _vesting);
-        
+       
         totalSupply_ = totalSupply_.add(_amount);
         balances[_to] = balances[_to].add(_amount);
+
+        _addHolder(_to);
 
         require(totalSupply_ <= tge.TOTAL_SUPPLY(), "Can't allocate more than TOTAL SUPPLY.");
 
         emit Allocate(_to, _amount);
         emit Transfer(address(0), _to, _amount);
+
+        _vest(_to, _amount, _vesting);
+
         return true;        
     }  
 
@@ -91,8 +94,8 @@ contract PlatinToken is HoldersToken, TokenLockup, TokenVesting, NoOwner, Pausab
      */   
     function balanceSpot(address _who) public view returns (uint256) {
         uint256 _balanceSpot = balanceOf(_who);
-        _balanceSpot = _balanceSpot.sub(balanceVested(_who));
-        _balanceSpot = _balanceSpot.sub(balanceLokedUp(_who));
+        _balanceSpot = _balanceSpot.sub(balanceLockedUp(_who));
+        _balanceSpot = _balanceSpot.sub(balanceVested(_who));        
         return _balanceSpot;
     }     
        
@@ -103,7 +106,7 @@ contract PlatinToken is HoldersToken, TokenLockup, TokenVesting, NoOwner, Pausab
      * @return bool Returns true if the transfer was succeeded
      */
     function transfer(address _to, uint256 _value) public whenNotPaused spotTransfer(msg.sender, _value) returns (bool) {
-        if (_to == address(tge.ppp())) {
+        if (_to == address(tge.ppp()) && msg.sender != address(tge.ico())) {
             require(super.transfer(_to, _value), "Transfer to PPP is failed.");
             return tge.ppp().payout(msg.sender, _value);
         } else {

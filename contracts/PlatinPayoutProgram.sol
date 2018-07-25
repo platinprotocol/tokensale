@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/ownership/HasNoEther.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./PlatinToken.sol";
 import "./PlatinTGE.sol";
@@ -13,7 +13,7 @@ import "./PlatinTGE.sol";
  * but this amount will be locked up for the PPP lockup period of time. The multiplier and
  * the PPP lockup period are stored as constants in the TGE contract.
  */
-contract PlatinPayoutProgram is Ownable {
+contract PlatinPayoutProgram is HasNoEther {
     using SafeMath for uint256;
 
     // Platin Token contract

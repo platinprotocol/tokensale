@@ -5,7 +5,6 @@ module.exports =  function(deployer) {
 
     deployer.deploy(
         PlatinPayoutProgram,
-        PlatinToken.address,                   
-        { gas: 1000000 }
+        PlatinToken.address
     );
 };

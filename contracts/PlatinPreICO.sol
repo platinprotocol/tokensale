@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/ownership/HasNoEther.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./PlatinToken.sol";
 import "./PlatinTGE.sol";
@@ -12,7 +12,7 @@ import "./PlatinTGE.sol";
  * Appropriate distribute* functions should be called outside the blockchain to 
  * distribute the preIco amount to the preIco token holders.
  */
-contract PlatinPreICO is Ownable {
+contract PlatinPreICO is HasNoEther {
     using SafeMath for uint256;
 
     // Platin Token contract

@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "openzeppelin-solidity/contracts/ownership/NoOwner.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./IVesting.sol";
 
@@ -9,7 +10,7 @@ import "./IVesting.sol";
  * @dev Platin Vesting standard implementation contract 
  * Uses number of vesting parts and list of timestamps when the next part should be released.
  */
-contract PlatinVesting is IVesting {
+contract PlatinVesting is IVesting, NoOwner {
     using SafeMath for uint256;
 
     // vesting parts count
@@ -38,7 +39,7 @@ contract PlatinVesting is IVesting {
      */
     function balanceVested(uint256 _vested) public view returns (uint256) {
         uint256 _timestamp = block.timestamp; // solium-disable-line security/no-block-members
-        uint256 _vestingEnd = vestingReleases[vestingParts];
+        uint256 _vestingEnd = vestingReleases[vestingParts - 1];
 
         if (_timestamp > _vestingEnd)
             return 0;

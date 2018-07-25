@@ -21,6 +21,9 @@ contract TokenLockup is ERC20 {
     // list of lockedup amounts and release timestamps
     mapping (address => LockedUp[]) public lockedup;
 
+    // lockup event logging
+    event Lockup(address indexed to, uint256 amount, uint256 release);
+
     // onlyLockupAuthorized modifier, override to restrict transfers with lockup
     modifier onlyLockupAuthorized() {
         _;
@@ -50,10 +53,10 @@ contract TokenLockup is ERC20 {
      * @param _who address Address owns lockedup amounts
      * @return uint256 Balance locked up to the current moment of time     
      */       
-    function balanceLokedUp(address _who) public view returns (uint256) {
-        uint256 _balanceLokedUp;
-        for (uint256 i; i < lockedup[_who].length; i++) {
-            if (lockedup[_who][i].release < block.timestamp) // solium-disable-line security/no-block-members
+    function balanceLockedUp(address _who) public view returns (uint256) {
+        uint256 _balanceLokedUp = 0;
+        for (uint256 i = 0; i < lockedup[_who].length; i++) {
+            if (lockedup[_who][i].release > block.timestamp) // solium-disable-line security/no-block-members
                 _balanceLokedUp = _balanceLokedUp.add(lockedup[_who][i].amount);
         }
         return _balanceLokedUp;
@@ -73,8 +76,9 @@ contract TokenLockup is ERC20 {
     ) 
     public onlyLockupAuthorized returns (bool) 
     {        
-        lockup(_to, _value, _release);
-        return transfer(_to, _value);
+        bool result = transfer(_to, _value);
+        _lockup(_to, _value, _release);
+        return result;        
     }       
 
     /**
@@ -93,8 +97,9 @@ contract TokenLockup is ERC20 {
     ) 
     public onlyLockupAuthorized returns (bool) 
     {
-        lockup(_to, _value, _release);
-        return transferFrom(_from, _to, _value);
+        bool result = transferFrom(_from, _to, _value);
+        _lockup(_to, _value, _release);
+        return result;
     }     
 
     /**
@@ -103,12 +108,13 @@ contract TokenLockup is ERC20 {
      * @param _amount uint256 Amount to lockup
      * @param _release uint256 Release timestamp     
      */     
-    function lockup(address _who, uint256 _amount, uint256 _release) internal {
+    function _lockup(address _who, uint256 _amount, uint256 _release) internal {
         if (_release > 0) {
             require(_who != address(0), "Lockup target address can't be zero.");
             require(_amount > 0, "Lockup amount should be > 0.");   
             require(_release > block.timestamp, "Lockup release time should be > now."); // solium-disable-line security/no-block-members 
             lockedup[_who].push(LockedUp(_amount, _release));
+            emit Lockup(_who, _amount, _release);
         }            
     }      
 }

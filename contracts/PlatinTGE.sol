@@ -90,7 +90,7 @@ contract PlatinTGE {
     // tokens ppp lockup period
     uint256 public constant PPP_LOCKUP_PERIOD = 365 days;
 
-    // ppp multiplier
+    // Platin Payout Program multiplier
     uint256 public constant PPP_MULTILPIER = 2;
     
     // Platin Token ICO rate, regular

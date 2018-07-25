@@ -18,7 +18,6 @@ module.exports =  function(deployer, network, accounts) {
         wallet,
         PlatinToken.address,   
         openingTime,
-        closingTime,                  
-        { gas: 3800000}
+        closingTime
     );
 };

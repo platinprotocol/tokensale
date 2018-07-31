@@ -22,6 +22,10 @@
 4. IVesting contract. Vesting contracts interface. Every vesting contract should implemet this interface.
 5. PlatinVesting contact. Platin standard implementation of the IVesting interface. It uses number of vesting parts and list of timestamps when the next part should be released. It is used by PlatinStandardVesting and PlatinUnsoldVesting contracts and can be used by any other vesting contract to implement the same vesting logic.
 
+## Mocks
+
+1. Mock contracts were created for the test purposes and they are not subjects for the audit.
+
 ## Notes:
 
 1. We use duplicated code blocks for the constructor with token (PlatinPreICO, PlatinPayoutProgram) and to set TGE contract (PlatinToken, PlatinPreICO, PlatinICO, PlatinPayoutProgram) to avoid circular importing issues.

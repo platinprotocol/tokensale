@@ -4,6 +4,7 @@ import "../PlatinToken.sol";
 
 
 contract PlatinTokenMock is PlatinToken {
+    
     function totalSupply() public view returns (uint256) {
         if (totalSupply_ > 0) 
             return totalSupply_ + 1;

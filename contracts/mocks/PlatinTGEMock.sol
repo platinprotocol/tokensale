@@ -9,6 +9,7 @@ import "../PlatinToken.sol";
 import "../PlatinPreICO.sol";
 import "../PlatinICO.sol";
 
+
 contract PlatinTGEMock is PlatinTGE {
 
     constructor(
@@ -21,10 +22,6 @@ contract PlatinTGEMock is PlatinTGE {
     )
     PlatinTGE(_token, _preIco, _ico, _ppp, _holderVesting, _unsoldVesting)
     public {}
-
-    function allocateTo(address to, uint256 amount) public {
-        token.allocate(to, amount, address(0));
-    }
 
     function allocateZeroAddress() public {
         token.allocate(address(0), 1, address(0));

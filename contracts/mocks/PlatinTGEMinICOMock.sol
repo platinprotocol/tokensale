@@ -9,6 +9,7 @@ import "../PlatinToken.sol";
 import "../PlatinPreICO.sol";
 import "../PlatinICO.sol";
 
+
 contract PlatinTGEMinICOMock is PlatinTGE {
 
     uint256 public constant ICO_AMOUNT = MIN_PURCHASE_AMOUNT * TOKEN_RATE;  
@@ -29,5 +30,4 @@ contract PlatinTGEMinICOMock is PlatinTGE {
         token.allocate(address(preIco), PRE_ICO_AMOUNT, address(0));
         token.allocate(address(ico), ICO_AMOUNT, address(0));
     }
-
 }

@@ -66,8 +66,7 @@ contract TokenLockup is ERC20 {
      * @dev Transfer tokens from one address to another with lockup
      * @param _to address The address which you want to transfer to
      * @param _value uint256 The amount of tokens to be transferred
-     * @param _release uint256 Release timestamp       
-     * @return bool Returns true if the transfer was succeeded
+     * @param _release uint256 Release timestamp
      */
     function transferWithLockup(
         address _to, 
@@ -76,9 +75,8 @@ contract TokenLockup is ERC20 {
     ) 
     public onlyLockupAuthorized returns (bool) 
     {        
-        bool result = transfer(_to, _value);
-        _lockup(_to, _value, _release);
-        return result;        
+        transfer(_to, _value);
+        _lockup(_to, _value, _release);       
     }       
 
     /**
@@ -87,7 +85,6 @@ contract TokenLockup is ERC20 {
      * @param _to address The address which you want to transfer to
      * @param _value uint256 The amount of tokens to be transferred
      * @param _release uint256 Release timestamp       
-     * @return bool Returns true if the transfer was succeeded
      */
     function transferFromWithLockup(
         address _from, 
@@ -97,9 +94,8 @@ contract TokenLockup is ERC20 {
     ) 
     public onlyLockupAuthorized returns (bool) 
     {
-        bool result = transferFrom(_from, _to, _value);
+        transferFrom(_from, _to, _value);
         _lockup(_to, _value, _release);
-        return result;
     }     
 
     /**

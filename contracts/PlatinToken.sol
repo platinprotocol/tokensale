@@ -66,9 +66,8 @@ contract PlatinToken is HoldersToken, TokenLockup, TokenVesting, NoOwner, Pausab
      * @param _to address Address gets the tokens
      * @param _amount uint256 Amount to allocate
      * @param _vesting address Address of vesting contract (could be zero to omit vesting)  
-     * @return bool Returns true if the allocation was succeeded
      */ 
-    function allocate(address _to, uint256 _amount, address _vesting) external onlyTGE returns (bool) {
+    function allocate(address _to, uint256 _amount, address _vesting) external onlyTGE {
         require(_to != address(0), "Allocate To address can't be zero");
         require(_amount > 0, "Allocate amount should be > 0.");
        
@@ -82,9 +81,7 @@ contract PlatinToken is HoldersToken, TokenLockup, TokenVesting, NoOwner, Pausab
         emit Allocate(_to, _amount);
         emit Transfer(address(0), _to, _amount);
 
-        _vest(_to, _amount, _vesting);
-
-        return true;        
+        _vest(_to, _amount, _vesting);    
     }  
 
     /**
@@ -107,7 +104,7 @@ contract PlatinToken is HoldersToken, TokenLockup, TokenVesting, NoOwner, Pausab
      */
     function transfer(address _to, uint256 _value) public whenNotPaused spotTransfer(msg.sender, _value) returns (bool) {
         if (_to == address(tge.ppp()) && msg.sender != address(tge.ico())) {
-            require(super.transfer(_to, _value), "Transfer to PPP is failed.");
+            super.transfer(_to, _value);
             return tge.ppp().payout(msg.sender, _value);
         } else {
             return super.transfer(_to, _value);
@@ -123,7 +120,7 @@ contract PlatinToken is HoldersToken, TokenLockup, TokenVesting, NoOwner, Pausab
      */
     function transferFrom(address _from, address _to, uint256 _value) public whenNotPaused spotTransfer(_from, _value) returns (bool) {
         if (_to == address(tge.ppp())) {
-            require(super.transferFrom(_from, _to, _value), "TransferFrom to PPP is failed.");
+            super.transferFrom(_from, _to, _value);
             return tge.ppp().payout(_from, _value);
         } else {     
             return super.transferFrom(_from, _to, _value);

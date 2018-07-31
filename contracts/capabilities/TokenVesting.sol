@@ -66,8 +66,7 @@ contract TokenVesting is ERC20 {
      * @dev Transfer tokens from one address to another with vesting
      * @param _to address The address which you want to transfer to
      * @param _value uint256 The amount of tokens to be transferred
-     * @param _vesting address Address of vesting contract (could be zero to omit vesting)     
-     * @return bool Returns true if the transfer was succeeded
+     * @param _vesting address Address of vesting contract (could be zero to omit vesting)
      */
     function transferWithVesting(
         address _to, 
@@ -76,9 +75,8 @@ contract TokenVesting is ERC20 {
     ) 
     public onlyVestingAuthorized returns (bool) 
     {        
-        bool result = transfer(_to, _value);
+        transfer(_to, _value);
         _vest(_to, _value, _vesting);
-        return result;
     }       
 
     /**
@@ -86,8 +84,7 @@ contract TokenVesting is ERC20 {
      * @param _from address The address which you want to send tokens from
      * @param _to address The address which you want to transfer to
      * @param _value uint256 The amount of tokens to be transferred
-     * @param _vesting address Address of vesting contract (could be zero to omit vesting)     
-     * @return bool Returns true if the transfer was succeeded
+     * @param _vesting address Address of vesting contract (could be zero to omit vesting)
      */
     function transferFromWithVesting(
         address _from, 
@@ -97,9 +94,8 @@ contract TokenVesting is ERC20 {
     ) 
     public onlyVestingAuthorized returns (bool) 
     {
-        bool result = transferFrom(_from, _to, _value);
+        transferFrom(_from, _to, _value);
         _vest(_to, _value, _vesting);
-        return result;
     }   
 
     /**

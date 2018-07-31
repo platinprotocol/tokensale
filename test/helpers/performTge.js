@@ -5,11 +5,13 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-module.exports = async function(env) {
-    await env.token.setTGE(env.tge.address).should.be.fulfilled;;
-    await env.preIco.setTGE(env.tge.address).should.be.fulfilled;;
-    await env.ico.setTGE(env.tge.address).should.be.fulfilled;;
-    await env.ppp.setTGE(env.tge.address).should.be.fulfilled;;
+module.exports = async function(env, _tge) {
+    const tge = typeof _tge === 'undefined' ? env.tge : _tge;
 
-    await env.tge.allocate().should.be.fulfilled;;
+    await env.token.setTGE(tge.address).should.be.fulfilled;
+    await env.preIco.setTGE(tge.address).should.be.fulfilled;
+    await env.ico.setTGE(tge.address).should.be.fulfilled;
+    await env.ppp.setTGE(tge.address).should.be.fulfilled;
+
+    await tge.allocate().should.be.fulfilled;
 };

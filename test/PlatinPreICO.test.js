@@ -1,6 +1,8 @@
 const setup = require('./helpers/setup');
 const performTge = require('./helpers/performTge');
 
+const PlatinPreICO = artifacts.require('PlatinPreICO');
+
 const { advanceBlock } = require('./helpers/advanceToBlock');
 const { zeroAddress }  = require('./helpers/zeroAddress');
 const { EVMRevert } = require('./helpers/EVMRevert');
@@ -28,21 +30,27 @@ contract('PlatinPreICO', (accounts) => {
     describe('tge', function () {
         it('should set TGE', async() => {
             const tgeExpected = env.tge.address;
-            await env.token.setTGE(tgeExpected).should.be.fulfilled;
+            await env.preIco.setTGE(tgeExpected).should.be.fulfilled;
 
-            const tgeActual = await env.token.tge();
+            const tgeActual = await env.preIco.tge();
             tgeActual.should.be.equal(tgeExpected);
         });
 
         it('should not set TGE as zero address', async() => {
-            await env.token.setTGE(zeroAddress).should.be.rejectedWith(EVMRevert);
+            await env.preIco.setTGE(zeroAddress).should.be.rejectedWith(EVMRevert);
         });    
 
         it('should not set TGE twice', async() => {
-            await env.token.setTGE(env.tge.address).should.be.fulfilled;        
-            await env.token.setTGE(env.tge.address).should.be.rejectedWith(EVMRevert);
+            await env.preIco.setTGE(env.tge.address).should.be.fulfilled;        
+            await env.preIco.setTGE(env.tge.address).should.be.rejectedWith(EVMRevert);
         });     
     });
+
+    it('should not be able instantiate PreICO with Token zero address', async() => {
+        await PlatinPreICO.new(
+            zeroAddress
+        ).should.be.rejectedWith(EVMRevert);          
+    });    
 
     describe('distribution', function () {
         it('should be able distribute pre ico sale', async() => {

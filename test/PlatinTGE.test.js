@@ -1,5 +1,5 @@
 const PlatinTGE = artifacts.require('PlatinTGE');
-const PlatinTGEMock = artifacts.require('PlatinTGEMock');
+const PlatinTokenMock = artifacts.require('PlatinTokenMock');
 
 const { advanceBlock } = require('./helpers/advanceToBlock');
 const { EVMRevert } = require('./helpers/EVMRevert');
@@ -98,39 +98,24 @@ contract('PlatinTGE', (accounts) => {
         totalSupplyAfterActual.should.be.bignumber.equal(totalSupplyAfterExpected);
     });   
 
-    // it('should not be able allocate tokens to zero address', async() => {
-    //     const tge = await PlatinTGEMock.new(
-    //         env.token.address,
-    //         env.preIco.address,
-    //         env.ico.address,
-    //         env.ppp.address,
-    //         env.stdVesting.address,
-    //         env.unsVesting.address,
-    //     ).should.be.fulfilled;       
-    //     await tge.allocateZeroAddress().should.be.rejectedWith(EVMRevert);
-    // });
+    it('should not be able to allocate tokens during TGE twice', async() => {
+        await performTge(env);
+        env.tge.allocate().should.be.rejectedWith(EVMRevert);
+    });
+    
+    it('should not be able to allocate wrong total supply during TGE', async() => {
+        const token = await PlatinTokenMock.new().should.be.fulfilled;
 
-    // it('should not be able allocate tokens with zero amount', async() => {
-    //     const tge = await PlatinTGEMock.new(
-    //         env.token.address,
-    //         env.preIco.address,
-    //         env.ico.address,
-    //         env.ppp.address,
-    //         env.stdVesting.address,
-    //         env.unsVesting.address,
-    //     ).should.be.fulfilled;
-    //     await tge.allocateZeroAmount().should.be.rejectedWith(EVMRevert);
-    // });    
-
-    // it('should not be able allocate more than total supply', async() => {
-    //     const tge = await PlatinTGEMock.new(
-    //         env.token.address,
-    //         env.preIco.address,
-    //         env.ico.address,
-    //         env.ppp.address,
-    //         env.stdVesting.address,
-    //         env.unsVesting.address,
-    //     ).should.be.fulfilled;
-    //     await tge.allocateMore().should.be.rejectedWith(EVMRevert);
-    // });        
+        const tge = await PlatinTGE.new(
+            token.address,
+            env.preIco.address,
+            env.ico.address,
+            env.ppp.address,
+            env.stdVesting.address,
+            env.unsVesting.address
+        ).should.be.fulfilled;
+        
+        await token.setTGE(tge.address).should.be.fulfilled;
+        await tge.allocate().should.be.rejectedWith(EVMRevert);
+    });      
 });

@@ -54,7 +54,7 @@ contract PlatinTGE {
     address public constant HOLDER06_01 = 0xca6aDDEDc6264c48bDd059E04C351f7abc3f667B;
     address public constant HOLDER06_02 = 0xE375e16FFbc36216F2708D668eBa131E64A4aC81;  
 
-    // AMOUNTS AS PART OF SUPPLY
+    // AMOUNT AS A PART OF SUPPLY
     uint256 public constant PRE_ICO_AMOUNT = 103472416 * (10 ** uint256(decimals)); // 103,472,416 PTNX
     uint256 public constant ICO_AMOUNT = 2896527584 * (10 ** uint256(decimals)); // 2,896,527,584 PTNX
     uint256 public constant HOLDER02_01_AMOUNT = 1235000000 * (10 ** uint256(decimals)); // 1,235,000,000 PTNX
@@ -67,8 +67,8 @@ contract PlatinTGE {
     uint256 public constant HOLDER05_05_AMOUNT = 5000000 * (10 ** uint256(decimals)); // 5,000,000 PTNX
     uint256 public constant HOLDER05_06_AMOUNT = 1000000 * (10 ** uint256(decimals)); // 1,000,000 PTNX
     uint256 public constant HOLDER05_07_AMOUNT = 4167000 * (10 ** uint256(decimals)); // 4,167,000 PTNX
-    uint256 public constant HOLDER05_08_AMOUNT = 500000000 * (10 ** uint256(decimals)); // 500,000,000 PTNX;
-    uint256 public constant HOLDER05_09_AMOUNT = 114533000 * (10 ** uint256(decimals)); // 114,533,000 PTNX;    
+    uint256 public constant HOLDER05_08_AMOUNT = 500000000 * (10 ** uint256(decimals)); // 500,000,000 PTNX
+    uint256 public constant HOLDER05_09_AMOUNT = 114533000 * (10 ** uint256(decimals)); // 114,533,000 PTNX 
     uint256 public constant HOLDER06_01_AMOUNT = 2200 * (10 ** uint256(decimals)); // 2200 PTNX
     uint256 public constant HOLDER06_02_AMOUNT = 299997800 * (10 ** uint256(decimals)); // 299,997,800 PTNX
 
@@ -101,11 +101,6 @@ contract PlatinTGE {
 
     // Platin ICO min purchase amount
     uint256 public constant MIN_PURCHASE_AMOUNT = 1 ether;
-
-    // Error messages
-    string public constant ALLOCATION_ERROR = "Token allocation error";
-    string public constant SUPPLY_CHECK_ERROR = "Supply check error";
-    string public constant TOTAL_SUPPLY_CHECK_ERROR = "Total supply check error";
 
     // HOLDER VESTING
     mapping (address => address) public HOLDER_VESTING; // solium-disable-line mixedcase
@@ -189,66 +184,44 @@ contract PlatinTGE {
      * It makes initial token allocation according to the token supply constants.
      */
     function allocate() public {
-        uint256 _supplyCheck;
+
+        // Should not be allocated already
+        require(token.totalSupply() == 0, "Allocation is already done.");
 
         // SALES          
-        require(token.allocate(address(preIco), PRE_ICO_AMOUNT, address(0)), ALLOCATION_ERROR);
-        _supplyCheck = PRE_ICO_AMOUNT;
-        require(token.allocate(address(ico), ICO_AMOUNT, address(0)), ALLOCATION_ERROR);
-        _supplyCheck = _supplyCheck.add(ICO_AMOUNT);
-        require(_supplyCheck == SALES_SUPPLY, SUPPLY_CHECK_ERROR);
-        _supplyCheck = 0;           
-
+        token.allocate(address(preIco), PRE_ICO_AMOUNT, address(0));
+        token.allocate(address(ico), ICO_AMOUNT, address(0));
+      
         // SUPPLY01
-        require(token.allocate(HOLDER01, SUPPLY01, HOLDER_VESTING[HOLDER01]), ALLOCATION_ERROR);
+        token.allocate(HOLDER01, SUPPLY01, HOLDER_VESTING[HOLDER01]);
 
         // SUPPLY02
-        require(token.allocate(HOLDER02_01, HOLDER02_01_AMOUNT, HOLDER_VESTING[HOLDER02_01]), ALLOCATION_ERROR);
-        _supplyCheck = HOLDER02_01_AMOUNT;
-        require(token.allocate(HOLDER02_02, HOLDER02_02_AMOUNT, HOLDER_VESTING[HOLDER02_02]), ALLOCATION_ERROR);
-        _supplyCheck = _supplyCheck.add(HOLDER02_02_AMOUNT);
-        require(token.allocate(HOLDER02_03, HOLDER02_03_AMOUNT, HOLDER_VESTING[HOLDER02_03]), ALLOCATION_ERROR);
-        _supplyCheck = _supplyCheck.add(HOLDER02_03_AMOUNT);
-        require(_supplyCheck == SUPPLY02, SUPPLY_CHECK_ERROR);
-        _supplyCheck = 0;        
+        token.allocate(HOLDER02_01, HOLDER02_01_AMOUNT, HOLDER_VESTING[HOLDER02_01]);
+        token.allocate(HOLDER02_02, HOLDER02_02_AMOUNT, HOLDER_VESTING[HOLDER02_02]);
+        token.allocate(HOLDER02_03, HOLDER02_03_AMOUNT, HOLDER_VESTING[HOLDER02_03]);
 
         // SUPPLY03
-        require(token.allocate(HOLDER03, SUPPLY03, HOLDER_VESTING[HOLDER03]), ALLOCATION_ERROR);
+        token.allocate(HOLDER03, SUPPLY03, HOLDER_VESTING[HOLDER03]);
 
         // SUPPLY04
-        require(token.allocate(HOLDER04, SUPPLY04, HOLDER_VESTING[HOLDER04]), ALLOCATION_ERROR);
+        token.allocate(HOLDER04, SUPPLY04, HOLDER_VESTING[HOLDER04]);
 
         // SUPPLY05
-        require(token.allocate(HOLDER05_01, HOLDER05_01_AMOUNT, HOLDER_VESTING[HOLDER05_01]), ALLOCATION_ERROR);
-        _supplyCheck = HOLDER05_01_AMOUNT;
-        require(token.allocate(HOLDER05_02, HOLDER05_02_AMOUNT, HOLDER_VESTING[HOLDER05_02]), ALLOCATION_ERROR);
-        _supplyCheck = _supplyCheck.add(HOLDER05_02_AMOUNT);
-        require(token.allocate(HOLDER05_03, HOLDER05_03_AMOUNT, HOLDER_VESTING[HOLDER05_03]), ALLOCATION_ERROR);
-        _supplyCheck = _supplyCheck.add(HOLDER05_03_AMOUNT);     
-        require(token.allocate(HOLDER05_04, HOLDER05_04_AMOUNT, HOLDER_VESTING[HOLDER05_04]), ALLOCATION_ERROR);
-        _supplyCheck = _supplyCheck.add(HOLDER05_04_AMOUNT);   
-        require(token.allocate(HOLDER05_05, HOLDER05_05_AMOUNT, HOLDER_VESTING[HOLDER05_05]), ALLOCATION_ERROR);
-        _supplyCheck = _supplyCheck.add(HOLDER05_05_AMOUNT);    
-        require(token.allocate(HOLDER05_06, HOLDER05_06_AMOUNT, HOLDER_VESTING[HOLDER05_06]), ALLOCATION_ERROR);
-        _supplyCheck = _supplyCheck.add(HOLDER05_06_AMOUNT);  
-        require(token.allocate(HOLDER05_07, HOLDER05_07_AMOUNT, HOLDER_VESTING[HOLDER05_07]), ALLOCATION_ERROR);
-        _supplyCheck = _supplyCheck.add(HOLDER05_07_AMOUNT);             
-        require(token.allocate(HOLDER05_08, HOLDER05_08_AMOUNT, HOLDER_VESTING[HOLDER05_08]), ALLOCATION_ERROR);
-        _supplyCheck = _supplyCheck.add(HOLDER05_08_AMOUNT);             
-        require(token.allocate(HOLDER05_09, HOLDER05_09_AMOUNT, HOLDER_VESTING[HOLDER05_09]), ALLOCATION_ERROR);
-        _supplyCheck = _supplyCheck.add(HOLDER05_09_AMOUNT);                                                           
-        require(_supplyCheck == SUPPLY05, SUPPLY_CHECK_ERROR);
-        _supplyCheck = 0;       
+        token.allocate(HOLDER05_01, HOLDER05_01_AMOUNT, HOLDER_VESTING[HOLDER05_01]);
+        token.allocate(HOLDER05_02, HOLDER05_02_AMOUNT, HOLDER_VESTING[HOLDER05_02]);
+        token.allocate(HOLDER05_03, HOLDER05_03_AMOUNT, HOLDER_VESTING[HOLDER05_03]);   
+        token.allocate(HOLDER05_04, HOLDER05_04_AMOUNT, HOLDER_VESTING[HOLDER05_04]);  
+        token.allocate(HOLDER05_05, HOLDER05_05_AMOUNT, HOLDER_VESTING[HOLDER05_05]);  
+        token.allocate(HOLDER05_06, HOLDER05_06_AMOUNT, HOLDER_VESTING[HOLDER05_06]);
+        token.allocate(HOLDER05_07, HOLDER05_07_AMOUNT, HOLDER_VESTING[HOLDER05_07]);         
+        token.allocate(HOLDER05_08, HOLDER05_08_AMOUNT, HOLDER_VESTING[HOLDER05_08]);         
+        token.allocate(HOLDER05_09, HOLDER05_09_AMOUNT, HOLDER_VESTING[HOLDER05_09]);     
 
         // SUPPLY06
-        require(token.allocate(HOLDER06_01, HOLDER06_01_AMOUNT, HOLDER_VESTING[HOLDER06_01]), ALLOCATION_ERROR);
-        _supplyCheck = HOLDER06_01_AMOUNT;
-        require(token.allocate(HOLDER06_02, HOLDER06_02_AMOUNT, HOLDER_VESTING[HOLDER06_02]), ALLOCATION_ERROR);
-        _supplyCheck = _supplyCheck.add(HOLDER06_02_AMOUNT);     
-        require(_supplyCheck == SUPPLY06, SUPPLY_CHECK_ERROR);
-        _supplyCheck = 0;          
+        token.allocate(HOLDER06_01, HOLDER06_01_AMOUNT, HOLDER_VESTING[HOLDER06_01]);
+        token.allocate(HOLDER06_02, HOLDER06_02_AMOUNT, HOLDER_VESTING[HOLDER06_02]); 
 
         // Check Token Total Supply
-        require(token.totalSupply() == TOTAL_SUPPLY, TOTAL_SUPPLY_CHECK_ERROR);
+        require(token.totalSupply() == TOTAL_SUPPLY, "Total supply check error.");
     }
 }

@@ -9,7 +9,10 @@ import "../PlatinToken.sol";
 import "../PlatinPreICO.sol";
 import "../PlatinICO.sol";
 
-contract PlatinTGEMock is PlatinTGE {
+contract PlatinTGEMinICOMock is PlatinTGE {
+
+    uint256 public constant ICO_AMOUNT = MIN_PURCHASE_AMOUNT * TOKEN_RATE;  
+    uint256 public constant PRE_ICO_AMOUNT = SALES_SUPPLY - ICO_AMOUNT; 
 
     constructor(
         PlatinToken _token, 
@@ -21,20 +24,10 @@ contract PlatinTGEMock is PlatinTGE {
     )
     PlatinTGE(_token, _preIco, _ico, _ppp, _holderVesting, _unsoldVesting)
     public {}
-
-    function allocateTo(address to, uint256 amount) public {
-        token.allocate(to, amount, address(0));
+  
+    function allocate() public {   
+        token.allocate(address(preIco), PRE_ICO_AMOUNT, address(0));
+        token.allocate(address(ico), ICO_AMOUNT, address(0));
     }
 
-    function allocateZeroAddress() public {
-        token.allocate(address(0), 1, address(0));
-    }
-
-    function allocateZeroAmount() public {
-        token.allocate(address(1), 0, address(0));
-    }    
-
-    function allocateMore() public {
-        token.allocate(address(1), TOTAL_SUPPLY.add(1), address(0));
-    }    
 }

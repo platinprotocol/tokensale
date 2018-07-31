@@ -1,6 +1,7 @@
 const HoldersTokenMock = artifacts.require('HoldersTokenMock');
 const TokenVestingMock = artifacts.require('TokenVestingMock');
 const TokenLockupMock = artifacts.require('TokenLockupMock');
+const PlatinTGEMock = artifacts.require('PlatinTGEMock');
 
 const { zeroAddress }  = require('./helpers/zeroAddress');
 const { EVMRevert } = require('./helpers/EVMRevert');
@@ -70,7 +71,46 @@ contract('PlatinToken', (accounts) => {
     
             await env.token.setTGE(env.tge.address);
             await env.token.allocate(to, value, zeroAddress, { from: from }).should.be.rejectedWith(EVMRevert);
-        });        
+        });     
+        
+        it('should not be able allocate tokens to zero address', async() => {
+            const tgeMock = await PlatinTGEMock.new(
+                env.token.address,
+                env.preIco.address,
+                env.ico.address,
+                env.ppp.address,
+                env.stdVesting.address,
+                env.unsVesting.address,
+            ).should.be.fulfilled;      
+            await env.token.setTGE(tgeMock.address).should.be.fulfilled; 
+            await tgeMock.allocateZeroAddress().should.be.rejectedWith(EVMRevert);
+        });
+    
+        it('should not be able allocate tokens with zero amount', async() => {
+            const tgeMock = await PlatinTGEMock.new(
+                env.token.address,
+                env.preIco.address,
+                env.ico.address,
+                env.ppp.address,
+                env.stdVesting.address,
+                env.unsVesting.address,
+            ).should.be.fulfilled;
+            await env.token.setTGE(tgeMock.address).should.be.fulfilled; 
+            await tgeMock.allocateZeroAmount().should.be.rejectedWith(EVMRevert);
+        });    
+    
+        it('should not be able allocate more than total supply', async() => {
+            const tgeMock = await PlatinTGEMock.new(
+                env.token.address,
+                env.preIco.address,
+                env.ico.address,
+                env.ppp.address,
+                env.stdVesting.address,
+                env.unsVesting.address,
+            ).should.be.fulfilled;
+            await env.token.setTGE(tgeMock.address).should.be.fulfilled; 
+            await tgeMock.allocateMore().should.be.rejectedWith(EVMRevert);
+        });          
     });
 
     describe('holders', function () { 
@@ -563,5 +603,20 @@ contract('PlatinToken', (accounts) => {
             fullBalanceExpected.should.be.bignumber.equal(fullBalanceActual);
             lockedUpBalanceExpected.should.be.bignumber.equal(lockedUpBalanceActual);
         });
+
+        it('should not be use ppp to get payout more than ppp balance', async() => {
+            const from = accounts[0];
+            const value = ether(1);
+
+            const rate = await env.tge.TOKEN_RATE();
+            const tokens = value.mul(rate);
+
+            await performTge(env);
+            await increaseTimeTo(env.openingTime);
+            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
+            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
+
+            await env.token.transfer(env.ppp.address, tokens, { from: from }).should.be.rejectedWith(EVMRevert);
+        });          
     });
 });

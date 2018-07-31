@@ -104,21 +104,15 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
         internal
     {
         if (lockup) {
-            require(
-                PlatinToken(token).transferWithLockup(
-                    _beneficiary, 
-                    _tokenAmount,
-                    block.timestamp + tge.ICO_LOCKUP_PERIOD()), // solium-disable-line security/no-block-members
-                "TransferWithLockup is failed during tokens delivery."
-            );
+            PlatinToken(token).transferWithLockup(
+                _beneficiary, 
+                _tokenAmount,
+                block.timestamp + tge.ICO_LOCKUP_PERIOD()); // solium-disable-line security/no-block-members
             lockup = false;   
         } else {
-            require(
-                PlatinToken(token).transfer(
-                    _beneficiary, 
-                    _tokenAmount), 
-                "Transfer is failed during tokens delivery."
-            );
+            PlatinToken(token).transfer(
+                _beneficiary, 
+                _tokenAmount);
         }
     }
 
@@ -162,7 +156,7 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
             _share = _unsold.mul(tge.UNSOLD_PPP_SHARE()).div(100);
             token.transfer(tge.ppp(), _share);
 
-            // transfer remains to the Platin Payout Program contract
+            // transfer remains to the Platin Payout Program 
             token.transfer(tge.ppp(), token.balanceOf(this));
         }
     }

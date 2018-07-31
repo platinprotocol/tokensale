@@ -71,7 +71,8 @@ contract PlatinPreICO is HasNoEther {
     function distributePreICOSale(address _beneficiary, uint256 _amount, address _vesting) public onlyOwner {
         require(token.balanceOf(_beneficiary) == 0, "PreIco tokens are already distributed to the current beneficiary.");
         require(preIcoDistributed.add(_amount) <= tge.PRE_ICO_AMOUNT(), "Can't distribute more than preIco amount.");
-        require(token.transferWithVesting(_beneficiary, _amount, _vesting), "TranferWithVesting is failed during preIco distribution.");  
+        
+        token.transferWithVesting(_beneficiary, _amount, _vesting); 
 
         emit Distribute(_beneficiary, _amount);
         preIcoDistributed = preIcoDistributed.add(_amount);

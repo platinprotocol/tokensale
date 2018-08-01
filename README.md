@@ -26,6 +26,15 @@
 
 1. Mock contracts were created for the test purposes and they are not subjects for the audit.
 
+## Secrets
+
+1. After clone this repo and before use the truffle please create the file `secrets.json` in the code root with two fields `mnemonic` and `infuraApiKey` in it, example:
+```{
+  "mnemonic": "lounge sting unhappy dwarf melody ocean review charge coconut maze grab leopard",
+  "infuraApiKey": "O1LEERP0UrL6fjxHRpSr"
+}
+```
+
 ## Notes:
 
 1. We use duplicated code blocks for the constructor with token (PlatinPreICO, PlatinPayoutProgram) and to set TGE contract (PlatinToken, PlatinPreICO, PlatinICO, PlatinPayoutProgram) to avoid circular importing issues.

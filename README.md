@@ -29,7 +29,8 @@
 ## Secrets
 
 1. After clone this repo and before use the truffle please create the file `secrets.json` in the code root with two fields `mnemonic` and `infuraApiKey` in it, example:
-```{
+```
+{
   "mnemonic": "lounge sting unhappy dwarf melody ocean review charge coconut maze grab leopard",
   "infuraApiKey": "O1LEERP0UrL6fjxHRpSr"
 }
@@ -40,5 +41,11 @@
 1. We use duplicated code blocks for the constructor with token (PlatinPreICO, PlatinPayoutProgram) and to set TGE contract (PlatinToken, PlatinPreICO, PlatinICO, PlatinPayoutProgram) to avoid circular importing issues.
 2. Due to the solidity inheritance limitations the code of OpenZeppelin's FinalizableCrowdsale contract is copied directly to the PlatinICO contract to use it's finalize feature.
 3. Additional Token capabilities that tweak transfer functionality obviously increase the price for a token transfers. It's acceptable for the PTNX Token economic model.
-4. Before every run of the tests please start the ganache-cli manually with the following parameters: ./node_modules/.bin/ganache-cli -p 8545 --gasLimit 0x7a1200
-5. Before every run of the test coverage please start the testrpc-sc manually with the following parameters: ./node_modules/.bin/testrpc-sc -p 8555 --gasLimit 0xfffffffffff
+4. Before every run of the tests please start the ganache-cli manually with the following parameters: 
+```
+./node_modules/.bin/ganache-cli -p 8545 --gasLimit 0x7a1200
+```
+5. Before every run of the test coverage please start the testrpc-sc manually with the following parameters: 
+```
+./node_modules/.bin/testrpc-sc -p 8555 --gasLimit 0xfffffffffff
+```

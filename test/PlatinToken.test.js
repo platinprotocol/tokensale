@@ -118,13 +118,13 @@ contract('PlatinToken', (accounts) => {
 
             await performTge(env);
 
-            const startHoldersCount = await env.token.holdersCount();   
+            const startHoldersCount = await env.token.holdersCount();
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(holder1).should.be.fulfilled;
             await env.ico.addAddressToWhitelist(holder2).should.be.fulfilled;
             await env.ico.buyTokens(holder1, { value: value, from: holder1 }).should.be.fulfilled;
-            await env.ico.buyTokens(holder2, { value: value, from: holder2 }).should.be.fulfilled;     
+            await env.ico.buyTokens(holder2, { value: value, from: holder2 }).should.be.fulfilled;
             
             const endHoldersCount = await env.token.holdersCount();
             
@@ -147,7 +147,7 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(holder1).should.be.fulfilled;
             await env.ico.addAddressToWhitelist(holder2).should.be.fulfilled;
             await env.ico.buyTokens(holder1, { value: value, from: holder1 }).should.be.fulfilled;
-            await env.ico.buyTokens(holder2, { value: value, from: holder2 }).should.be.fulfilled;     
+            await env.ico.buyTokens(holder2, { value: value, from: holder2 }).should.be.fulfilled;
 
             await env.token.transfer(holder1, tokens, { from: holder2 }).should.be.fulfilled;
             

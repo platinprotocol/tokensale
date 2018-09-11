@@ -7,9 +7,10 @@ const PlatinToken = artifacts.require('PlatinToken');
 const PlatinTGE = artifacts.require('PlatinTGE');
 const PlatinPreICO = artifacts.require('PlatinPreICO');
 const PlatinICO = artifacts.require('PlatinICO');
-// const PlatinPayoutProgram = artifacts.require('PlatinPayoutProgram');
 const PlatinStandardVesting = artifacts.require('PlatinStandardVesting');
 const PlatinUnsoldVesting = artifacts.require('PlatinUnsoldVesting');
+const PlatinICOProxy = artifacts.require('PlatinICOProxy');
+const PlatinICOLockupProxy = artifacts.require('PlatinICOLockupProxy');
 
 
 module.exports = async function(accounts, env) {
@@ -52,5 +53,13 @@ module.exports = async function(accounts, env) {
         env.ico.address,
         env.stdVesting.address,
         env.unsVesting.address
+    );
+
+    env.icoProxy = await PlatinICOProxy.new(
+        env.ico.address
+    );
+
+    env.icoLockProxy = await PlatinICOLockupProxy.new(
+        env.ico.address
     );
 };

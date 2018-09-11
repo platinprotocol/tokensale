@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "../capabilities/HoldersToken.sol";
+import "../HoldersToken.sol";
 
 
 contract HoldersTokenMock is HoldersToken {

@@ -14,7 +14,7 @@ import "./PlatinTGE.sol";
  * @dev Platin public sales contract. Before purchase customers should be whitelisted
  * during KYC/AML procedure. Tokens can be purchased with and without lockup.
  * Locked up tokens purchase has special token rate. When ICO ends, unsold tokens are
- * distributed to the unsold token holders (with/without vesting) and the Platin Payout Program.
+ * distributed to the unsold token reserve with lockup.
  * All constants for processing purchases and for finalization are stored in the TGE contract.
  * Due to the solidity inheritance limitations the code of OpenZeppelin's FinalizableCrowdsale
  * contract is copied directly to this contract to use it's finalize feature.
@@ -72,7 +72,7 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
     /**
      * @dev Purchase and lockup purchased tokens for the sender
      */
-    function purchaseLockupTokens(address _beneficiary) external payable {
+    function buyLockupTokens(address _beneficiary) external payable {
         lockup = true;
         buyTokens(_beneficiary);
     }  
@@ -104,10 +104,14 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
         internal
     {
         if (lockup) {
+            uint256[] memory _lockups = new uint256[](2);
+            _lockups[0] = block.timestamp + tge.ICO_LOCKUP_PERIOD(); // solium-disable-line security/no-block-members
+            _lockups[1] = _tokenAmount;
             PlatinToken(token).transferWithLockup(
                 _beneficiary, 
                 _tokenAmount,
-                block.timestamp + tge.ICO_LOCKUP_PERIOD()); // solium-disable-line security/no-block-members
+                _lockups,
+                false);
             lockup = false;   
         } else {
             PlatinToken(token).transfer(
@@ -127,7 +131,7 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
     )
         internal
     {
-        require(sold.add(_tokenAmount) <= tge.ICO_AMOUNT(), "Can't sold more than ICO amount.");
+        require(sold.add(_tokenAmount) <= tge.ICO_AMOUNT(), "Can't be sold more than ICO amount.");
         sold = sold.add(_tokenAmount);
         super._processPurchase(_beneficiary, _tokenAmount);
     }  
@@ -138,8 +142,14 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
     function finalization() internal {
         uint256 _unsold = token.balanceOf(this);
         if (_unsold > 0) {
-            // transfer remains to the reserve address with lockup
-            PlatinToken(token).transferWithLockup(tge.RESERVE(), _unsold, block.timestamp + tge.UNSOLD_LOCKUP_PERIOD());
+            uint256[] memory _lockups = new uint256[](2);
+            _lockups[0] = block.timestamp + tge.UNSOLD_LOCKUP_PERIOD(); // solium-disable-line security/no-block-members
+            _lockups[1] = _unsold;            
+            PlatinToken(token).transferWithLockup(
+                tge.UNSOLD_RESERVE(), 
+                _unsold, 
+                _lockups,
+                false);
         }
     }
 

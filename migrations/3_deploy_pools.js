@@ -1,10 +1,10 @@
 const PlatinToken = artifacts.require("PlatinToken.sol");
-const PlatinPreICO = artifacts.require("PlatinPreICO.sol");
+const PlatinPool = artifacts.require("PlatinPool.sol");
 
 module.exports =  function(deployer, network, accounts) {
 
     deployer.deploy(
-        PlatinPreICO,
+        PlatinPool,
         PlatinToken.address
     );
 };

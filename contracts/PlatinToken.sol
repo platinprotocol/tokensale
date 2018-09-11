@@ -21,11 +21,8 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
     // list of lockups, in form (owner => [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...])
     mapping (address => uint256[]) public lockups;
 
-    // list of lockups that can be refunded, in form (owner => (refundAddress => [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...]))
+    // list of lockups that can be refunded, in form (owner => (sender => [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...]))
     mapping (address => mapping (address => uint256[])) public refunds;
-
-    // lockup event logging
-    event Lockup(address indexed to, uint256 amount, uint256[] lockups);
 
     // Platin TGE contract
     PlatinTGE public tge;
@@ -33,7 +30,14 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
     // allocation event logging
     event Allocate(address indexed to, uint256 amount);
 
+    // lockup event logging
+    event Lockup(address indexed to, uint256 amount, uint256[] lockups);
+
+    // refund event logging
+    event Refund(address indexed from, address indexed to, uint256 amount);
+
     // onlyLockupAuthorized modifier, restrict lockup to the owner and the tge specified list of addresses
+    // TODO: do we need to have owner/admins ruled list of the lockup authorized addresses directly in the token contract?
     modifier onlyLockupAuthorized() {
         require(msg.sender == owner || tge.LOCKUP_AUTHORIZED(msg.sender), "Unauthorized lockup attempt.");
         _;
@@ -162,7 +166,7 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
     public onlyLockupAuthorized returns (bool) 
     {        
         transfer(_to, _value);
-        _lockup(_to, _value, _lockups, _refundable);       
+        _lockup(_to, _value, _lockups, _refundable); // solium-disable-line arg-overflow     
     }       
 
     /**
@@ -183,7 +187,7 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
     public onlyLockupAuthorized returns (bool) 
     {
         transferFrom(_from, _to, _value);
-        _lockup(_to, _value, _lockups, _refundable);
+        _lockup(_to, _value, _lockups, _refundable); // solium-disable-line arg-overflow  
     }     
 
     /**
@@ -193,14 +197,14 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
     function refundLockedUp(
         address _from
     )
-    public onlyLockupAuthorized returns (bool)
+    public onlyLockupAuthorized returns (uint256)
     {
         address _sender = msg.sender;
         uint256 _refundsLength = refunds[_from][_sender].length;
+        uint256 _balanceLokedUp = 0;
         if (_refundsLength > 0) {
 
-            // TODO: make optimisation to avoid internal loop
-            uint256 _balanceLokedUp = 0;
+            // TODO: optimization to avoid internal loop?
             uint256 _lockupsLength = lockups[_from].length;
             for (uint256 i = 0; i < _refundsLength; i = i + 2) {
                 if (refunds[_from][_sender][i] > block.timestamp) { // solium-disable-line security/no-block-members
@@ -222,11 +226,11 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
 
                 balances[_from] = balances[_from].sub(_balanceLokedUp);
                 balances[_sender] = balances[_sender].add(_balanceLokedUp);
-                emit Transfer(msg.sender, _sender, _balanceLokedUp);                
-                return true;
+                emit Refund(_from, _sender, _balanceLokedUp);
+                emit Transfer(_from, _sender, _balanceLokedUp);
             }
         }
-        return false;
+        return _balanceLokedUp;
     }
 
     /**
@@ -236,7 +240,13 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
      * @param _lockups uint256[] List of lockups    
      * @param _refundable bool Is lockuped amount refundable     
      */     
-    function _lockup(address _who, uint256 _amount, uint256[] _lockups, bool _refundable) internal {
+    function _lockup(
+        address _who, 
+        uint256 _amount, 
+        uint256[] _lockups, 
+        bool _refundable) 
+    internal 
+    {
         uint256 _lockupsLength = _lockups.length;
         if (_lockupsLength > 0) {
             require(_who != address(0), "Lockup target address can't be zero.");

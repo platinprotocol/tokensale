@@ -5,8 +5,8 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./PlatinToken.sol";
 import "./PlatinTGE.sol";
 
+// TODO: do we need a list of authorized admins instead of one owner to rule pool contract?
 
-// TODO: editable
 
 /**
  * @title PlatinPool
@@ -18,25 +18,26 @@ contract PlatinPool is HasNoEther {
     // Platin Token contract
     PlatinToken public token;  
 
-    // Distributed amount
+    // distributed amount
     uint256 public distributed;
 
-    // distribution struct
+    // distribution struct (record)
     struct Distribution {
         uint256 amount; // amount of distribution
-        uint256[] lockups; // amount lockups
-        bool refundable; // is lockuped amount refundable        
+        uint256[] lockups; // amount lockups in form [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...]
+        bool refundable; // is locked up amount refundable        
         bool distributed; // is amount already distributed
     }
 
-    // distribution mapping
+    // distribution mapping (table)
     mapping (address => Distribution) public distribution;
 
     // distribute event logging
     event Distribute(address indexed to, uint256 amount);
 
-    // distribute event logging
+    // add distribution record event logging
     event AddDistribution(address indexed beneficiary, uint256 amount, uint256[] lockups);
+
 
     /**
      * @dev Constructor
@@ -47,16 +48,22 @@ contract PlatinPool is HasNoEther {
         token = _token;       
     }
 
-
     /**
-     * @dev Add a distribution record
+     * @dev Add distribution record
      * @param _beneficiary address Address who gets the tokens
      * @param _amount uint256 Amount of the distribution
      * @param _lockups uint256[] Lockups list
      * @param _refundable bool Is lockuped amount refundable
      */
-    function addDistribution(address _beneficiary, uint256 _amount, uint256[] _lockups, bool _refundable) public onlyOwner {
-        require(distribution[_beneficiary].amount == 0, "Beneficiary already listed.");
+    function addDistribution(
+        address _beneficiary, 
+        uint256 _amount, 
+        uint256[] _lockups, 
+        bool _refundable
+    ) 
+    public onlyOwner 
+    {
+        require(distribution[_beneficiary].amount == 0, "Beneficiary is already listed.");
         
         distribution[_beneficiary].amount = _amount;
         distribution[_beneficiary].lockups = _lockups;
@@ -70,14 +77,18 @@ contract PlatinPool is HasNoEther {
      * @dev Distribute amount to the beneficiary
      */
     function distribute(address _beneficiary) public {
-        require(distribution[_beneficiary].amount > 0, "");
-        require(!distribution[_beneficiary].distributed, "");
+        require(distribution[_beneficiary].amount > 0, "Can't find distribution record for the beneficiary.");
+        require(!distribution[_beneficiary].distributed, "Already distributed.");
 
         uint256 _amount = distribution[_beneficiary].amount;
         uint256[] storage _lockups = distribution[_beneficiary].lockups;
         bool _refundable = distribution[_beneficiary].refundable;
 
-        token.transferWithLockup(_beneficiary, _amount, _lockups, _refundable);
+        token.transferWithLockup(
+            _beneficiary, 
+            _amount, 
+            _lockups, 
+            _refundable);
 
         emit Distribute(_beneficiary, _amount);  
         distributed = distributed.add(_amount);
@@ -91,7 +102,10 @@ contract PlatinPool is HasNoEther {
     function refundLockedUp(
         address _from
     )
-    public onlyOwner returns (bool) {
-        return token.refundLockedUp(_from);
+    public onlyOwner returns (uint256) 
+    {
+        uint256 _refund = token.refundLockedUp(_from);
+        distributed = distributed.sub(_refund);
+        // TODO: do we need remove record from the distribution table when refund locked up amount?
     }     
 }

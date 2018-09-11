@@ -5,7 +5,7 @@ import "./PlatinICO.sol";
 
 /**
  * @title PlatinICO Regular Purchase Proxy
- * @notice proxy contract that call payable buyTokens function in PlatinICO contract
+ * @dev proxy contract that calls payable buyTokens function in PlatinICO contract
  */
 contract PlatinICORegular {
 

@@ -5,7 +5,7 @@ import "./PlatinICO.sol";
 
 /**
  * @title PlatinICO Lockup Purchase Proxy
- * @dev proxy contract that call payable buyLockupTokens function in PlatinICO contract
+ * @dev proxy contract that calls payable buyLockupTokens function in PlatinICO contract
  */
 contract PlatinICOLockup {
 

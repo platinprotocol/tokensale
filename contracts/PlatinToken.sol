@@ -37,7 +37,7 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
     event Refund(address indexed from, address indexed to, uint256 amount);
 
     // onlyLockupAuthorized modifier, restrict lockup to the owner and the tge specified list of addresses
-    // TODO: do we need to have owner/admins ruled list of the lockup authorized addresses directly in the token contract?
+    // TODO: do we need to have owner/admins editable list of the lockup authorized addresses directly in the token contract?
     modifier onlyLockupAuthorized() {
         require(msg.sender == owner || tge.LOCKUP_AUTHORIZED(msg.sender), "Unauthorized lockup attempt.");
         _;
@@ -84,17 +84,6 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
         emit Allocate(_to, _amount);
         emit Transfer(address(0), _to, _amount);
     }  
-
-    /**
-     * @dev Get balance spot for the current moment of time
-     * @param _who address Address owns balance spot
-     * @return uint256 Balance spot for the current moment of time     
-     */   
-    function balanceSpot(address _who) public view returns (uint256) {
-        uint256 _balanceSpot = balanceOf(_who);
-        _balanceSpot = _balanceSpot.sub(balanceLockedUp(_who));      
-        return _balanceSpot;
-    }     
 
     /**
      * @dev Transfer tokens from one address to another
@@ -151,11 +140,22 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
     }
 
     /**
+     * @dev Get balance spot for the current moment of time
+     * @param _who address Address owns balance spot
+     * @return uint256 Balance spot for the current moment of time     
+     */   
+    function balanceSpot(address _who) public view returns (uint256) {
+        uint256 _balanceSpot = balanceOf(_who);
+        _balanceSpot = _balanceSpot.sub(balanceLockedUp(_who));      
+        return _balanceSpot;
+    }         
+
+    /**
      * @dev Transfer tokens from one address to another with lockup
      * @param _to address The address which you want to transfer to
      * @param _value uint256 The amount of tokens to be transferred
      * @param _lockups uint256[] List of lockups
-     * @param _refundable bool Is lockuped amound refundable
+     * @param _refundable bool Is locked up amount refundable
      */
     function transferWithLockup(
         address _to, 
@@ -175,7 +175,7 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
      * @param _to address The address which you want to transfer to
      * @param _value uint256 The amount of tokens to be transferred
      * @param _lockups uint256[] List of lockups      
-     * @param _refundable bool Is lockuped amound refundable      
+     * @param _refundable bool Is locked up amount refundable      
      */
     function transferFromWithLockup(
         address _from, 
@@ -210,7 +210,7 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
                 if (refunds[_from][_sender][i] > block.timestamp) { // solium-disable-line security/no-block-members
                     _balanceLokedUp = _balanceLokedUp.add(refunds[_from][_sender][i + 1]);  
                     for (uint256 j = 0; j < _lockupsLength; j = j + 2) {
-                        if (lockups[_from][j] == refunds[_from][_sender][i]) {
+                        if (lockups[_from][j] == refunds[_from][_sender][i] && lockups[_from][j + 1] == refunds[_from][_sender][i + 1]) {
                             lockups[_from][j] = 0;
                             lockups[_from][j + 1] = 0;
                             break;
@@ -238,7 +238,7 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
      * @param _who address Address gets the lockedup amount
      * @param _amount uint256 Amount to lockup
      * @param _lockups uint256[] List of lockups    
-     * @param _refundable bool Is lockuped amount refundable     
+     * @param _refundable bool Is locked up amount refundable     
      */     
     function _lockup(
         address _who, 

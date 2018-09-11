@@ -1,6 +1,6 @@
 const PlatinStandardVesting = artifacts.require("PlatinStandardVesting.sol");
 const PlatinUnsoldVesting = artifacts.require("PlatinUnsoldVesting.sol");
-const PlatinPayoutProgram = artifacts.require("PlatinPayoutProgram.sol");
+// const PlatinPayoutProgram = artifacts.require("PlatinPayoutProgram.sol");
 const PlatinToken = artifacts.require("PlatinToken.sol");
 const PlatinPreICO = artifacts.require("PlatinPreICO.sol");
 const PlatinICO = artifacts.require("PlatinICO.sol");
@@ -12,7 +12,7 @@ module.exports =  function(deployer) {
         PlatinToken.address,
         PlatinPreICO.address,
         PlatinICO.address,
-        PlatinPayoutProgram.address,
+        // PlatinPayoutProgram.address,
         PlatinStandardVesting.address,
         PlatinUnsoldVesting.address
     );

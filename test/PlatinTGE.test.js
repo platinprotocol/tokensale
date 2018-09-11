@@ -33,7 +33,6 @@ contract('PlatinTGE', (accounts) => {
             zeroAddress,
             env.preIco.address,
             env.ico.address,
-            env.ppp.address,
             env.stdVesting.address,
             env.unsVesting.address
         ).should.be.rejectedWith(EVMRevert);       
@@ -42,7 +41,6 @@ contract('PlatinTGE', (accounts) => {
             env.token.address,
             zeroAddress,
             env.ico.address,
-            env.ppp.address,
             env.stdVesting.address,
             env.unsVesting.address
         ).should.be.rejectedWith(EVMRevert); 
@@ -51,25 +49,14 @@ contract('PlatinTGE', (accounts) => {
             env.token.address,
             env.preIco.address,
             zeroAddress,
-            env.ppp.address,
             env.stdVesting.address,
             env.unsVesting.address
-        ).should.be.rejectedWith(EVMRevert); 
+        ).should.be.rejectedWith(EVMRevert);
 
         await PlatinTGE.new(
             env.token.address,
             env.preIco.address,
             env.ico.address,
-            zeroAddress,
-            env.stdVesting.address,
-            env.unsVesting.address
-        ).should.be.rejectedWith(EVMRevert); 
-
-        await PlatinTGE.new(
-            env.token.address,
-            env.preIco.address,
-            env.ico.address,
-            env.ppp.address,
             zeroAddress,
             env.unsVesting.address
         ).should.be.rejectedWith(EVMRevert); 
@@ -78,7 +65,6 @@ contract('PlatinTGE', (accounts) => {
             env.token.address,
             env.preIco.address,
             env.ico.address,
-            env.ppp.address,
             env.stdVesting.address,
             zeroAddress
         ).should.be.rejectedWith(EVMRevert);                                    
@@ -110,7 +96,6 @@ contract('PlatinTGE', (accounts) => {
             token.address,
             env.preIco.address,
             env.ico.address,
-            env.ppp.address,
             env.stdVesting.address,
             env.unsVesting.address
         ).should.be.fulfilled;

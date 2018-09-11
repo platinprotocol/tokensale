@@ -78,7 +78,6 @@ contract('PlatinToken', (accounts) => {
                 env.token.address,
                 env.preIco.address,
                 env.ico.address,
-                env.ppp.address,
                 env.stdVesting.address,
                 env.unsVesting.address,
             ).should.be.fulfilled;      
@@ -91,7 +90,6 @@ contract('PlatinToken', (accounts) => {
                 env.token.address,
                 env.preIco.address,
                 env.ico.address,
-                env.ppp.address,
                 env.stdVesting.address,
                 env.unsVesting.address,
             ).should.be.fulfilled;
@@ -104,7 +102,6 @@ contract('PlatinToken', (accounts) => {
                 env.token.address,
                 env.preIco.address,
                 env.ico.address,
-                env.ppp.address,
                 env.stdVesting.address,
                 env.unsVesting.address,
             ).should.be.fulfilled;
@@ -547,76 +544,5 @@ contract('PlatinToken', (accounts) => {
             await env.token.approve(from, tokens.div(3).add(1), { from: to }).should.be.fulfilled;
             await env.token.transferFrom(to, from, tokens.div(3).add(1), { from: to }).should.be.rejectedWith(EVMRevert);
         });         
-    });    
-
-    describe('ppp', function () { 
-        it('should be use ppp using transfer', async() => {
-            const from = accounts[0];
-            const value = ether(1);
-
-            const rate = await env.tge.TOKEN_RATE();
-            const tokens = value.mul(rate);
-
-            await performTge(env);
-            await increaseTimeTo(env.openingTime);
-            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
-            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
-            await increaseTimeTo(env.closingTime + duration.days(1));
-            await env.ico.finalize().should.be.fulfilled;
-
-            await env.token.transfer(env.ppp.address, tokens, { from: from }).should.be.fulfilled; 
-
-            fullBalanceExpected = tokens.mul(await env.tge.PPP_MULTILPIER());
-            fullBalanceActual = await env.token.balanceOf(from);
-
-            lockedUpBalanceExpected = fullBalanceExpected;
-            lockedUpBalanceActual = await env.token.balanceLockedUp(from);
-
-            fullBalanceExpected.should.be.bignumber.equal(fullBalanceActual);
-            lockedUpBalanceExpected.should.be.bignumber.equal(lockedUpBalanceActual);
-        });       
-        
-        it('should be use ppp using transferFrom', async() => {
-            const from = accounts[0];
-            const allowed = accounts[1];
-            const value = ether(1);
-
-            const rate = await env.tge.TOKEN_RATE();
-            const tokens = value.mul(rate);
-
-            await performTge(env);
-            await increaseTimeTo(env.openingTime);
-            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
-            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
-            await increaseTimeTo(env.closingTime + duration.days(1));
-            await env.ico.finalize().should.be.fulfilled;            
-
-            await env.token.approve(allowed, tokens, { from: from }).should.be.fulfilled;
-            await env.token.transferFrom(from, env.ppp.address, tokens, { from: allowed }).should.be.fulfilled; 
-
-            fullBalanceExpected = tokens.mul(await env.tge.PPP_MULTILPIER());
-            fullBalanceActual = await env.token.balanceOf(from);
-
-            lockedUpBalanceExpected = fullBalanceExpected;
-            lockedUpBalanceActual = await env.token.balanceLockedUp(from);
-
-            fullBalanceExpected.should.be.bignumber.equal(fullBalanceActual);
-            lockedUpBalanceExpected.should.be.bignumber.equal(lockedUpBalanceActual);
-        });
-
-        it('should not be use ppp to get payout more than ppp balance', async() => {
-            const from = accounts[0];
-            const value = ether(1);
-
-            const rate = await env.tge.TOKEN_RATE();
-            const tokens = value.mul(rate);
-
-            await performTge(env);
-            await increaseTimeTo(env.openingTime);
-            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
-            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
-
-            await env.token.transfer(env.ppp.address, tokens, { from: from }).should.be.rejectedWith(EVMRevert);
-        });          
     });
 });

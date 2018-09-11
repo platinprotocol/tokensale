@@ -7,7 +7,7 @@ const PlatinToken = artifacts.require('PlatinToken');
 const PlatinTGE = artifacts.require('PlatinTGE');
 const PlatinPreICO = artifacts.require('PlatinPreICO');
 const PlatinICO = artifacts.require('PlatinICO');
-const PlatinPayoutProgram = artifacts.require('PlatinPayoutProgram');
+// const PlatinPayoutProgram = artifacts.require('PlatinPayoutProgram');
 const PlatinStandardVesting = artifacts.require('PlatinStandardVesting');
 const PlatinUnsoldVesting = artifacts.require('PlatinUnsoldVesting');
 
@@ -45,16 +45,11 @@ module.exports = async function(accounts, env) {
         env.openingTime,
         env.closingTime
     );
-
-    env.ppp = await PlatinPayoutProgram.new(
-        env.token.address
-    );        
    
     env.tge = await PlatinTGE.new(
         env.token.address,
         env.preIco.address,
         env.ico.address,
-        env.ppp.address,
         env.stdVesting.address,
         env.unsVesting.address
     );

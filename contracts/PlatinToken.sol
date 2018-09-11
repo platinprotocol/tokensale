@@ -95,35 +95,25 @@ contract PlatinToken is HoldersToken, TokenLockup, TokenVesting, NoOwner, Pausab
         _balanceSpot = _balanceSpot.sub(balanceVested(_who));        
         return _balanceSpot;
     }     
-       
+
     /**
-     * @dev Transfer tokens from one address to another with ppp functionality
+     * @dev Transfer tokens from one address to another
      * @param _to address The address which you want to transfer to
      * @param _value uint256 The amount of tokens to be transferred
      * @return bool Returns true if the transfer was succeeded
      */
     function transfer(address _to, uint256 _value) public whenNotPaused spotTransfer(msg.sender, _value) returns (bool) {
-        if (_to == address(tge.ppp()) && msg.sender != address(tge.ico())) {
-            super.transfer(_to, _value);
-            return tge.ppp().payout(msg.sender, _value);
-        } else {
             return super.transfer(_to, _value);
-        }
     }
 
     /**
-     * @dev Transfer tokens from one address to another with ppp functionality
+     * @dev Transfer tokens from one address to another
      * @param _from address The address which you want to send tokens from
      * @param _to address The address which you want to transfer to
      * @param _value uint256 The amount of tokens to be transferred
      * @return bool Returns true if the transfer was succeeded
      */
     function transferFrom(address _from, address _to, uint256 _value) public whenNotPaused spotTransfer(_from, _value) returns (bool) {
-        if (_to == address(tge.ppp())) {
-            super.transferFrom(_from, _to, _value);
-            return tge.ppp().payout(_from, _value);
-        } else {     
-            return super.transferFrom(_from, _to, _value);
-        }        
+        return super.transferFrom(_from, _to, _value);
     }
 }

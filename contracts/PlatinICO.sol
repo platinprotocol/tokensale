@@ -133,31 +133,13 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
     }  
 
     /**
-     * @dev Finalization, transfer unsold tokens to the unsold tokens holders
+     * @dev Finalization, transfer unsold tokens to the reserve address with lockup
      */    
     function finalization() internal {
         uint256 _unsold = token.balanceOf(this);
         if (_unsold > 0) {
-            uint256 _share;
-            
-            // transfer holder01 unsold share
-            _share = _unsold.mul(tge.UNSOLD_HOLDER01_SHARE()).div(100);
-            token.transfer(tge.HOLDER01(), _share);
-
-            // transfer holder04 unsold share, with unsold vesting
-            _share = _unsold.mul(tge.UNSOLD_HOLDER04_SHARE()).div(100);
-            PlatinToken(token).transferWithVesting(tge.HOLDER04(), _share, tge.unsoldVesting());
-
-            // transfer holder06_02 share
-            _share = _unsold.mul(tge.UNSOLD_HOLDER06_02_SHARE()).div(100);
-            token.transfer(tge.HOLDER06_02(), _share);
-
-            // transfer Platin Payout Program share
-            _share = _unsold.mul(tge.UNSOLD_PPP_SHARE()).div(100);
-            token.transfer(tge.ppp(), _share);
-
-            // transfer remains to the Platin Payout Program 
-            token.transfer(tge.ppp(), token.balanceOf(this));
+            // transfer remains to the reserve address with lockup
+            PlatinToken(token).transferWithLockup(tge.RESERVE(), _unsold, block.timestamp + tge.UNSOLD_LOCKUP_PERIOD());
         }
     }
 

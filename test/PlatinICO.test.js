@@ -108,7 +108,6 @@ contract('PlatinICO', (accounts) => {
                 env.token.address,
                 env.preIco.address,
                 env.ico.address,
-                env.ppp.address,
                 env.stdVesting.address,
                 env.unsVesting.address
             ).should.be.fulfilled;
@@ -126,12 +125,15 @@ contract('PlatinICO', (accounts) => {
             await performTge(env);
 
             await increaseTimeTo(env.closingTime + duration.minutes(1));
+            const balanceExpectedReserve = await env.token.balanceOf(env.ico.address);
             await env.ico.finalize().should.be.fulfilled;
 
             const balanceExpected = new BigNumber(0);
             const balanceActual = await env.token.balanceOf(env.ico.address);
-            
-            balanceExpected.should.be.bignumber.equal(balanceActual);              
+            const balanceReserve = await env.token.balanceOf(await env.tge.RESERVE());
+
+            balanceExpected.should.be.bignumber.equal(balanceActual);
+            balanceExpectedReserve.should.be.bignumber.equal(balanceReserve);
         });
 
         it('should not be able to do finalization twice', async() => {
@@ -154,7 +156,6 @@ contract('PlatinICO', (accounts) => {
                 env.token.address,
                 env.preIco.address,
                 env.ico.address,
-                env.ppp.address,
                 env.stdVesting.address,
                 env.unsVesting.address
             ).should.be.fulfilled;  
@@ -167,11 +168,6 @@ contract('PlatinICO', (accounts) => {
 
             await increaseTimeTo(env.closingTime + duration.minutes(1));
             await env.ico.finalize().should.be.fulfilled;
-            
-            const balanceExpected = new BigNumber(0);
-            const balanceActual = await env.token.balanceOf(env.ppp.address);
-
-            balanceExpected.should.be.bignumber.equal(balanceActual);
         });          
     });
 });

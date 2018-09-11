@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./capabilities/IVesting.sol";
-import "./PlatinPayoutProgram.sol";
+//import "./PlatinPayoutProgram.sol";
 import "./PlatinToken.sol";
 import "./PlatinPreICO.sol";
 import "./PlatinICO.sol";
@@ -13,7 +13,7 @@ import "./PlatinICO.sol";
  * @dev Platin Token Generation Event contract. It holds token supplies, shares, rules, contracts addresses 
  * and other token economic constants and makes initial token allocation (with/without vesting). 
  * Initial token allocation function should be called outside the blockchain at the TGE moment of time, 
- * from here on out, Platin Token, preICO, ICO and PPP contracts become functional.
+ * from here on out, Platin Token, preICO and ICO contracts become functional.
  */
 contract PlatinTGE {
     using SafeMath for uint256;
@@ -52,7 +52,8 @@ contract PlatinTGE {
     address public constant HOLDER05_08 = 0xd9cE7d631EE19546348a4447882eFCee816eCE01;
     address public constant HOLDER05_09 = 0xef34779Ad86Cd818E86e0ec1096186D35377c474; // TODO change to the real one
     address public constant HOLDER06_01 = 0xca6aDDEDc6264c48bDd059E04C351f7abc3f667B;
-    address public constant HOLDER06_02 = 0xE375e16FFbc36216F2708D668eBa131E64A4aC81;  
+    address public constant HOLDER06_02 = 0xE375e16FFbc36216F2708D668eBa131E64A4aC81;
+    address public constant RESERVE = 0x378135f66fFC9F70Bb522b3c9b25ed4b8c23dE21;  // TODO change to the real one
 
     // AMOUNT AS A PART OF SUPPLY
     uint256 public constant PRE_ICO_AMOUNT = 103472416 * (10 ** uint256(decimals)); // 103,472,416 PTNX
@@ -72,26 +73,11 @@ contract PlatinTGE {
     uint256 public constant HOLDER06_01_AMOUNT = 2200 * (10 ** uint256(decimals)); // 2200 PTNX
     uint256 public constant HOLDER06_02_AMOUNT = 299997800 * (10 ** uint256(decimals)); // 299,997,800 PTNX
 
-    // unsold holder01 share, %
-    uint256 public constant UNSOLD_HOLDER01_SHARE = 10;
-
-    // unsold holder04 share, %
-    uint256 public constant UNSOLD_HOLDER04_SHARE = 40; 
-
-    // unsold holder06_02 share, %
-    uint256 public constant UNSOLD_HOLDER06_02_SHARE = 30;     
-
-    // unsold Platin Payout Program share, %
-    uint256 public constant UNSOLD_PPP_SHARE = 20;    
-    
-    // tokens ico lockup period
+    // Tokens ico lockup period
     uint256 public constant ICO_LOCKUP_PERIOD = 365 days;
 
-    // tokens ppp lockup period
-    uint256 public constant PPP_LOCKUP_PERIOD = 365 days;
-
-    // Platin Payout Program multiplier
-    uint256 public constant PPP_MULTILPIER = 2;
+    // Unsold tokens lockup period
+    uint256 public constant UNSOLD_LOCKUP_PERIOD = 182 days;
     
     // Platin Token ICO rate, regular
     uint256 public constant TOKEN_RATE = 1000; 
@@ -120,9 +106,6 @@ contract PlatinTGE {
     // Platin ICO contract
     PlatinICO public ico;
 
-    // Platin Payout Program contract
-    PlatinPayoutProgram public ppp;
-
     // Platin Vesting contract for the tge holders
     IVesting public holderVesting;
 
@@ -134,36 +117,31 @@ contract PlatinTGE {
      * @dev Constructor
      * @param _token address Address of the Platin Token contract       
      * @param _preIco address Address of the Platin PreICO contract  
-     * @param _ico address Address of the Platin ICO contract 
-     * @param _ppp address Address of the Platin Payout Program contract 
+     * @param _ico address Address of the Platin ICO contract
      * @param _holderVesting address Address of the Vesting contract to use for the token holder vesting
      * @param _unsoldVesting address Address of the Vesting contract to use for the unsold tokens vesting
      */  
     constructor(
         PlatinToken _token, 
         PlatinPreICO _preIco, 
-        PlatinICO _ico, 
-        PlatinPayoutProgram _ppp,
+        PlatinICO _ico,
         IVesting _holderVesting, 
         IVesting _unsoldVesting
     ) public {
         require(_token != address(0), "Token address can't be zero.");
         require(_preIco != address(0), "PreICO address can't be zero.");
         require(_ico != address(0), "ICO address can't be zero.");
-        require(_ppp != address(0), "PPP address can't be zero.");        
         require(_holderVesting != address(0), "Holder Vesting address can't be zero.");
         require(_unsoldVesting != address(0), "Unsold Vesting address can't be zero.");
 
         token = _token;
         preIco = _preIco;
         ico = _ico;
-        ppp = _ppp;
         holderVesting = _holderVesting;
         unsoldVesting = _unsoldVesting;
 
         // Lockup Authorized
         LOCKUP_AUTHORIZED[ico] = true;
-        LOCKUP_AUTHORIZED[ppp] = true;
 
         // Vesting Authorized
         VESTING_AUTHORIZED[HOLDER02_03] = true;

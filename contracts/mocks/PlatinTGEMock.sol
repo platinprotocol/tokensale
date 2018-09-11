@@ -4,7 +4,6 @@ import "../PlatinTGE.sol";
 
 
 import "../capabilities/IVesting.sol";
-import "../PlatinPayoutProgram.sol";
 import "../PlatinToken.sol";
 import "../PlatinPreICO.sol";
 import "../PlatinICO.sol";
@@ -15,12 +14,11 @@ contract PlatinTGEMock is PlatinTGE {
     constructor(
         PlatinToken _token, 
         PlatinPreICO _preIco, 
-        PlatinICO _ico, 
-        PlatinPayoutProgram _ppp,
+        PlatinICO _ico,
         IVesting _holderVesting, 
         IVesting _unsoldVesting
     )
-    PlatinTGE(_token, _preIco, _ico, _ppp, _holderVesting, _unsoldVesting)
+    PlatinTGE(_token, _preIco, _ico, _holderVesting, _unsoldVesting)
     public {}
 
     function allocateZeroAddress() public {

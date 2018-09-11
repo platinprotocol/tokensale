@@ -1,4 +1,4 @@
-const PlatinPayoutProgram = artifacts.require("PlatinPayoutProgram.sol");
+// const PlatinPayoutProgram = artifacts.require("PlatinPayoutProgram.sol");
 const PlatinToken = artifacts.require("PlatinToken.sol");
 const PlatinPreICO = artifacts.require("PlatinPreICO.sol");
 const PlatinICO = artifacts.require("PlatinICO.sol");
@@ -18,10 +18,6 @@ module.exports = function(deployer) {
     }).then(() => {          
          return PlatinICO.deployed();
     }).then(ico => {
-         return ico.setTGE(PlatinTGE.address);
-    }).then(() => {          
-         return PlatinPayoutProgram.deployed();
-    }).then(ppp => {
-         return ppp.setTGE(PlatinTGE.address);
+        return ico.setTGE(PlatinTGE.address);
     });
 };

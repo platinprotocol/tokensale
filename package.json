@@ -16,18 +16,18 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
-    "ganache-cli": "6.1.6",
-    "solidity-coverage": "^0.5.5",
-    "solium": "^1.1.8",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^10.2.1",
-    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
     "ethereumjs-util": "^5.2.0",
     "ethjs-abi": "^0.2.1",
-    "web3-utils": "^1.0.0-beta.34"
+    "ganache-cli": "6.1.6",
+    "solidity-coverage": "^0.5.11",
+    "solium": "^1.1.8",
+    "web3-utils": "^1.0.0-beta.36"
   },
   "scripts": {
     "coverage": "./node_modules/.bin/solidity-coverage",

@@ -1,35 +1,33 @@
 const PlatinToken = artifacts.require("PlatinToken.sol");
 const PlatinICO = artifacts.require("PlatinICO.sol");
 const PlatinTGE = artifacts.require("PlatinTGE.sol");
+const AdvisorsPool = artifacts.require("./pools/AdvisorsPool.sol");
+const AirdropsPool = artifacts.require("./pools/AirdropsPool.sol");
+const EcosystemPool = artifacts.require("./pools/EcosystemPool.sol");
+const FoundersPool = artifacts.require("./pools/FoundersPool.sol");
+const MiningPool = artifacts.require("./pools/MiningPool.sol");
+const PreIcoPool = artifacts.require("./pools/PreIcoPool.sol");
+const ReservesPool = artifacts.require("./pools/ReservesPool.sol");
+const EmployeesPool = artifacts.require("./pools/EmployeesPool.sol");
 
 // TODO: do we need pool contract for ALL addresses (replace pure trezor addresses with pool contracts too)?
 
-module.exports =  function(deployer) {    
-
-    const preIcoPool = 0xef34779Ad86Cd818E86e0ec1096186D35377c474; // TODO: change to the real one from pools deploy
-    const ico = PlatinICO.address;
-    const miningPool = 0x378135f66fFC9F70Bb522b3c9b25ed4b8c23dE50; // trezor address
-    const foundersPool = 0xef34779Ad86Cd818E86e0ec1096186D35377c474; // TODO: change to the real one from pools deploy
-    const employeesPool = 0xef34779Ad86Cd818E86e0ec1096186D35377c474; // TODO: change to the real one from pools deploy
-    const airdropsPool = 0x4575479B1dF9305c0594542Dc66cdAD37932177F; // trezor address
-    const reservesPool = 0x4fFcaee0380Da173538A333d01E7718c533b935f; // trezor address
-    const advisorsPool = 0xef34779Ad86Cd818E86e0ec1096186D35377c474; // TODO: change to the real one from pools deploy
-    const ecosystemPool = 0xef34779Ad86Cd818E86e0ec1096186D35377c474; // TODO: change to the real one from pools deploy
+module.exports =  function(deployer) {
 
     const unsoldReserve = 0xef34779Ad86Cd818E86e0ec1096186D35377c474;
 
     deployer.deploy(
         PlatinTGE,
         PlatinToken.address,
-        preIcoPool,
-        ico,
-        miningPool,
-        foundersPool,
-        employeesPool,
-        airdropsPool,
-        reservesPool,
-        advisorsPool,
-        ecosystemPool,
+        PreIcoPool.address,
+        PlatinICO.address,
+        MiningPool.address,
+        FoundersPool.address,
+        EmployeesPool.address,
+        AirdropsPool.address,
+        ReservesPool.address,
+        AdvisorsPool.address,
+        EcosystemPool.address,
         unsoldReserve
     );
 };

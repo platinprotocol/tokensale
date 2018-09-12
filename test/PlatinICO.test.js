@@ -60,7 +60,7 @@ contract('PlatinICO', (accounts) => {
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
-            await env.icoProxy.send(value, { from: purchaser }).should.be.fulfilled;
+            await env.icoRegular.send(value, { from: purchaser }).should.be.fulfilled;
             
             const balanceExpected = tokens;
             const balanceActual = await env.token.balanceOf(purchaser);
@@ -79,7 +79,7 @@ contract('PlatinICO', (accounts) => {
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
-            await env.icoLockProxy.send(value, { from: purchaser }).should.be.fulfilled;
+            await env.icoLockup.send(value, { from: purchaser }).should.be.fulfilled;
             
             const balanceLockupExpected = tokens;
             const balanceLockupActual = await env.token.balanceLockedUp(purchaser);
@@ -96,7 +96,7 @@ contract('PlatinICO', (accounts) => {
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
-            await env.icoProxy.send(value, { from: purchaser }).should.be.rejectedWith(EVMRevert);
+            await env.icoRegular.send(value, { from: purchaser }).should.be.rejectedWith(EVMRevert);
         });  
 
         it('should not be able purchase tokens more than ico supply', async() => {
@@ -116,7 +116,7 @@ contract('PlatinICO', (accounts) => {
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
-            await env.icoProxy.send(value, { from: purchaser }).should.be.rejectedWith(EVMRevert);
+            await env.icoRegular.send(value, { from: purchaser }).should.be.rejectedWith(EVMRevert);
         });         
     });
 
@@ -164,7 +164,7 @@ contract('PlatinICO', (accounts) => {
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
-            await env.icoProxy.send(value, { from: purchaser }).should.be.fulfilled;
+            await env.icoRegular.send(value, { from: purchaser }).should.be.fulfilled;
 
             await increaseTimeTo(env.closingTime + duration.minutes(1));
             await env.ico.finalize().should.be.fulfilled;

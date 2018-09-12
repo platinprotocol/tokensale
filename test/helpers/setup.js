@@ -9,11 +9,21 @@ const PlatinPreICO = artifacts.require('PlatinPreICO');
 const PlatinICO = artifacts.require('PlatinICO');
 const PlatinStandardVesting = artifacts.require('PlatinStandardVesting');
 const PlatinUnsoldVesting = artifacts.require('PlatinUnsoldVesting');
-const PlatinICOProxy = artifacts.require('PlatinICOProxy');
-const PlatinICOLockupProxy = artifacts.require('PlatinICOLockupProxy');
+const PlatinICORegular = artifacts.require('PlatinICORegular');
+const PlatinICOLockup = artifacts.require('PlatinICOLockup');
+const AdvisorsPool = artifacts.require("./pools/AdvisorsPool.sol");
+const AirdropsPool = artifacts.require("./pools/AirdropsPool.sol");
+const EcosystemPool = artifacts.require("./pools/EcosystemPool.sol");
+const EmployeesPool = artifacts.require("./pools/EmployeesPool.sol");
+const FoundersPool = artifacts.require("./pools/FoundersPool.sol");
+const MiningPool = artifacts.require("./pools/MiningPool.sol");
+const PreIcoPool = artifacts.require("./pools/PreIcoPool.sol");
+const ReservesPool = artifacts.require("./pools/ReservesPool.sol");
 
 
 module.exports = async function(accounts, env) {
+
+    env.unsoldReserve = '0xef34779Ad86Cd818E86e0ec1096186D35377c474';
 
     let rate = 1000;
     let wallet = accounts[0];
@@ -35,6 +45,38 @@ module.exports = async function(accounts, env) {
 
     env.token = await PlatinToken.new();
 
+    env.advisorsPool = await AdvisorsPool.new(
+        env.token.address
+    );
+
+    env.airdropsPool = await AirdropsPool.new(
+        env.token.address
+    );
+
+    env.ecosystemPool = await EcosystemPool.new(
+        env.token.address
+    );
+
+    env.employeesPool = await EmployeesPool.new(
+        env.token.address
+    );
+
+    env.foundersPool = await FoundersPool.new(
+        env.token.address
+    );
+
+    env.miningPool = await MiningPool.new(
+        env.token.address
+    );
+
+    env.preIcoPool = await PreIcoPool.new(
+        env.token.address
+    );
+
+    env.reservesPool = await ReservesPool.new(
+        env.token.address
+    );
+
     env.preIco = await PlatinPreICO.new(
         env.token.address
     );    
@@ -46,20 +88,26 @@ module.exports = async function(accounts, env) {
         env.openingTime,
         env.closingTime
     );
-   
+
     env.tge = await PlatinTGE.new(
         env.token.address,
-        env.preIco.address,
+        env.preIcoPool.address,
         env.ico.address,
-        env.stdVesting.address,
-        env.unsVesting.address
+        env.miningPool.address,
+        env.foundersPool.address,
+        env.employeesPool.address,
+        env.airdropsPool.address,
+        env.reservesPool.address,
+        env.advisorsPool.address,
+        env.ecosystemPool.address,
+        env.unsoldReserve
     );
 
-    env.icoProxy = await PlatinICOProxy.new(
+    env.icoRegular = await PlatinICORegular.new(
         env.ico.address
     );
 
-    env.icoLockProxy = await PlatinICOLockupProxy.new(
+    env.icoLockup = await PlatinICOLockup.new(
         env.ico.address
     );
 };

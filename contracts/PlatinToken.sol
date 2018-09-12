@@ -255,7 +255,7 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
             uint256 _balanceLokedUp = 0;
             address _sender = msg.sender;
             for (uint256 i = 0; i < _lockupsLength; i = i + 2) {
-                if (lockups[_who][i] > block.timestamp) { // solium-disable-line security/no-block-members
+                if (_lockups[i] > block.timestamp) { // solium-disable-line security/no-block-members
                     lockups[_who].push(_lockups[i]);
                     lockups[_who].push(_lockups[i + 1]);
                     _balanceLokedUp = _balanceLokedUp.add(_lockups[i + 1]);
@@ -263,10 +263,10 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
                         refunds[_who][_sender].push(_lockups[i]);
                         refunds[_who][_sender].push(_lockups[i + 1]);
                     }
-                }    
+                }
             }
 
-            require(_balanceLokedUp <= _amount, "Can't lockup more than transferred amount.");     
+            require(_balanceLokedUp <= _amount, "Can't lockup more than transferred amount.");
             emit Lockup(_who, _amount, _lockups);
         }            
     }      

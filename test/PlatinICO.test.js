@@ -79,6 +79,7 @@ contract('PlatinICO', (accounts) => {
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
+            // await env.ico.buyLockupTokens(purchaser, { value: value, from: purchaser }).should.be.fulfilled;
             await env.icoLockup.send(value, { from: purchaser }).should.be.fulfilled;
             
             const balanceLockupExpected = tokens;
@@ -106,10 +107,16 @@ contract('PlatinICO', (accounts) => {
 
             const tgeMock = await PlatinTGEMinICOMock.new(
                 env.token.address,
-                env.preIco.address,
+                env.preIcoPool.address,
                 env.ico.address,
-                env.stdVesting.address,
-                env.unsVesting.address
+                env.miningPool.address,
+                env.foundersPool.address,
+                env.employeesPool.address,
+                env.airdropsPool.address,
+                env.reservesPool.address,
+                env.advisorsPool.address,
+                env.ecosystemPool.address,
+                env.unsoldReserve
             ).should.be.fulfilled;
 
             await performTge(env, tgeMock);
@@ -154,10 +161,16 @@ contract('PlatinICO', (accounts) => {
 
             const tgeMock = await PlatinTGEMinICOMock.new(
                 env.token.address,
-                env.preIco.address,
+                env.preIcoPool.address,
                 env.ico.address,
-                env.stdVesting.address,
-                env.unsVesting.address
+                env.miningPool.address,
+                env.foundersPool.address,
+                env.employeesPool.address,
+                env.airdropsPool.address,
+                env.reservesPool.address,
+                env.advisorsPool.address,
+                env.ecosystemPool.address,
+                env.unsoldReserve
             ).should.be.fulfilled;  
 
             await performTge(env, tgeMock);

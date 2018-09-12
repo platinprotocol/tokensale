@@ -77,10 +77,6 @@ module.exports = async function(accounts, env) {
         env.token.address
     );
 
-    env.preIco = await PlatinPreICO.new(
-        env.token.address
-    );    
-
     env.ico = await PlatinICO.new(
         rate,
         wallet,

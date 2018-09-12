@@ -137,7 +137,7 @@ contract('PlatinICO', (accounts) => {
 
             const balanceExpected = new BigNumber(0);
             const balanceActual = await env.token.balanceOf(env.ico.address);
-            const balanceReserve = await env.token.balanceOf(await env.tge.RESERVE());
+            const balanceReserve = await env.token.balanceOf(await env.tge.UNSOLD_RESERVE());
 
             balanceExpected.should.be.bignumber.equal(balanceActual);
             balanceExpectedReserve.should.be.bignumber.equal(balanceReserve);

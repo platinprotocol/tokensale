@@ -9,7 +9,7 @@ module.exports = async function(env, _tge) {
     const tge = typeof _tge === 'undefined' ? env.tge : _tge;
 
     await env.token.setTGE(tge.address).should.be.fulfilled;
-    await env.preIco.setTGE(tge.address).should.be.fulfilled;
+    // await env.preIco.setTGE(tge.address).should.be.fulfilled;
     await env.ico.setTGE(tge.address).should.be.fulfilled;
 
     await tge.allocate().should.be.fulfilled;

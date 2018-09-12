@@ -31,43 +31,157 @@ contract('PlatinTGE', (accounts) => {
     it('should not be able instantiate TGE with zero addresses', async() => {
         await PlatinTGE.new(
             zeroAddress,
-            env.preIco.address,
+            env.preIcoPool.address,
             env.ico.address,
-            env.stdVesting.address,
-            env.unsVesting.address
+            env.miningPool.address,
+            env.foundersPool.address,
+            env.employeesPool.address,
+            env.airdropsPool.address,
+            env.reservesPool.address,
+            env.advisorsPool.address,
+            env.ecosystemPool.address,
+            env.unsoldReserve
         ).should.be.rejectedWith(EVMRevert);       
 
         await PlatinTGE.new(
             env.token.address,
             zeroAddress,
             env.ico.address,
-            env.stdVesting.address,
-            env.unsVesting.address
+            env.miningPool.address,
+            env.foundersPool.address,
+            env.employeesPool.address,
+            env.airdropsPool.address,
+            env.reservesPool.address,
+            env.advisorsPool.address,
+            env.ecosystemPool.address,
+            env.unsoldReserve
         ).should.be.rejectedWith(EVMRevert); 
 
         await PlatinTGE.new(
             env.token.address,
-            env.preIco.address,
+            env.preIcoPool.address,
             zeroAddress,
-            env.stdVesting.address,
-            env.unsVesting.address
+            env.miningPool.address,
+            env.foundersPool.address,
+            env.employeesPool.address,
+            env.airdropsPool.address,
+            env.reservesPool.address,
+            env.advisorsPool.address,
+            env.ecosystemPool.address,
+            env.unsoldReserve
         ).should.be.rejectedWith(EVMRevert);
 
         await PlatinTGE.new(
             env.token.address,
-            env.preIco.address,
+            env.preIcoPool.address,
             env.ico.address,
             zeroAddress,
-            env.unsVesting.address
+            env.foundersPool.address,
+            env.employeesPool.address,
+            env.airdropsPool.address,
+            env.reservesPool.address,
+            env.advisorsPool.address,
+            env.ecosystemPool.address,
+            env.unsoldReserve
         ).should.be.rejectedWith(EVMRevert); 
 
         await PlatinTGE.new(
             env.token.address,
-            env.preIco.address,
+            env.preIcoPool.address,
             env.ico.address,
-            env.stdVesting.address,
+            env.miningPool.address,
+            zeroAddress,
+            env.employeesPool.address,
+            env.airdropsPool.address,
+            env.reservesPool.address,
+            env.advisorsPool.address,
+            env.ecosystemPool.address,
+            env.unsoldReserve
+        ).should.be.rejectedWith(EVMRevert);
+
+        await PlatinTGE.new(
+            env.token.address,
+            env.preIcoPool.address,
+            env.ico.address,
+            env.miningPool.address,
+            env.foundersPool.address,
+            zeroAddress,
+            env.airdropsPool.address,
+            env.reservesPool.address,
+            env.advisorsPool.address,
+            env.ecosystemPool.address,
+            env.unsoldReserve
+        ).should.be.rejectedWith(EVMRevert);
+
+        await PlatinTGE.new(
+            env.token.address,
+            env.preIcoPool.address,
+            env.ico.address,
+            env.miningPool.address,
+            env.foundersPool.address,
+            env.employeesPool.address,
+            zeroAddress,
+            env.reservesPool.address,
+            env.advisorsPool.address,
+            env.ecosystemPool.address,
+            env.unsoldReserve
+        ).should.be.rejectedWith(EVMRevert);
+
+        await PlatinTGE.new(
+            env.token.address,
+            env.preIcoPool.address,
+            env.ico.address,
+            env.miningPool.address,
+            env.foundersPool.address,
+            env.employeesPool.address,
+            env.airdropsPool.address,
+            zeroAddress,
+            env.advisorsPool.address,
+            env.ecosystemPool.address,
+            env.unsoldReserve
+        ).should.be.rejectedWith(EVMRevert);
+
+        await PlatinTGE.new(
+            env.token.address,
+            env.preIcoPool.address,
+            env.ico.address,
+            env.miningPool.address,
+            env.foundersPool.address,
+            env.employeesPool.address,
+            env.airdropsPool.address,
+            env.reservesPool.address,
+            zeroAddress,
+            env.ecosystemPool.address,
+            env.unsoldReserve
+        ).should.be.rejectedWith(EVMRevert);
+
+        await PlatinTGE.new(
+            env.token.address,
+            env.preIcoPool.address,
+            env.ico.address,
+            env.miningPool.address,
+            env.foundersPool.address,
+            env.employeesPool.address,
+            env.airdropsPool.address,
+            env.reservesPool.address,
+            env.advisorsPool.address,
+            zeroAddress,
+            env.unsoldReserve
+        ).should.be.rejectedWith(EVMRevert);
+
+        await PlatinTGE.new(
+            env.token.address,
+            env.preIcoPool.address,
+            env.ico.address,
+            env.miningPool.address,
+            env.foundersPool.address,
+            env.employeesPool.address,
+            env.airdropsPool.address,
+            env.reservesPool.address,
+            env.advisorsPool.address,
+            env.ecosystemPool.address,
             zeroAddress
-        ).should.be.rejectedWith(EVMRevert);                                    
+        ).should.be.rejectedWith(EVMRevert);
     });
   
     it('should be able to allocate tokens during TGE', async() => {
@@ -93,11 +207,17 @@ contract('PlatinTGE', (accounts) => {
         const token = await PlatinTokenMock.new().should.be.fulfilled;
 
         const tge = await PlatinTGE.new(
-            token.address,
-            env.preIco.address,
+            env.token.address,
+            env.preIcoPool.address,
             env.ico.address,
-            env.stdVesting.address,
-            env.unsVesting.address
+            env.miningPool.address,
+            env.foundersPool.address,
+            env.employeesPool.address,
+            env.airdropsPool.address,
+            env.reservesPool.address,
+            env.advisorsPool.address,
+            env.ecosystemPool.address,
+            env.unsoldReserve
         ).should.be.fulfilled;
         
         await token.setTGE(tge.address).should.be.fulfilled;

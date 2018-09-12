@@ -110,6 +110,7 @@ contract PlatinTGE {
         require(_reservesPool != address(0), "Reserves Pool address can't be zero.");
         require(_advisorsPool != address(0), "Advisors Pool address can't be zero.");
         require(_ecosystemPool != address(0), "Ecosystem Pool address can't be zero.");
+        require(_unsoldReserve != address(0), "Unsold reserve address can't be zero.");
 
         // Setup token address
         token = _token;

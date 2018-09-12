@@ -347,165 +347,165 @@ contract('PlatinToken', (accounts) => {
         });         
     });
 
-    describe('vesting', function () {    
-        it('should have vested amount after vesting', async() => {
-            const from = accounts[0];
-            const to = accounts[1];
-            const value = ether(1);
-
-            const rate = await env.tge.TOKEN_RATE();
-            const tokens = value.mul(rate);
-
-            const startHasVested = await env.token.hasVested(to);    
-
-            await performTge(env);
-            await increaseTimeTo(env.openingTime);
-            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
-            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
-
-            await env.token.transferWithVesting(to, tokens, env.unsVesting.address, { from: from }).should.be.fulfilled;        
-            
-            const endHasVested = await env.token.hasVested(to); 
-            
-            startHasVested.should.be.equal(false);
-            endHasVested.should.be.equal(true);
-        }); 
-
-        it('should be able to get count of vested amounts', async() => {
-            const from = accounts[0];
-            const to = accounts[1];
-            const value = ether(1);
-
-            const rate = await env.tge.TOKEN_RATE();
-            const tokens = value.mul(rate);
-
-            const startVestedCount = await env.token.vestedCount(to);    
-
-            await performTge(env);
-            await increaseTimeTo(env.openingTime);
-            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
-            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
-
-            await env.token.transferWithVesting(to, tokens.div(2), env.unsVesting.address, { from: from }).should.be.fulfilled;   
-            await env.token.transferWithVesting(to, tokens.div(2), env.unsVesting.address, { from: from }).should.be.fulfilled;          
-            
-            const endVestedCount= await env.token.vestedCount(to); 
-            
-            startVestedCount.should.be.bignumber.equal(new BigNumber(0));
-            endVestedCount.should.be.bignumber.equal(new BigNumber(2));
-        });        
-        
-        it('should free all vested amount after the last release time', async() => {
-            const from = accounts[0];
-            const to = accounts[1];
-            const value = ether(1);
-
-            const rate = await env.tge.TOKEN_RATE();
-            const tokens = value.mul(rate);
-
-            await performTge(env);
-            await increaseTimeTo(env.openingTime);
-            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
-            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
-
-            await env.token.transferWithVesting(to, tokens, env.testVesting.address, { from: from }).should.be.fulfilled; 
-            
-            const startBalanceSpotExpected = new BigNumber(0);
-            const startBalanceSpotActual = await env.token.balanceSpot(to);  
-            const startBalanceVestedExpected = tokens; 
-            const startBalanceVestedActual = await env.token.balanceVested(to);
-
-            const endVesting = await env.testVesting.vestingReleases(await env.testVesting.vestingParts() - 1) + 1;
-            await increaseTimeTo(endVesting);
-            
-            const endBalanceSpotExpected = tokens;
-            const endBalanceSpotActual = await env.token.balanceSpot(to);  
-            const endBalanceVestedExpected = new BigNumber(0); 
-            const endBalanceVestedActual = await env.token.balanceVested(to);
-
-            startBalanceSpotExpected.should.be.bignumber.equal(startBalanceSpotActual);
-            startBalanceVestedExpected.should.be.bignumber.equal(startBalanceVestedActual);
-            endBalanceSpotExpected.should.be.bignumber.equal(endBalanceSpotActual);
-            endBalanceVestedExpected.should.be.bignumber.equal(endBalanceVestedActual);
-        });            
-
-        it('should be able perform transferWithVesting and transferFromWithVesting', async() => {
-            const from = accounts[0];
-            const to = accounts[1];
-            const value = ether(1);
-
-            const rate = await env.tge.TOKEN_RATE();
-            const tokens = value.mul(rate);
-
-            const fullBalanceExpected = tokens;
-            const vestedBalanceExpected = tokens;     
-
-            await performTge(env);
-            await increaseTimeTo(env.openingTime);
-            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
-            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
-
-            await env.token.transferWithVesting(to, tokens.div(2), env.testVesting.address, { from: from }).should.be.fulfilled;
-            await env.token.approve(from, tokens.div(2));
-            await env.token.transferFromWithVesting(from, to, tokens.div(2), env.testVesting.address, { from: from }).should.be.fulfilled;
-   
-            const fullBalanceActual = await env.token.balanceOf(to);
-            const vestedBalanceActual = await env.token.balanceVested(to);
-
-            fullBalanceActual.should.be.bignumber.equal(fullBalanceExpected);
-            vestedBalanceActual.should.be.bignumber.equal(vestedBalanceExpected);
-        });      
-
-        it('should not be able perform transferWithVesting and transferFromWithVesting from the arbitrary address', async() => {
-            const from = accounts[1];
-            const to = accounts[2];
-            const value = ether(1);
-
-            const rate = await env.tge.TOKEN_RATE();
-            const tokens = value.mul(rate);
-
-            await performTge(env);
-            await increaseTimeTo(env.openingTime);
-            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
-            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
-
-            await env.token.transferWithVesting(to, tokens.div(2), env.testVesting.address, { from: from }).should.be.rejectedWith(EVMRevert);
-            await env.token.approve(from, tokens.div(2)).should.be.fulfilled;
-            await env.token.transferFromWithVesting(from, to, tokens.div(2), env.testVesting.address, { from: from }).should.be.rejectedWith(EVMRevert);
-        });     
-
-        it('should not able do vesting with zero vesting address', async() => {
-            const from = accounts[0];
-            const to = accounts[1];
-            const value = ether(1);
-
-            const rate = await env.tge.TOKEN_RATE();
-            const tokens = value.mul(rate);
-
-            const startVestedBalance = new BigNumber(0);   
-
-            await performTge(env);
-            await increaseTimeTo(env.openingTime);
-            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
-            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
-
-            await env.token.transferWithVesting(to, tokens, zeroAddress, { from: from }).should.be.fulfilled;     
-            
-            const endVestedBalance = await env.token.balanceVested(to);   
-            
-            startVestedBalance.should.be.bignumber.equal(endVestedBalance);
-        });         
-
-        it('shoud not be able perform vesting to zero address', async() => {
-            const tokenVestingMock = await TokenVestingMock.new().should.be.fulfilled;
-            await tokenVestingMock.zeroAddressVesting().should.be.rejectedWith(EVMRevert);
-        });
-
-        it('shoud not be able perform vesting with zero amount', async() => {
-            const tokenVestingMock = await TokenVestingMock.new().should.be.fulfilled;
-            await tokenVestingMock.zeroAmountVesting().should.be.rejectedWith(EVMRevert);
-        });        
-    });
+    // describe('vesting', function () {
+    //     it('should have vested amount after vesting', async() => {
+    //         const from = accounts[0];
+    //         const to = accounts[1];
+    //         const value = ether(1);
+    //
+    //         const rate = await env.tge.TOKEN_RATE();
+    //         const tokens = value.mul(rate);
+    //
+    //         const startHasVested = await env.token.hasVested(to);
+    //
+    //         await performTge(env);
+    //         await increaseTimeTo(env.openingTime);
+    //         await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
+    //         await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
+    //
+    //         await env.token.transferWithVesting(to, tokens, env.unsVesting.address, { from: from }).should.be.fulfilled;
+    //
+    //         const endHasVested = await env.token.hasVested(to);
+    //
+    //         startHasVested.should.be.equal(false);
+    //         endHasVested.should.be.equal(true);
+    //     });
+    //
+    //     it('should be able to get count of vested amounts', async() => {
+    //         const from = accounts[0];
+    //         const to = accounts[1];
+    //         const value = ether(1);
+    //
+    //         const rate = await env.tge.TOKEN_RATE();
+    //         const tokens = value.mul(rate);
+    //
+    //         const startVestedCount = await env.token.vestedCount(to);
+    //
+    //         await performTge(env);
+    //         await increaseTimeTo(env.openingTime);
+    //         await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
+    //         await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
+    //
+    //         await env.token.transferWithVesting(to, tokens.div(2), env.unsVesting.address, { from: from }).should.be.fulfilled;
+    //         await env.token.transferWithVesting(to, tokens.div(2), env.unsVesting.address, { from: from }).should.be.fulfilled;
+    //
+    //         const endVestedCount= await env.token.vestedCount(to);
+    //
+    //         startVestedCount.should.be.bignumber.equal(new BigNumber(0));
+    //         endVestedCount.should.be.bignumber.equal(new BigNumber(2));
+    //     });
+    //
+    //     it('should free all vested amount after the last release time', async() => {
+    //         const from = accounts[0];
+    //         const to = accounts[1];
+    //         const value = ether(1);
+    //
+    //         const rate = await env.tge.TOKEN_RATE();
+    //         const tokens = value.mul(rate);
+    //
+    //         await performTge(env);
+    //         await increaseTimeTo(env.openingTime);
+    //         await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
+    //         await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
+    //
+    //         await env.token.transferWithVesting(to, tokens, env.testVesting.address, { from: from }).should.be.fulfilled;
+    //
+    //         const startBalanceSpotExpected = new BigNumber(0);
+    //         const startBalanceSpotActual = await env.token.balanceSpot(to);
+    //         const startBalanceVestedExpected = tokens;
+    //         const startBalanceVestedActual = await env.token.balanceVested(to);
+    //
+    //         const endVesting = await env.testVesting.vestingReleases(await env.testVesting.vestingParts() - 1) + 1;
+    //         await increaseTimeTo(endVesting);
+    //
+    //         const endBalanceSpotExpected = tokens;
+    //         const endBalanceSpotActual = await env.token.balanceSpot(to);
+    //         const endBalanceVestedExpected = new BigNumber(0);
+    //         const endBalanceVestedActual = await env.token.balanceVested(to);
+    //
+    //         startBalanceSpotExpected.should.be.bignumber.equal(startBalanceSpotActual);
+    //         startBalanceVestedExpected.should.be.bignumber.equal(startBalanceVestedActual);
+    //         endBalanceSpotExpected.should.be.bignumber.equal(endBalanceSpotActual);
+    //         endBalanceVestedExpected.should.be.bignumber.equal(endBalanceVestedActual);
+    //     });
+    //
+    //     it('should be able perform transferWithVesting and transferFromWithVesting', async() => {
+    //         const from = accounts[0];
+    //         const to = accounts[1];
+    //         const value = ether(1);
+    //
+    //         const rate = await env.tge.TOKEN_RATE();
+    //         const tokens = value.mul(rate);
+    //
+    //         const fullBalanceExpected = tokens;
+    //         const vestedBalanceExpected = tokens;
+    //
+    //         await performTge(env);
+    //         await increaseTimeTo(env.openingTime);
+    //         await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
+    //         await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
+    //
+    //         await env.token.transferWithVesting(to, tokens.div(2), env.testVesting.address, { from: from }).should.be.fulfilled;
+    //         await env.token.approve(from, tokens.div(2));
+    //         await env.token.transferFromWithVesting(from, to, tokens.div(2), env.testVesting.address, { from: from }).should.be.fulfilled;
+    //
+    //         const fullBalanceActual = await env.token.balanceOf(to);
+    //         const vestedBalanceActual = await env.token.balanceVested(to);
+    //
+    //         fullBalanceActual.should.be.bignumber.equal(fullBalanceExpected);
+    //         vestedBalanceActual.should.be.bignumber.equal(vestedBalanceExpected);
+    //     });
+    //
+    //     it('should not be able perform transferWithVesting and transferFromWithVesting from the arbitrary address', async() => {
+    //         const from = accounts[1];
+    //         const to = accounts[2];
+    //         const value = ether(1);
+    //
+    //         const rate = await env.tge.TOKEN_RATE();
+    //         const tokens = value.mul(rate);
+    //
+    //         await performTge(env);
+    //         await increaseTimeTo(env.openingTime);
+    //         await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
+    //         await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
+    //
+    //         await env.token.transferWithVesting(to, tokens.div(2), env.testVesting.address, { from: from }).should.be.rejectedWith(EVMRevert);
+    //         await env.token.approve(from, tokens.div(2)).should.be.fulfilled;
+    //         await env.token.transferFromWithVesting(from, to, tokens.div(2), env.testVesting.address, { from: from }).should.be.rejectedWith(EVMRevert);
+    //     });
+    //
+    //     it('should not able do vesting with zero vesting address', async() => {
+    //         const from = accounts[0];
+    //         const to = accounts[1];
+    //         const value = ether(1);
+    //
+    //         const rate = await env.tge.TOKEN_RATE();
+    //         const tokens = value.mul(rate);
+    //
+    //         const startVestedBalance = new BigNumber(0);
+    //
+    //         await performTge(env);
+    //         await increaseTimeTo(env.openingTime);
+    //         await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
+    //         await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
+    //
+    //         await env.token.transferWithVesting(to, tokens, zeroAddress, { from: from }).should.be.fulfilled;
+    //
+    //         const endVestedBalance = await env.token.balanceVested(to);
+    //
+    //         startVestedBalance.should.be.bignumber.equal(endVestedBalance);
+    //     });
+    //
+    //     it('shoud not be able perform vesting to zero address', async() => {
+    //         const tokenVestingMock = await TokenVestingMock.new().should.be.fulfilled;
+    //         await tokenVestingMock.zeroAddressVesting().should.be.rejectedWith(EVMRevert);
+    //     });
+    //
+    //     it('shoud not be able perform vesting with zero amount', async() => {
+    //         const tokenVestingMock = await TokenVestingMock.new().should.be.fulfilled;
+    //         await tokenVestingMock.zeroAmountVesting().should.be.rejectedWith(EVMRevert);
+    //     });
+    // });
 
     describe('balance', function () {             
         it('should be able calculate full, spot, lockedup and vested balance', async() => {
@@ -527,17 +527,17 @@ contract('PlatinToken', (accounts) => {
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
             await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.div(2)], false, { from: from }).should.be.fulfilled;
-            await env.token.transferWithVesting(to, tokens.div(2), env.testVesting.address, { from: from }).should.be.fulfilled;
+            // await env.token.transferWithVesting(to, tokens.div(2), env.testVesting.address, { from: from }).should.be.fulfilled;
 
             const fullBalanceActual = await env.token.balanceOf(to);
             const spotBalanceActual = await env.token.balanceSpot(to);
             const lockedUpBalanceActual = await env.token.balanceLockedUp(to);
-            const vestedBalanceActual = await env.token.balanceVested(to);
+            // const vestedBalanceActual = await env.token.balanceVested(to);
 
             fullBalanceActual.should.be.bignumber.equal(fullBalanceExpected);
             spotBalanceActual.should.be.bignumber.equal(spotBalanceExpected);
             lockedUpBalanceActual.should.be.bignumber.equal(lockedUpBalanceExpected);
-            vestedBalanceActual.should.be.bignumber.equal(vestedBalanceExpected);
+            // vestedBalanceActual.should.be.bignumber.equal(vestedBalanceExpected);
         });    
 
         it('should not be able to transfer or transferFrom more than balance spot', async() => {
@@ -555,7 +555,7 @@ contract('PlatinToken', (accounts) => {
 
             await env.token.transfer(to, tokens.div(3), { from: from }).should.be.fulfilled; 
             await env.token.transferWithLockup(to, tokens.div(3), [env.closingTime + duration.weeks(1), tokens.div(3)], { from: from }).should.be.fulfilled;
-            await env.token.transferWithVesting(to, tokens.div(3), env.testVesting.address, { from: from }).should.be.fulfilled;
+            // await env.token.transferWithVesting(to, tokens.div(3), env.testVesting.address, { from: from }).should.be.fulfilled;
 
             await env.token.transfer(from, tokens.div(3).add(1), { from: to }).should.be.rejectedWith(EVMRevert);
             await env.token.approve(from, tokens.div(3).add(1), { from: to }).should.be.fulfilled;

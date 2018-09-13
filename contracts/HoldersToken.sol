@@ -7,6 +7,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 /**
  * @title Holders Token
  * @dev Extension to the OpenZepellin's StandardToken contract to track token holders.
+ * Only holders with the non-zero balance are listed.
  */
 contract HoldersToken is StandardToken {
     using SafeMath for uint256;    

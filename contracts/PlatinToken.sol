@@ -11,6 +11,12 @@ import "./PlatinTGE.sol";
 /**
  * @title PlatinToken
  * @dev Platin PTNX Token contract. Tokens are allocated during TGE.
+ * Token contract is a standard ERC20 token with additional capabilities: TGE allocation, holders tracking and lockup.
+ * Initial allocation should be invoked by the TGE contract at the TGE moment of time.
+ * Token contract holds list of token holders, the list includes holders with positive balance only.
+ * Authorized holders can transfer token with lockup(s). Lockups can be refundable. 
+ * Lockups is a list of releases dates and releases amounts in a form [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...])
+ * In case of refund previous holder can get back locked up tokens. Only still locked up amounts can be transfered back.
  */
 contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     using SafeMath for uint256;
@@ -81,27 +87,6 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     }  
 
     /**
-     * @dev Transfer tokens from one address to another
-     * @param _to address The address which you want to transfer to
-     * @param _value uint256 The amount of tokens to be transferred
-     * @return bool Returns true if the transfer was succeeded
-     */
-    function transfer(address _to, uint256 _value) public whenNotPaused spotTransfer(msg.sender, _value) returns (bool) {
-        return super.transfer(_to, _value);
-    }
-
-    /**
-     * @dev Transfer tokens from one address to another
-     * @param _from address The address which you want to send tokens from
-     * @param _to address The address which you want to transfer to
-     * @param _value uint256 The amount of tokens to be transferred
-     * @return bool Returns true if the transfer was succeeded
-     */
-    function transferFrom(address _from, address _to, uint256 _value) public whenNotPaused spotTransfer(_from, _value) returns (bool) {
-        return super.transferFrom(_from, _to, _value);
-    }
-
-    /**
      * @dev Get the lockups list count
      * @param _who address Address owns lockedup list
      * @return uint256 Lockups list count     
@@ -146,11 +131,33 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     }         
 
     /**
+     * @dev Transfer tokens from one address to another
+     * @param _to address The address which you want to transfer to
+     * @param _value uint256 The amount of tokens to be transferred
+     * @return bool Returns true if the transfer was succeeded
+     */
+    function transfer(address _to, uint256 _value) public whenNotPaused spotTransfer(msg.sender, _value) returns (bool) {
+        return super.transfer(_to, _value);
+    }
+
+    /**
+     * @dev Transfer tokens from one address to another
+     * @param _from address The address which you want to send tokens from
+     * @param _to address The address which you want to transfer to
+     * @param _value uint256 The amount of tokens to be transferred
+     * @return bool Returns true if the transfer was succeeded
+     */
+    function transferFrom(address _from, address _to, uint256 _value) public whenNotPaused spotTransfer(_from, _value) returns (bool) {
+        return super.transferFrom(_from, _to, _value);
+    }
+
+    /**
      * @dev Transfer tokens from one address to another with lockup
      * @param _to address The address which you want to transfer to
      * @param _value uint256 The amount of tokens to be transferred
      * @param _lockups uint256[] List of lockups
      * @param _refundable bool Is locked up amount refundable
+     * @return bool Returns true if the transfer was succeeded     
      */
     function transferWithLockup(
         address _to, 
@@ -171,6 +178,7 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
      * @param _value uint256 The amount of tokens to be transferred
      * @param _lockups uint256[] List of lockups      
      * @param _refundable bool Is locked up amount refundable      
+     * @return bool Returns true if the transfer was succeeded     
      */
     function transferFromWithLockup(
         address _from, 
@@ -188,6 +196,7 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     /**
      * @dev Refund refundable lockedup amount
      * @param _from address The address which you want to refund tokens from
+     * @return uint256 Returns amount of refunded tokens   
      */
     function refundLockedUp(
         address _from

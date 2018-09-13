@@ -9,13 +9,18 @@ import "./PlatinTGE.sol";
 
 /**
  * @title PlatinPool
- * @dev 
+ * @dev Pool contract holds a pool distribution table. 
+ * Distribution can be done publically. 
+ * The records in this 
  */
 contract PlatinPool is HasNoEther, Authorizable {
     using SafeMath for uint256;
 
     // Platin Token contract
     PlatinToken public token;  
+
+    // allocated to distribution
+    uint256 public allocated;
 
     // distributed amount
     uint256 public distributed;
@@ -31,6 +36,9 @@ contract PlatinPool is HasNoEther, Authorizable {
 
     // distribution mapping (table)
     mapping (address => Distribution) public distribution;
+
+    // distribution list (members of the pool)
+    address[] public members;
 
     // distribute event logging
     event Distribute(address indexed to, uint256 amount);
@@ -70,6 +78,9 @@ contract PlatinPool is HasNoEther, Authorizable {
         distribution[_beneficiary].refundable = _refundable;
         distribution[_beneficiary].distributed = false;
 
+        allocated = allocated.add(_amount);
+        members.push(_beneficiary);
+
         emit AddDistribution(_beneficiary, _amount, _lockups);
     }    
 
@@ -90,9 +101,18 @@ contract PlatinPool is HasNoEther, Authorizable {
             _lockups, 
             _refundable);
 
-        emit Distribute(_beneficiary, _amount);  
         distributed = distributed.add(_amount);
         distribution[_beneficiary].distributed = true;
+
+        emit Distribute(_beneficiary, _amount);  
+    }
+
+    /**
+     * @dev Get members count
+     * @return uint256 Members count
+     */   
+    function membersCount() public view returns (uint256) {
+        return members.length;
     }
 
     /**
@@ -105,7 +125,8 @@ contract PlatinPool is HasNoEther, Authorizable {
     public onlyAuthorized returns (uint256) 
     {
         uint256 _refunded = token.refundLockedUp(_from);
-        distributed = distributed.sub(_refunded);
+        allocated = allocated.sub(_refunded);
+        distributed = distributed.sub(_refunded);        
         distribution[_from].refunded = _refunded;
     }     
 }

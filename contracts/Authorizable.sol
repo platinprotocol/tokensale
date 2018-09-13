@@ -5,7 +5,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 /**
  * @title Authorizable
- * @dev Authorizable contract.
+ * @dev Authorizable contract holds a list of addresses that authorized to do smth.
  */
 contract Authorizable is Ownable {
 
@@ -18,7 +18,7 @@ contract Authorizable is Ownable {
     // UnAuthorize event logging
     event UnAuthorize(address indexed who);
 
-    // onlyAuthorized modifier, restrict to the owner and the authorized list of addresses
+    // onlyAuthorized modifier, restrict to the owner and the list of authorized addresses
     modifier onlyAuthorized() {
         require(msg.sender == owner || authorized[msg.sender], "Not Authorized.");
         _;
@@ -28,7 +28,7 @@ contract Authorizable is Ownable {
      * @dev Authorize given address
      * @param _who address Address to authorize 
      */
-    function authorize(address _who) public onlyAuthorized {
+    function authorize(address _who) public onlyOwner {
         require(_who != address(0), "Address can't be zero.");
         require(!authorized[_who], "Already authorized");
 
@@ -40,7 +40,7 @@ contract Authorizable is Ownable {
      * @dev unAuthorize given address
      * @param _who address Address to unauthorize 
      */
-    function unAuthorize(address _who) public onlyAuthorized {
+    function unAuthorize(address _who) public onlyOwner {
         require(_who != address(0), "Address can't be zero.");
         require(authorized[_who], "Address is not authorized");
 

@@ -1,21 +1,13 @@
 const { duration } = require('./increaseTime');
 const { latestTime } = require('./latestTime');
 
-// const PlatinVesting = artifacts.require('PlatinVesting');
-
 const PlatinToken = artifacts.require('PlatinToken');
 const PlatinTGE = artifacts.require('PlatinTGE');
-// const PlatinPreICO = artifacts.require('PlatinPreICO');
 const PlatinICO = artifacts.require('PlatinICO');
-// const PlatinStandardVesting = artifacts.require('PlatinStandardVesting');
-// const PlatinUnsoldVesting = artifacts.require('PlatinUnsoldVesting');
 const PlatinICORegular = artifacts.require('PlatinICORegular');
 const PlatinICOLockup = artifacts.require('PlatinICOLockup');
 const AdvisorsPool = artifacts.require("./pools/AdvisorsPool.sol");
 const FoundersPool = artifacts.require("./pools/FoundersPool.sol");
-const PreIcoPool = artifacts.require("./pools/PreIcoPool.sol");
-
-
 module.exports = async function(accounts, env) {
     env.unsoldReserve = '0xef34779ad86cd818e86e0ec1096186d35377a474';
     env.miningPool = '0xbcafab8c459aaf0b6aa882d78d8d51135405289e';
@@ -30,17 +22,6 @@ module.exports = async function(accounts, env) {
     env.openingTime = (await latestTime()) + duration.weeks(1);
     env.closingTime = env.openingTime + duration.weeks(1);
     env.afterClosingTime = env.closingTime + duration.seconds(1);
-
-    // env.stdVesting = await PlatinStandardVesting.new();
-    // env.unsVesting = await PlatinUnsoldVesting.new();
-
-    // env.testVesting = await PlatinVesting.new(4,
-    //     [env.openingTime + duration.hours(1),
-    //      env.openingTime + duration.hours(2),
-    //      env.openingTime + duration.hours(2),
-    //      env.openingTime + duration.hours(4),
-    //     ]
-    // );
 
     env.token = await PlatinToken.new();
 
@@ -59,7 +40,7 @@ module.exports = async function(accounts, env) {
     env.ico = await PlatinICO.new(
         rate,
         wallet,
-        env.token.address,   
+        env.token.address,
         env.openingTime,
         env.closingTime
     );
@@ -85,4 +66,26 @@ module.exports = async function(accounts, env) {
     env.icoLockup = await PlatinICOLockup.new(
         env.ico.address
     );
+
+    await env.token.authorize(await env.tge.PRE_ICO_POOL());
+
+    await env.token.authorize(await env.tge.ICO());
+
+    await env.token.authorize(await env.tge.MINING_POOL());
+
+    await env.token.authorize(await env.tge.FOUNDERS_POOL());
+
+    await env.token.authorize(await env.tge.EMPLOYEES_POOL());
+
+    await env.token.authorize(await env.tge.AIRDROPS_POOL());
+
+    await env.token.authorize(await env.tge.RESERVES_POOL());
+
+    await env.token.authorize(await env.tge.ADVISORS_POOL());
+
+    await env.token.authorize(await env.tge.ECOSYSTEM_POOL());
+
 };
+
+
+const PreIcoPool = artifacts.require("./pools/PreIcoPool.sol");

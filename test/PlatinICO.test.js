@@ -79,7 +79,6 @@ contract('PlatinICO', (accounts) => {
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
-            // await env.ico.buyLockupTokens(purchaser, { value: value, from: purchaser }).should.be.fulfilled;
             await env.icoLockup.send(value, { from: purchaser }).should.be.fulfilled;
             
             const balanceLockupExpected = tokens;

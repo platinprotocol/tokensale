@@ -9,9 +9,9 @@ import "./PlatinTGE.sol";
 
 /**
  * @title PlatinPool
- * @dev Pool contract holds a pool distribution table. 
- * Distribution can be done publically. 
- * The records in this 
+ * @dev Pool contract holds a pool distribution table and provide pool distribution logic. 
+ * Distribution itself is a public function.
+ * Distribution can have lockups, lockups can be refundable.
  */
 contract PlatinPool is HasNoEther, Authorizable {
     using SafeMath for uint256;

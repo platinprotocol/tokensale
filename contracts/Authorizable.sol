@@ -5,12 +5,12 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 /**
  * @title Authorizable
- * @dev Authorizable contract holds a list of addresses that authorized to do smth.
+ * @dev Authorizable contract holds a list of control addresses that authorized to do smth.
  */
 contract Authorizable is Ownable {
 
-    // List of authorized addresses
-    mapping (address => bool) authorized;
+    // List of control addresses
+    mapping (address => bool) public authorized;
 
     // Authorize event logging
     event Authorize(address indexed who);

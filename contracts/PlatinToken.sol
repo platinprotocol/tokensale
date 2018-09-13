@@ -24,7 +24,7 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     string public constant name = "Platin Token"; // solium-disable-line uppercase
     string public constant symbol = "PTNX"; // solium-disable-line uppercase
     uint8 public constant decimals = 18; // solium-disable-line uppercase
-
+ 
     // list of lockups, in a form (owner => [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...])
     mapping (address => uint256[]) public lockups;
 

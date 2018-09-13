@@ -2,8 +2,6 @@ const PlatinToken = artifacts.require("PlatinToken.sol");
 const PlatinTGE = artifacts.require("PlatinTGE.sol");
 
 module.exports = function(deployer) {
-    console.log(PlatinTGE.address);
-
     let token, tge;
 
     deployer.then(() => {

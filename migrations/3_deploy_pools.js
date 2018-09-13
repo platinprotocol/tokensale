@@ -8,10 +8,6 @@ const MiningPool = artifacts.require("./pools/MiningPool.sol");
 const PreIcoPool = artifacts.require("./pools/PreIcoPool.sol");
 const ReservesPool = artifacts.require("./pools/ReservesPool.sol");
 
-
-// TODO: deploy all pools
-// TODO: do we need Named Pool contract for every pool instead of one but deployed many times?
-
 module.exports =  function(deployer) {
 
     deployer.deploy(

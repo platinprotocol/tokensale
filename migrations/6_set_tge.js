@@ -3,8 +3,6 @@ const PlatinICO = artifacts.require("PlatinICO.sol");
 const PlatinTGE = artifacts.require("PlatinTGE.sol");
 
 module.exports = function(deployer) {
-    console.log(PlatinTGE.address);
-
     deployer.then(() => {
         return PlatinToken.deployed()
     }).then(token => {

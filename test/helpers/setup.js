@@ -1,29 +1,28 @@
 const { duration } = require('./increaseTime');
 const { latestTime } = require('./latestTime');
 
-const PlatinVesting = artifacts.require('PlatinVesting');
+// const PlatinVesting = artifacts.require('PlatinVesting');
 
 const PlatinToken = artifacts.require('PlatinToken');
 const PlatinTGE = artifacts.require('PlatinTGE');
-const PlatinPreICO = artifacts.require('PlatinPreICO');
+// const PlatinPreICO = artifacts.require('PlatinPreICO');
 const PlatinICO = artifacts.require('PlatinICO');
-const PlatinStandardVesting = artifacts.require('PlatinStandardVesting');
-const PlatinUnsoldVesting = artifacts.require('PlatinUnsoldVesting');
+// const PlatinStandardVesting = artifacts.require('PlatinStandardVesting');
+// const PlatinUnsoldVesting = artifacts.require('PlatinUnsoldVesting');
 const PlatinICORegular = artifacts.require('PlatinICORegular');
 const PlatinICOLockup = artifacts.require('PlatinICOLockup');
 const AdvisorsPool = artifacts.require("./pools/AdvisorsPool.sol");
-const AirdropsPool = artifacts.require("./pools/AirdropsPool.sol");
-const EcosystemPool = artifacts.require("./pools/EcosystemPool.sol");
-const EmployeesPool = artifacts.require("./pools/EmployeesPool.sol");
 const FoundersPool = artifacts.require("./pools/FoundersPool.sol");
-const MiningPool = artifacts.require("./pools/MiningPool.sol");
 const PreIcoPool = artifacts.require("./pools/PreIcoPool.sol");
-const ReservesPool = artifacts.require("./pools/ReservesPool.sol");
 
 
 module.exports = async function(accounts, env) {
-
-    env.unsoldReserve = '0xef34779Ad86Cd818E86e0ec1096186D35377c474';
+    env.unsoldReserve = '0xef34779ad86cd818e86e0ec1096186d35377a474';
+    env.miningPool = '0xbcafab8c459aaf0b6aa882d78d8d51135405289e';
+    env.employeesPool = '0xef34779Ad86Cd818E86e0ec1096186D35377a123';
+    env.airdropsPool = '0xb20aa81e63c8259be247a64295f13e0c79480213';
+    env.reservesPool = '0xb20aa81e63c8259be247a64295f13e0c79480212';
+    env.ecosystemPool = '0xb20aa81e63c8259be247a64295f13e0c79480211';
 
     let rate = 1000;
     let wallet = accounts[0];
@@ -32,16 +31,16 @@ module.exports = async function(accounts, env) {
     env.closingTime = env.openingTime + duration.weeks(1);
     env.afterClosingTime = env.closingTime + duration.seconds(1);
 
-    env.stdVesting = await PlatinStandardVesting.new();
-    env.unsVesting = await PlatinUnsoldVesting.new();
+    // env.stdVesting = await PlatinStandardVesting.new();
+    // env.unsVesting = await PlatinUnsoldVesting.new();
 
-    env.testVesting = await PlatinVesting.new(4, 
-        [env.openingTime + duration.hours(1), 
-         env.openingTime + duration.hours(2),
-         env.openingTime + duration.hours(2),
-         env.openingTime + duration.hours(4),
-        ]
-    );
+    // env.testVesting = await PlatinVesting.new(4,
+    //     [env.openingTime + duration.hours(1),
+    //      env.openingTime + duration.hours(2),
+    //      env.openingTime + duration.hours(2),
+    //      env.openingTime + duration.hours(4),
+    //     ]
+    // );
 
     env.token = await PlatinToken.new();
 
@@ -49,31 +48,11 @@ module.exports = async function(accounts, env) {
         env.token.address
     );
 
-    env.airdropsPool = await AirdropsPool.new(
-        env.token.address
-    );
-
-    env.ecosystemPool = await EcosystemPool.new(
-        env.token.address
-    );
-
-    env.employeesPool = await EmployeesPool.new(
-        env.token.address
-    );
-
     env.foundersPool = await FoundersPool.new(
         env.token.address
     );
 
-    env.miningPool = await MiningPool.new(
-        env.token.address
-    );
-
     env.preIcoPool = await PreIcoPool.new(
-        env.token.address
-    );
-
-    env.reservesPool = await ReservesPool.new(
         env.token.address
     );
 
@@ -89,13 +68,13 @@ module.exports = async function(accounts, env) {
         env.token.address,
         env.preIcoPool.address,
         env.ico.address,
-        env.miningPool.address,
+        env.miningPool,
         env.foundersPool.address,
-        env.employeesPool.address,
-        env.airdropsPool.address,
-        env.reservesPool.address,
+        env.employeesPool,
+        env.airdropsPool,
+        env.reservesPool,
         env.advisorsPool.address,
-        env.ecosystemPool.address,
+        env.ecosystemPool,
         env.unsoldReserve
     );
 

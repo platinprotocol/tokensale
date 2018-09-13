@@ -187,7 +187,7 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
         uint256[] _lockups,
         bool _refundable
     ) 
-    public onlyAuthorized returns (bool) 
+    public onlyAuthorized returns (bool)
     {
         transferFrom(_from, _to, _value);
         _lockup(_to, _value, _lockups, _refundable); // solium-disable-line arg-overflow  

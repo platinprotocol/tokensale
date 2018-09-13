@@ -109,13 +109,13 @@ contract('PlatinICO', (accounts) => {
                 env.token.address,
                 env.preIcoPool.address,
                 env.ico.address,
-                env.miningPool.address,
+                env.miningPool,
                 env.foundersPool.address,
-                env.employeesPool.address,
-                env.airdropsPool.address,
-                env.reservesPool.address,
+                env.employeesPool,
+                env.airdropsPool,
+                env.reservesPool,
                 env.advisorsPool.address,
-                env.ecosystemPool.address,
+                env.ecosystemPool,
                 env.unsoldReserve
             ).should.be.fulfilled;
 
@@ -163,13 +163,13 @@ contract('PlatinICO', (accounts) => {
                 env.token.address,
                 env.preIcoPool.address,
                 env.ico.address,
-                env.miningPool.address,
+                env.miningPool,
                 env.foundersPool.address,
-                env.employeesPool.address,
-                env.airdropsPool.address,
-                env.reservesPool.address,
+                env.employeesPool,
+                env.airdropsPool,
+                env.reservesPool,
                 env.advisorsPool.address,
-                env.ecosystemPool.address,
+                env.ecosystemPool,
                 env.unsoldReserve
             ).should.be.fulfilled;  
 

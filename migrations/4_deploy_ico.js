@@ -1,5 +1,3 @@
-const timestamp = require("unix-timestamp");
-
 const PlatinToken = artifacts.require("PlatinToken.sol");
 const PlatinICO = artifacts.require("PlatinICO.sol");
 const PlatinICOLockup = artifacts.require("PlatinICOLockup.sol");
@@ -11,8 +9,8 @@ module.exports =  function(deployer, network, accounts) {
     rate = 1000;
 
     wallet = accounts[0]; // TODO change to the real one
-    openingTime = timestamp.fromDate('2018-10-28 12:00:00'); // TODO change to the real one
-    closingTime = timestamp.fromDate('2018-12-01 00:00:00'); // TODO change to the real one
+    openingTime = 1540728000 // 2018-10-28 12:00 TODO change to the real one
+    closingTime = 1543622400 // 2018-12-01 00:00 TODO change to the real one
 
     deployer.deploy(
         PlatinICO,                       

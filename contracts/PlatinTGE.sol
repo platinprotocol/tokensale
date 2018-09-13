@@ -32,13 +32,13 @@ contract PlatinTGE {
     // HOLDERS
     address public PRE_ICO_POOL; // solium-disable-line mixedcase 
     address public ICO; // solium-disable-line mixedcase
-    address public MINING_POOL; // solium-disable-line mixedcase trezor
+    address public MINING_POOL; // solium-disable-line mixedcase 
     address public FOUNDERS_POOL; // solium-disable-line mixedcase
-    address public EMPLOYEES_POOL; // solium-disable-line mixedcase trezor
-    address public AIRDROPS_POOL; // solium-disable-line mixedcase trezor
-    address public RESERVES_POOL; // solium-disable-line mixedcase trezor
+    address public EMPLOYEES_POOL; // solium-disable-line mixedcase 
+    address public AIRDROPS_POOL; // solium-disable-line mixedcase 
+    address public RESERVES_POOL; // solium-disable-line mixedcase 
     address public ADVISORS_POOL; // solium-disable-line mixedcase
-    address public ECOSYSTEM_POOL; // solium-disable-line mixedcase trezor
+    address public ECOSYSTEM_POOL; // solium-disable-line mixedcase 
 
     // HOLDER AMOUNT AS PART OF SUPPLY
     // SALES_SUPPLY = PRE_ICO_POOL_AMOUNT + ICO_AMOUNT
@@ -65,9 +65,6 @@ contract PlatinTGE {
 
     // Platin ICO min purchase amount
     uint256 public constant MIN_PURCHASE_AMOUNT = 1 ether;
-
-    // LOCKUP AUTORIZED
-    mapping (address => bool) public LOCKUP_AUTHORIZED; // solium-disable-line mixedcase
 
     // Platin Token contract
     PlatinToken public token;
@@ -122,23 +119,12 @@ contract PlatinTGE {
         FOUNDERS_POOL = _foundersPool;
         EMPLOYEES_POOL = _employeesPool;
         AIRDROPS_POOL = _airdropsPool;
-        RESERVES_POOL = _airdropsPool;
+        RESERVES_POOL = _reservesPool;
         ADVISORS_POOL = _advisorsPool;
         ECOSYSTEM_POOL = _ecosystemPool;
 
         // Setup unsold reserve address
-        UNSOLD_RESERVE = _unsoldReserve;
-
-        // Setup lockup authorized list
-        token.authorize(PRE_ICO_POOL);
-        token.authorize(ICO);
-        token.authorize(MINING_POOL);
-        token.authorize(FOUNDERS_POOL);
-        token.authorize(EMPLOYEES_POOL);
-        token.authorize(AIRDROPS_POOL);
-        token.authorize(RESERVES_POOL);
-        token.authorize(ADVISORS_POOL);
-        token.authorize(ECOSYSTEM_POOL);    
+        UNSOLD_RESERVE = _unsoldReserve; 
     }
 
     /**

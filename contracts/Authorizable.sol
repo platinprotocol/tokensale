@@ -28,7 +28,7 @@ contract Authorizable is Ownable {
      * @dev Authorize given address
      * @param _who address Address to authorize 
      */
-    function authorize(address _who) public onlyAuthorized  {
+    function authorize(address _who) public onlyAuthorized {
         require(_who != address(0), "Address can't be zero.");
         require(!authorized[_who], "Already authorized");
 
@@ -40,7 +40,7 @@ contract Authorizable is Ownable {
      * @dev unAuthorize given address
      * @param _who address Address to unauthorize 
      */
-    function unAuthorize(address _who) public onlyAuthorized  {
+    function unAuthorize(address _who) public onlyAuthorized {
         require(_who != address(0), "Address can't be zero.");
         require(authorized[_who], "Address is not authorized");
 

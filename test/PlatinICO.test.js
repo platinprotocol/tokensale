@@ -49,7 +49,7 @@ contract('PlatinICO', (accounts) => {
     });
 
     describe('purchase', function () {
-        it('should be able purchase tokens', async() => {
+        it('should be able purchase tokens using direct send', async() => {
             const purchaser = accounts[0];
             const value = ether(1); 
             
@@ -60,13 +60,32 @@ contract('PlatinICO', (accounts) => {
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
-            await env.icoRegular.send(value, { from: purchaser }).should.be.fulfilled;
+            await env.ico.send(value, { from: purchaser }).should.be.fulfilled;
             
             const balanceExpected = tokens;
             const balanceActual = await env.token.balanceOf(purchaser);
             
             balanceExpected.should.be.bignumber.equal(balanceActual);               
         });  
+
+        it('should be able purchase tokens using buy function', async() => {
+            const purchaser = accounts[0];
+            const value = ether(1); 
+            
+            const rate = await env.tge.TOKEN_RATE();
+            const tokens = value.mul(rate);
+
+            await performTge(env);
+
+            await increaseTimeTo(env.openingTime);
+            await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
+            await env.ico.buyTokens(purchaser, { from: purchaser, value: value }).should.be.fulfilled;
+            
+            const balanceExpected = tokens;
+            const balanceActual = await env.token.balanceOf(purchaser);
+            
+            balanceExpected.should.be.bignumber.equal(balanceActual);               
+        });         
 
         it('should be able purchase lockup tokens', async() => {
             const purchaser = accounts[0];
@@ -79,7 +98,7 @@ contract('PlatinICO', (accounts) => {
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
-            await env.icoLockup.send(value, { from: purchaser }).should.be.fulfilled;
+            await env.ico.buyLockupTokens(purchaser, { from: purchaser, value: value }).should.be.fulfilled;
             
             const balanceLockupExpected = tokens;
             const balanceLockupActual = await env.token.balanceLockedUp(purchaser);

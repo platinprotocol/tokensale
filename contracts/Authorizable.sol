@@ -9,7 +9,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
  */
 contract Authorizable is Ownable {
 
-    // List of control addresses
+    // List of authorized (control) addresses
     mapping (address => bool) public authorized;
 
     // Authorize event logging

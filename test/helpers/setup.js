@@ -8,6 +8,7 @@ const PlatinICORegular = artifacts.require('PlatinICORegular');
 const PlatinICOLockup = artifacts.require('PlatinICOLockup');
 const AdvisorsPool = artifacts.require("./pools/AdvisorsPool.sol");
 const FoundersPool = artifacts.require("./pools/FoundersPool.sol");
+
 module.exports = async function(accounts, env) {
     env.unsoldReserve = '0xef34779Ad86Cd818E86e0ec1096186D35377c474';
     env.miningPool = '0x378135f66fFC9F70Bb522b3c9b25ed4b8c23dE50';

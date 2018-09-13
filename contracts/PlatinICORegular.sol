@@ -18,6 +18,7 @@ contract PlatinICORegular {
      * @param _ico address Address of the Platin ICO contract                              
      */  
     constructor(PlatinICO _ico) public {
+        require(_ico != address(0), "ICO address can't be zero.");
         ico = _ico;
     }
 

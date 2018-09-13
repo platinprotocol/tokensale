@@ -22,7 +22,7 @@ contract PlatinICOLockup {
     }
 
    /**
-    * @dev fallback function, receives ether and send it to the ICO contract calls payable buyTokens function
+    * @dev fallback function, receives ether and sends it to the ICO contract calling payable buyTokens function
     */
     function () external payable {
         ico.buyLockupTokens.value(msg.value)(msg.sender);

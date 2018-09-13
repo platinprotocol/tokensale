@@ -16,7 +16,7 @@ import "./PlatinTGE.sol";
  * Token contract holds list of token holders, the list includes holders with positive balance only.
  * Authorized holders can transfer token with lockup(s). Lockups can be refundable. 
  * Lockups is a list of releases dates and releases amounts in a form [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...])
- * In case of refund previous holder can get back locked up tokens. Only still locked up amounts can be refundable.
+ * In case of refund previous holder can get back locked up tokens. Only still locked up amounts can be transfered back.
  */
 contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     using SafeMath for uint256;

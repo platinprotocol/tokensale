@@ -130,15 +130,15 @@ contract PlatinTGE {
         UNSOLD_RESERVE = _unsoldReserve;
 
         // Setup lockup authorized list
-        LOCKUP_AUTHORIZED[PRE_ICO_POOL] = true;
-        LOCKUP_AUTHORIZED[ICO] = true;
-        LOCKUP_AUTHORIZED[MINING_POOL] = true;
-        LOCKUP_AUTHORIZED[FOUNDERS_POOL] = true;
-        LOCKUP_AUTHORIZED[EMPLOYEES_POOL] = true;
-        LOCKUP_AUTHORIZED[AIRDROPS_POOL] = true;
-        LOCKUP_AUTHORIZED[RESERVES_POOL] = true;
-        LOCKUP_AUTHORIZED[ADVISORS_POOL] = true;
-        LOCKUP_AUTHORIZED[ECOSYSTEM_POOL] = true;      
+        token.authorize(PRE_ICO_POOL);
+        token.authorize(ICO);
+        token.authorize(MINING_POOL);
+        token.authorize(FOUNDERS_POOL);
+        token.authorize(EMPLOYEES_POOL);
+        token.authorize(AIRDROPS_POOL);
+        token.authorize(RESERVES_POOL);
+        token.authorize(ADVISORS_POOL);
+        token.authorize(ECOSYSTEM_POOL);    
     }
 
     /**

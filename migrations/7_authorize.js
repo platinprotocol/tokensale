@@ -12,7 +12,7 @@ module.exports = function(deployer) {
     }).then(_tge => {          
         tge = _tge;
         return tge.PRE_ICO_POOL();
-    }).then(preIcoPool => {    
+    }).then(preIcoPool => {
         return token.authorize(preIcoPool);
     }).then(() => {
         return tge.ICO();        
@@ -21,30 +21,30 @@ module.exports = function(deployer) {
     }).then(() => {
         return tge.MINING_POOL();
     }).then(miningPool => {
-        return token.authorize(miningPool);        
+        return token.authorize(miningPool);
     }).then(() => {
         return tge.FOUNDERS_POOL();
     }).then(foundersPool => {
-        return token.authorize(foundersPool);          
+        return token.authorize(foundersPool);
     }).then(() => {
         return tge.EMPLOYEES_POOL();
     }).then(employeesPool => {
-        return token.authorize(employeesPool);           
+        return token.authorize(employeesPool);
     }).then(() => {
         return tge.AIRDROPS_POOL();
     }).then(airdropsPool => {
-        return token.authorize(airdropsPool);          
+        return token.authorize(airdropsPool);
     }).then(() => {
         return tge.RESERVES_POOL();
     }).then(reservesPool => {
-        return token.authorize(reservesPool);         
+        return token.authorize(reservesPool);
     }).then(() => {
         return tge.ADVISORS_POOL();
     }).then(advisorsPool => {
-        return token.authorize(advisorsPool);            
+        return token.authorize(advisorsPool);
     }).then(() => {
         return tge.ECOSYSTEM_POOL();
     }).then(ecosystemPool => {
-        return token.authorize(ecosystemPool); 
+        return token.authorize(ecosystemPool);
     });    
 };

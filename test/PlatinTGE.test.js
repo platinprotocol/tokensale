@@ -33,13 +33,13 @@ contract('PlatinTGE', (accounts) => {
             zeroAddress,
             env.preIcoPool.address,
             env.ico.address,
-            env.miningPool.address,
+            env.miningPool,
             env.foundersPool.address,
-            env.employeesPool.address,
-            env.airdropsPool.address,
-            env.reservesPool.address,
+            env.employeesPool,
+            env.airdropsPool,
+            env.reservesPool,
             env.advisorsPool.address,
-            env.ecosystemPool.address,
+            env.ecosystemPool,
             env.unsoldReserve
         ).should.be.rejectedWith(EVMRevert);       
 
@@ -47,13 +47,13 @@ contract('PlatinTGE', (accounts) => {
             env.token.address,
             zeroAddress,
             env.ico.address,
-            env.miningPool.address,
+            env.miningPool,
             env.foundersPool.address,
-            env.employeesPool.address,
-            env.airdropsPool.address,
-            env.reservesPool.address,
+            env.employeesPool,
+            env.airdropsPool,
+            env.reservesPool,
             env.advisorsPool.address,
-            env.ecosystemPool.address,
+            env.ecosystemPool,
             env.unsoldReserve
         ).should.be.rejectedWith(EVMRevert); 
 
@@ -61,13 +61,13 @@ contract('PlatinTGE', (accounts) => {
             env.token.address,
             env.preIcoPool.address,
             zeroAddress,
-            env.miningPool.address,
+            env.miningPool,
             env.foundersPool.address,
-            env.employeesPool.address,
-            env.airdropsPool.address,
-            env.reservesPool.address,
+            env.employeesPool,
+            env.airdropsPool,
+            env.reservesPool,
             env.advisorsPool.address,
-            env.ecosystemPool.address,
+            env.ecosystemPool,
             env.unsoldReserve
         ).should.be.rejectedWith(EVMRevert);
 
@@ -77,11 +77,11 @@ contract('PlatinTGE', (accounts) => {
             env.ico.address,
             zeroAddress,
             env.foundersPool.address,
-            env.employeesPool.address,
-            env.airdropsPool.address,
-            env.reservesPool.address,
+            env.employeesPool,
+            env.airdropsPool,
+            env.reservesPool,
             env.advisorsPool.address,
-            env.ecosystemPool.address,
+            env.ecosystemPool,
             env.unsoldReserve
         ).should.be.rejectedWith(EVMRevert); 
 
@@ -89,13 +89,13 @@ contract('PlatinTGE', (accounts) => {
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
-            env.miningPool.address,
+            env.miningPool,
             zeroAddress,
-            env.employeesPool.address,
-            env.airdropsPool.address,
-            env.reservesPool.address,
+            env.employeesPool,
+            env.airdropsPool,
+            env.reservesPool,
             env.advisorsPool.address,
-            env.ecosystemPool.address,
+            env.ecosystemPool,
             env.unsoldReserve
         ).should.be.rejectedWith(EVMRevert);
 
@@ -103,13 +103,13 @@ contract('PlatinTGE', (accounts) => {
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
-            env.miningPool.address,
+            env.miningPool,
             env.foundersPool.address,
             zeroAddress,
-            env.airdropsPool.address,
-            env.reservesPool.address,
+            env.airdropsPool,
+            env.reservesPool,
             env.advisorsPool.address,
-            env.ecosystemPool.address,
+            env.ecosystemPool,
             env.unsoldReserve
         ).should.be.rejectedWith(EVMRevert);
 
@@ -117,13 +117,13 @@ contract('PlatinTGE', (accounts) => {
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
-            env.miningPool.address,
+            env.miningPool,
             env.foundersPool.address,
-            env.employeesPool.address,
+            env.employeesPool,
             zeroAddress,
-            env.reservesPool.address,
+            env.reservesPool,
             env.advisorsPool.address,
-            env.ecosystemPool.address,
+            env.ecosystemPool,
             env.unsoldReserve
         ).should.be.rejectedWith(EVMRevert);
 
@@ -131,13 +131,13 @@ contract('PlatinTGE', (accounts) => {
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
-            env.miningPool.address,
+            env.miningPool,
             env.foundersPool.address,
-            env.employeesPool.address,
-            env.airdropsPool.address,
+            env.employeesPool,
+            env.airdropsPool,
             zeroAddress,
             env.advisorsPool.address,
-            env.ecosystemPool.address,
+            env.ecosystemPool,
             env.unsoldReserve
         ).should.be.rejectedWith(EVMRevert);
 
@@ -145,13 +145,13 @@ contract('PlatinTGE', (accounts) => {
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
-            env.miningPool.address,
+            env.miningPool,
             env.foundersPool.address,
-            env.employeesPool.address,
-            env.airdropsPool.address,
-            env.reservesPool.address,
+            env.employeesPool,
+            env.airdropsPool,
+            env.reservesPool,
             zeroAddress,
-            env.ecosystemPool.address,
+            env.ecosystemPool,
             env.unsoldReserve
         ).should.be.rejectedWith(EVMRevert);
 
@@ -159,11 +159,11 @@ contract('PlatinTGE', (accounts) => {
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
-            env.miningPool.address,
+            env.miningPool,
             env.foundersPool.address,
-            env.employeesPool.address,
-            env.airdropsPool.address,
-            env.reservesPool.address,
+            env.employeesPool,
+            env.airdropsPool,
+            env.reservesPool,
             env.advisorsPool.address,
             zeroAddress,
             env.unsoldReserve
@@ -173,13 +173,13 @@ contract('PlatinTGE', (accounts) => {
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
-            env.miningPool.address,
+            env.miningPool,
             env.foundersPool.address,
-            env.employeesPool.address,
-            env.airdropsPool.address,
-            env.reservesPool.address,
+            env.employeesPool,
+            env.airdropsPool,
+            env.reservesPool,
             env.advisorsPool.address,
-            env.ecosystemPool.address,
+            env.ecosystemPool,
             zeroAddress
         ).should.be.rejectedWith(EVMRevert);
     });
@@ -210,13 +210,13 @@ contract('PlatinTGE', (accounts) => {
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
-            env.miningPool.address,
+            env.miningPool,
             env.foundersPool.address,
-            env.employeesPool.address,
-            env.airdropsPool.address,
-            env.reservesPool.address,
+            env.employeesPool,
+            env.airdropsPool,
+            env.reservesPool,
             env.advisorsPool.address,
-            env.ecosystemPool.address,
+            env.ecosystemPool,
             env.unsoldReserve
         ).should.be.fulfilled;
         

@@ -1,6 +1,5 @@
 const HoldersTokenMock = artifacts.require('HoldersTokenMock');
-const TokenVestingMock = artifacts.require('TokenVestingMock');
-const TokenLockupMock = artifacts.require('TokenLockupMock');
+// const TokenLockupMock = artifacts.require('TokenLockupMock');
 const PlatinTGEMock = artifacts.require('PlatinTGEMock');
 
 const { zeroAddress }  = require('./helpers/zeroAddress');
@@ -97,13 +96,13 @@ contract('PlatinToken', (accounts) => {
                 env.token.address,
                 env.preIcoPool.address,
                 env.ico.address,
-                env.miningPool.address,
+                env.miningPool,
                 env.foundersPool.address,
-                env.employeesPool.address,
-                env.airdropsPool.address,
-                env.reservesPool.address,
+                env.employeesPool,
+                env.airdropsPool,
+                env.reservesPool,
                 env.advisorsPool.address,
-                env.ecosystemPool.address,
+                env.ecosystemPool,
                 env.unsoldReserve
             ).should.be.fulfilled;      
             await env.token.setTGE(tgeMock.address).should.be.fulfilled; 
@@ -115,13 +114,13 @@ contract('PlatinToken', (accounts) => {
                 env.token.address,
                 env.preIcoPool.address,
                 env.ico.address,
-                env.miningPool.address,
+                env.miningPool,
                 env.foundersPool.address,
-                env.employeesPool.address,
-                env.airdropsPool.address,
-                env.reservesPool.address,
+                env.employeesPool,
+                env.airdropsPool,
+                env.reservesPool,
                 env.advisorsPool.address,
-                env.ecosystemPool.address,
+                env.ecosystemPool,
                 env.unsoldReserve
             ).should.be.fulfilled;
             await env.token.setTGE(tgeMock.address).should.be.fulfilled; 
@@ -133,13 +132,13 @@ contract('PlatinToken', (accounts) => {
                 env.token.address,
                 env.preIcoPool.address,
                 env.ico.address,
-                env.miningPool.address,
+                env.miningPool,
                 env.foundersPool.address,
-                env.employeesPool.address,
-                env.airdropsPool.address,
-                env.reservesPool.address,
+                env.employeesPool,
+                env.airdropsPool,
+                env.reservesPool,
                 env.advisorsPool.address,
-                env.ecosystemPool.address,
+                env.ecosystemPool,
                 env.unsoldReserve
             ).should.be.fulfilled;
             await env.token.setTGE(tgeMock.address).should.be.fulfilled; 
@@ -350,20 +349,20 @@ contract('PlatinToken', (accounts) => {
             startLockedUpBalance.should.be.bignumber.equal(endLockedUpBalance);
         }); 
 
-        it('shoud not be able perform lockup to zero address', async() => {
-            const tokenLockupMock = await TokenLockupMock.new().should.be.fulfilled;
-            await tokenLockupMock.zeroAddressLockup().should.be.rejectedWith(EVMRevert);
-        });
-
-        it('shoud not be able perform lockup with zero amount', async() => {
-            const tokenLockupMock = await TokenLockupMock.new().should.be.fulfilled;
-            await tokenLockupMock.zeroAmountLockup().should.be.rejectedWith(EVMRevert);
-        });     
-
-        it('shoud not be able perform lockup in the past', async() => {
-            const tokenLockupMock = await TokenLockupMock.new().should.be.fulfilled;
-            await tokenLockupMock.lockupInPast().should.be.rejectedWith(EVMRevert);
-        });         
+        // it('shoud not be able perform lockup to zero address', async() => {
+        //     const tokenLockupMock = await TokenLockupMock.new().should.be.fulfilled;
+        //     await tokenLockupMock.zeroAddressLockup().should.be.rejectedWith(EVMRevert);
+        // });
+        //
+        // it('shoud not be able perform lockup with zero amount', async() => {
+        //     const tokenLockupMock = await TokenLockupMock.new().should.be.fulfilled;
+        //     await tokenLockupMock.zeroAmountLockup().should.be.rejectedWith(EVMRevert);
+        // });
+        //
+        // it('shoud not be able perform lockup in the past', async() => {
+        //     const tokenLockupMock = await TokenLockupMock.new().should.be.fulfilled;
+        //     await tokenLockupMock.lockupInPast().should.be.rejectedWith(EVMRevert);
+        // });
     });
 
     // describe('vesting', function () {should be able calculate full, spot, lockedup and

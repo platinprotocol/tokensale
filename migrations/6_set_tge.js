@@ -7,7 +7,7 @@ module.exports = function(deployer) {
         return PlatinToken.deployed()
     }).then(token => {
         return token.setTGE(PlatinTGE.address);
-    }).then(() => {          
+    }).then(() => {
          return PlatinICO.deployed();
     }).then(ico => {
         return ico.setTGE(PlatinTGE.address);

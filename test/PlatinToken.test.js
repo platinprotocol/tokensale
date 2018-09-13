@@ -328,7 +328,38 @@ contract('PlatinToken', (accounts) => {
             const endLockedUpBalance = await env.token.balanceLockedUp(to);   
             
             startLockedUpBalance.should.be.bignumber.equal(endLockedUpBalance);
-        }); 
+        });
+
+        it('should be able refund', async() => {
+            const from = accounts[0];
+            const to = accounts[1];
+            const value = ether(1);
+
+            const rate = await env.tge.TOKEN_RATE();
+            const tokens = value.mul(rate);
+
+            const expectedStartLockBalance = tokens;
+
+            await performTge(env);
+            await increaseTimeTo(env.openingTime);
+            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
+            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
+
+            await env.token.transferWithLockup(to, tokens, [env.closingTime, tokens], true, { from: from }).should.be.fulfilled;
+
+            const startLockedUpBalance = await env.token.balanceLockedUp(to);
+
+            expectedStartLockBalance.should.be.bignumber.equal(startLockedUpBalance);
+
+            await env.token.refundLockedUp(to, { from: from }).should.be.fulfilled;
+
+            const expectedEndLockBalance = new BigNumber(0);
+            const endLockedUpBalance = await env.token.balanceLockedUp(to);
+
+            expectedEndLockBalance.should.be.bignumber.equal(endLockedUpBalance);
+
+        });
+
 
         // it('shoud not be able perform lockup to zero address', async() => {
         //     const tokenLockupMock = await TokenLockupMock.new().should.be.fulfilled;

@@ -14,6 +14,25 @@ const performTge = require('./helpers/performTge');
 
 const BigNumber = web3.BigNumber;
 
+Number.prototype.noExponents= function(){
+    var data= String(this).split(/[eE]/);
+    if(data.length== 1) return data[0];
+
+    var  z= '', sign= this<0? '-':'',
+        str= data[0].replace('.', ''),
+        mag= Number(data[1])+ 1;
+
+    if(mag<0){
+        z= sign + '0.';
+        while(mag++) z += '0';
+        return z + str.replace(/^\-/,'');
+    }
+    mag -= str.length;
+    while(mag--) z += '0';
+    return str + z;
+};
+
+
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
@@ -347,7 +366,7 @@ contract('PlatinToken', (accounts) => {
         });         
     });
 
-    // describe('vesting', function () {
+    // describe('vesting', function () {should be able calculate full, spot, lockedup and
     //     it('should have vested amount after vesting', async() => {
     //         const from = accounts[0];
     //         const to = accounts[1];
@@ -517,8 +536,7 @@ contract('PlatinToken', (accounts) => {
             const tokens = value.mul(rate);
 
             const fullBalanceExpected = tokens;
-            const lockedUpBalanceExpected = tokens.div(2);       
-            const vestedBalanceExpected = tokens.div(2); 
+            const lockedUpBalanceExpected = tokens;
             const spotBalanceExpected = new BigNumber(0);
 
             await performTge(env);
@@ -527,17 +545,15 @@ contract('PlatinToken', (accounts) => {
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
             await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.div(2)], false, { from: from }).should.be.fulfilled;
-            // await env.token.transferWithVesting(to, tokens.div(2), env.testVesting.address, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.div(2)], false, { from: from }).should.be.fulfilled;
 
             const fullBalanceActual = await env.token.balanceOf(to);
             const spotBalanceActual = await env.token.balanceSpot(to);
             const lockedUpBalanceActual = await env.token.balanceLockedUp(to);
-            // const vestedBalanceActual = await env.token.balanceVested(to);
 
             fullBalanceActual.should.be.bignumber.equal(fullBalanceExpected);
             spotBalanceActual.should.be.bignumber.equal(spotBalanceExpected);
             lockedUpBalanceActual.should.be.bignumber.equal(lockedUpBalanceExpected);
-            // vestedBalanceActual.should.be.bignumber.equal(vestedBalanceExpected);
         });    
 
         it('should not be able to transfer or transferFrom more than balance spot', async() => {
@@ -553,9 +569,9 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            await env.token.transfer(to, tokens.div(3), { from: from }).should.be.fulfilled; 
-            await env.token.transferWithLockup(to, tokens.div(3), [env.closingTime + duration.weeks(1), tokens.div(3)], { from: from }).should.be.fulfilled;
-            // await env.token.transferWithVesting(to, tokens.div(3), env.testVesting.address, { from: from }).should.be.fulfilled;
+            await env.token.transfer(to, tokens.div(3), { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(3), [env.closingTime + duration.weeks(1), tokens.div(3)], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(3), [env.closingTime + duration.weeks(1), tokens.div(3)], false, { from: from }).should.be.fulfilled;
 
             await env.token.transfer(from, tokens.div(3).add(1), { from: to }).should.be.rejectedWith(EVMRevert);
             await env.token.approve(from, tokens.div(3).add(1), { from: to }).should.be.fulfilled;

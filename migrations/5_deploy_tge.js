@@ -10,8 +10,6 @@ const PreIcoPool = artifacts.require("./pools/PreIcoPool.sol");
 const ReservesPool = artifacts.require("./pools/ReservesPool.sol");
 const EmployeesPool = artifacts.require("./pools/EmployeesPool.sol");
 
-// TODO: do we need pool contract for ALL addresses (replace pure trezor addresses with pool contracts too)?
-
 module.exports =  function(deployer) {
 
     const unsoldReserve = 0xef34779Ad86Cd818E86e0ec1096186D35377c474;

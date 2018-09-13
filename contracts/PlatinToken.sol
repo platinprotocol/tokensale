@@ -3,6 +3,7 @@ pragma solidity ^0.4.24; // solium-disable-line linebreak-style
 import "openzeppelin-solidity/contracts/ownership/NoOwner.sol";
 import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "./Authorizable.sol";
 import "./HoldersToken.sol";
 import "./PlatinTGE.sol";
 
@@ -11,18 +12,18 @@ import "./PlatinTGE.sol";
  * @title PlatinToken
  * @dev Platin PTNX Token contract. Tokens are allocated during TGE.
  */
-contract PlatinToken is HoldersToken, NoOwner, Pausable {
+contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     using SafeMath for uint256;
 
     string public constant name = "Platin Token"; // solium-disable-line uppercase
     string public constant symbol = "PTNX"; // solium-disable-line uppercase
     uint8 public constant decimals = 18; // solium-disable-line uppercase
 
-    // list of lockups, in form (owner => [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...])
+    // list of lockups, in a form (owner => [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...])
     mapping (address => uint256[]) public lockups;
 
-    // list of lockups that can be refunded, in form (owner => (sender => [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...]))
-    mapping (address => mapping (address => uint256[])) public refunds;
+    // list of lockups that can be refunded, in a form (owner => (sender => [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...]))
+    mapping (address => mapping (address => uint256[])) public refundable;
 
     // Platin TGE contract
     PlatinTGE public tge;
@@ -35,13 +36,6 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
 
     // refund event logging
     event Refund(address indexed from, address indexed to, uint256 amount);
-
-    // onlyLockupAuthorized modifier, restrict lockup to the owner and the tge specified list of addresses
-    // TODO: do we need to have owner/admins editable list of the lockup authorized addresses directly in the token contract?
-    modifier onlyLockupAuthorized() {
-        require(msg.sender == owner || tge.LOCKUP_AUTHORIZED(msg.sender), "Unauthorized lockup attempt.");
-        _;
-    }
 
     // spotTransfer modifier, check balance spot on transfer
     modifier spotTransfer(address _from, uint256 _value) {
@@ -63,6 +57,7 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
         require(tge == address(0), "TGE is already set.");
         require(_tge != address(0), "TGE address can't be zero.");
         tge = _tge;
+        authorize(_tge);
     }        
 
     /**
@@ -163,7 +158,7 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
         uint256[] _lockups,
         bool _refundable
     ) 
-    public onlyLockupAuthorized returns (bool)
+    public onlyAuthorized returns (bool)
     {        
         transfer(_to, _value);
         _lockup(_to, _value, _lockups, _refundable); // solium-disable-line arg-overflow     
@@ -184,7 +179,7 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
         uint256[] _lockups,
         bool _refundable
     ) 
-    public onlyLockupAuthorized returns (bool) 
+    public onlyAuthorized returns (bool) 
     {
         transferFrom(_from, _to, _value);
         _lockup(_to, _value, _lockups, _refundable); // solium-disable-line arg-overflow  
@@ -197,27 +192,25 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
     function refundLockedUp(
         address _from
     )
-    public onlyLockupAuthorized returns (uint256)
+    public onlyAuthorized returns (uint256)
     {
         address _sender = msg.sender;
-        uint256 _refundsLength = refunds[_from][_sender].length;
+        uint256 _refubdableLength = refundable[_from][_sender].length;
         uint256 _balanceLokedUp = 0;
-        if (_refundsLength > 0) {
-
-            // TODO: optimization to avoid internal loop?
+        if (_refubdableLength > 0) {
             uint256 _lockupsLength = lockups[_from].length;
-            for (uint256 i = 0; i < _refundsLength; i = i + 2) {
-                if (refunds[_from][_sender][i] > block.timestamp) { // solium-disable-line security/no-block-members
-                    _balanceLokedUp = _balanceLokedUp.add(refunds[_from][_sender][i + 1]);  
+            for (uint256 i = 0; i < _refubdableLength; i = i + 2) {
+                if (refundable[_from][_sender][i] > block.timestamp) { // solium-disable-line security/no-block-members
+                    _balanceLokedUp = _balanceLokedUp.add(refundable[_from][_sender][i + 1]);  
                     for (uint256 j = 0; j < _lockupsLength; j = j + 2) {
-                        if (lockups[_from][j] == refunds[_from][_sender][i] && lockups[_from][j + 1] == refunds[_from][_sender][i + 1]) {
+                        if (lockups[_from][j] == refundable[_from][_sender][i] && lockups[_from][j + 1] == refundable[_from][_sender][i + 1]) {
                             lockups[_from][j] = 0;
                             lockups[_from][j + 1] = 0;
                             break;
                         }
                     }   
-                    refunds[_from][_sender][i] = 0;
-                    refunds[_from][_sender][i + 1] = 0;                 
+                    refundable[_from][_sender][i] = 0;
+                    refundable[_from][_sender][i + 1] = 0;                 
                 }    
             }
 
@@ -260,8 +253,8 @@ contract PlatinToken is HoldersToken, NoOwner, Pausable {
                     lockups[_who].push(_lockups[i + 1]);
                     _balanceLokedUp = _balanceLokedUp.add(_lockups[i + 1]);
                     if (_refundable) {
-                        refunds[_who][_sender].push(_lockups[i]);
-                        refunds[_who][_sender].push(_lockups[i + 1]);
+                        refundable[_who][_sender].push(_lockups[i]);
+                        refundable[_who][_sender].push(_lockups[i + 1]);
                     }
                 }
             }

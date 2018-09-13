@@ -32,13 +32,13 @@ contract PlatinTGE {
     // HOLDERS
     address public PRE_ICO_POOL; // solium-disable-line mixedcase 
     address public ICO; // solium-disable-line mixedcase
-    address public MINING_POOL; // solium-disable-line mixedcase
+    address public MINING_POOL; // solium-disable-line mixedcase trezor
     address public FOUNDERS_POOL; // solium-disable-line mixedcase
-    address public EMPLOYEES_POOL; // solium-disable-line mixedcase
-    address public AIRDROPS_POOL; // solium-disable-line mixedcase
-    address public RESERVES_POOL; // solium-disable-line mixedcase
+    address public EMPLOYEES_POOL; // solium-disable-line mixedcase trezor
+    address public AIRDROPS_POOL; // solium-disable-line mixedcase trezor
+    address public RESERVES_POOL; // solium-disable-line mixedcase trezor
     address public ADVISORS_POOL; // solium-disable-line mixedcase
-    address public ECOSYSTEM_POOL; // solium-disable-line mixedcase
+    address public ECOSYSTEM_POOL; // solium-disable-line mixedcase trezor
 
     // HOLDER AMOUNT AS PART OF SUPPLY
     // SALES_SUPPLY = PRE_ICO_POOL_AMOUNT + ICO_AMOUNT
@@ -151,8 +151,8 @@ contract PlatinTGE {
         require(token.totalSupply() == 0, "Allocation is already done.");
 
         // SALES          
-        token.allocate(address(PRE_ICO_POOL), PRE_ICO_POOL_AMOUNT);
-        token.allocate(address(ICO), ICO_AMOUNT);
+        token.allocate(PRE_ICO_POOL, PRE_ICO_POOL_AMOUNT);
+        token.allocate(ICO, ICO_AMOUNT);
       
         // MINING POOL
         token.allocate(MINING_POOL, MINING_POOL_SUPPLY);

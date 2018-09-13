@@ -2,17 +2,16 @@ pragma solidity ^0.4.24; // solium-disable-line linebreak-style
 
 import "openzeppelin-solidity/contracts/ownership/HasNoEther.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "./Authorizable.sol";
 import "./PlatinToken.sol";
 import "./PlatinTGE.sol";
-
-// TODO: do we need a list of authorized admins instead of one owner to rule pool contract?
 
 
 /**
  * @title PlatinPool
  * @dev 
  */
-contract PlatinPool is HasNoEther {
+contract PlatinPool is HasNoEther, Authorizable {
     using SafeMath for uint256;
 
     // Platin Token contract
@@ -24,7 +23,8 @@ contract PlatinPool is HasNoEther {
     // distribution struct (record)
     struct Distribution {
         uint256 amount; // amount of distribution
-        uint256[] lockups; // amount lockups in form [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...]
+        uint256[] lockups; // amount lockups in a form [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...]
+        uint256 refunded; // refunded from distribution (if applicable and happened)       
         bool refundable; // is locked up amount refundable        
         bool distributed; // is amount already distributed
     }
@@ -61,7 +61,7 @@ contract PlatinPool is HasNoEther {
         uint256[] _lockups, 
         bool _refundable
     ) 
-    public onlyOwner 
+    public onlyAuthorized
     {
         require(distribution[_beneficiary].amount == 0, "Beneficiary is already listed.");
         
@@ -102,10 +102,10 @@ contract PlatinPool is HasNoEther {
     function refundLockedUp(
         address _from
     )
-    public onlyOwner returns (uint256) 
+    public onlyAuthorized returns (uint256) 
     {
-        uint256 _refund = token.refundLockedUp(_from);
-        distributed = distributed.sub(_refund);
-        // TODO: do we need remove record from the distribution table when refund locked up amount?
+        uint256 _refunded = token.refundLockedUp(_from);
+        distributed = distributed.sub(_refunded);
+        distribution[_from].refunded = _refunded;
     }     
 }

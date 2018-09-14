@@ -53,7 +53,7 @@ contract('HoldersToken', (accounts) => {
             endHoldersCount.should.be.bignumber.equal(startHoldersCount.add(2));        
         });
 
-        it('should uncount token holders with zero balances', async() => {
+        it('should remove token holders with zero balances', async() => {
             const holder1 = accounts[0];
             const holder2  = accounts[1];
             const value = ether(1);

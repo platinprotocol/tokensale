@@ -306,7 +306,7 @@ contract('PlatinPool', (accounts) => {
     });    
 
     describe('distribution', function () {    
-        it('should be able to do distribution (publically)', async() => {
+        it('should be able to do distribution (publicly)', async() => {
             const beneficiary1 = accounts[1];
             const beneficiary2 = accounts[2];
             const beneficiary3 = accounts[3];

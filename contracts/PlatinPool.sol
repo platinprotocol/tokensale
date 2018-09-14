@@ -170,7 +170,7 @@ contract PlatinPool is HasNoEther, Authorizable {
     }
 
     /**
-     * @dev Refund refundable lockedup amount
+     * @dev Refund refundable locked up amount
      * @param _from address The address which you want to refund tokens from
      */
     function refundLockedUp(

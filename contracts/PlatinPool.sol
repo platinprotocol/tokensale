@@ -91,7 +91,11 @@ contract PlatinPool is HasNoEther, Authorizable {
         allocated = allocated.add(_amount);
         members.push(_beneficiary);
 
-        emit AddDistribution(_beneficiary, _amount, _lockups, _refundable);
+        emit AddDistribution(
+            _beneficiary, 
+            _amount, 
+            _lockups, 
+            _refundable);
     }    
 
     /**

@@ -1,5 +1,11 @@
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
+
 const PlatinToken = artifacts.require("PlatinToken.sol");
 const PlatinTGE = artifacts.require("PlatinTGE.sol");
+
 
 module.exports = function(deployer) {
     let token, tge;

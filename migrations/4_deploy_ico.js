@@ -1,7 +1,13 @@
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
+
 const PlatinToken = artifacts.require("PlatinToken.sol");
 const PlatinICO = artifacts.require("PlatinICO.sol");
 const PlatinICOLockup = artifacts.require("PlatinICOLockup.sol");
 const PlatinICORegular = artifacts.require("PlatinICORegular.sol");
+
 
 module.exports =  function(deployer, network, accounts) {
     let rate, wallet, openingTime, closingTime;

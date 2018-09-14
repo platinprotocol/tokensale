@@ -1,3 +1,8 @@
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
+
 const BigNumber = web3.BigNumber;
 
 require('chai')

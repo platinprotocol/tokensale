@@ -1,3 +1,8 @@
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
+
 const PlatinPool = artifacts.require('PlatinPool');
 const PlatinTGE = artifacts.require('PlatinTGE');
 

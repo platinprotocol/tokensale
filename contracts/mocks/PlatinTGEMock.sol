@@ -1,7 +1,11 @@
 pragma solidity ^0.4.24; // solium-disable-line linebreak-style
 
-import "../PlatinTGE.sol";
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
 
+import "../PlatinTGE.sol";
 import "../PlatinToken.sol";
 import "../PlatinICO.sol";
 

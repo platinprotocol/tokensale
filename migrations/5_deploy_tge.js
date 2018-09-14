@@ -1,9 +1,15 @@
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
+
 const PlatinToken = artifacts.require("PlatinToken.sol");
 const PlatinICO = artifacts.require("PlatinICO.sol");
 const PlatinTGE = artifacts.require("PlatinTGE.sol");
 const AdvisorsPool = artifacts.require("./pools/AdvisorsPool.sol");
 const FoundersPool = artifacts.require("./pools/FoundersPool.sol");
 const PreIcoPool = artifacts.require("./pools/PreIcoPool.sol");
+
 
 module.exports =  function(deployer) {
 

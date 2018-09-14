@@ -1,3 +1,8 @@
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
+
 const PlatinTGE = artifacts.require('PlatinTGE');
 const PlatinTokenMock = artifacts.require('PlatinTokenMock');
 const PlatinTGEMock = artifacts.require('PlatinTGEMock');

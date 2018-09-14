@@ -1,3 +1,8 @@
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
+
 const HoldersTokenMock = artifacts.require('HoldersTokenMock');
 
 const { advanceBlock } = require('./helpers/advanceToBlock');

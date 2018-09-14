@@ -1,5 +1,10 @@
 pragma solidity ^0.4.24; // solium-disable-line linebreak-style
 
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
+
 import "./PlatinICO.sol";
 
 

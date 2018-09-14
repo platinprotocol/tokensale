@@ -19,7 +19,7 @@ import "./PlatinTGE.sol";
  * @dev Platin public sales contract. Before purchase customers should be whitelisted
  * during KYC/AML procedure. Tokens can be purchased with and without lockup.
  * Locked up tokens purchase has special token rate. When ICO ends, unsold tokens are
- * distributed to the unsold token reserve with lockup.
+ * distributed to the unsold token reserve.
  * All constants for processing purchases and for finalization are stored in the TGE contract.
  * Due to the solidity inheritance limitations the code of OpenZeppelin's FinalizableCrowdsale
  * contract is copied directly to this contract to use it's finalize feature.

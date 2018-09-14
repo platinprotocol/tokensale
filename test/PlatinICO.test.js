@@ -107,6 +107,25 @@ contract('PlatinICO', (accounts) => {
             balanceLockupExpected.should.be.bignumber.equal(balanceLockupActual);               
         });
 
+        it('should be able to purchase lockup tokens to zero address beneficiary', async() => {
+            const purchaser = accounts[0];
+            const value = ether(1);
+
+            const rateLockup = await env.tge.TOKEN_RATE_LOCKUP();
+            const tokens = value.mul(rateLockup);
+
+            await performTge(env);
+
+            await increaseTimeTo(env.openingTime);
+            await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
+            await env.ico.buyLockupTokens(zeroAddress, { from: purchaser, value: value }).should.be.fulfilled;
+
+            const balanceLockupExpected = tokens;
+            const balanceLockupActual = await env.token.balanceLockedUp(purchaser);
+
+            balanceLockupExpected.should.be.bignumber.equal(balanceLockupActual);
+        });
+
         it('should not be able to purchase tokens with less than min purchase amount of funds', async() => {
             const purchaser = accounts[0];
             const minPurchase = await env.tge.MIN_PURCHASE_AMOUNT();

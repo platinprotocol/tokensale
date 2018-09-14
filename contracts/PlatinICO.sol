@@ -75,9 +75,9 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
     function buyLockupTokens(address _beneficiary) external payable {
         lockup = true;
         if (_beneficiary == address(0x0))
-            _beneficiary = msg.sender;
-
-        buyTokens(_beneficiary);
+            buyTokens(msg.sender);
+        else
+            buyTokens(_beneficiary);
     }  
 
     /**

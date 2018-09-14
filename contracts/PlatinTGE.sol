@@ -160,6 +160,6 @@ contract PlatinTGE {
         token.allocate(ECOSYSTEM_POOL, ECOSYSTEM_POOL_SUPPLY);
 
         // Check Token Total Supply
-        require(token.totalSupply() == TOTAL_SUPPLY, "Total supply check error.");
+        require(token.totalSupply() == TOTAL_SUPPLY, "Total supply check error.");   
     }
 }

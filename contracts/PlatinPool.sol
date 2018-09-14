@@ -72,7 +72,7 @@ contract PlatinPool is HasNoEther, Authorizable {
     public onlyAuthorized
     {
         require(_beneficiary != address(0), "Beneficiary address can't be zero.");      
-        require(_amount != 0, "Amount can't be zero.");            
+        require(_amount > 0, "Amount can't be zero.");            
         require(distribution[_beneficiary].amount == 0, "Beneficiary is already listed.");
         
         uint256 _amountLokedUp = 0;

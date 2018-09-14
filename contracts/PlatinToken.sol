@@ -31,6 +31,9 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     // list of lockups that can be refunded, in a form (owner => (sender => [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...]))
     mapping (address => mapping (address => uint256[])) public refundable;
 
+    // idexes mapping from refundable to lockups lists 
+    mapping (address => mapping (address => mapping (uint256 => uint256))) public indexes;    
+
     // Platin TGE contract
     PlatinTGE public tge;
 
@@ -226,18 +229,15 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
         uint256 _refundableLength = refundable[_from][_sender].length;
         if (_refundableLength > 0) {
             uint256 _lockupsLength = lockups[_from].length;
+            uint256 _lockupIdx;
             for (uint256 i = 0; i < _refundableLength; i = i + 2) {
                 if (refundable[_from][_sender][i] > block.timestamp) { // solium-disable-line security/no-block-members
-                    _balanceRefundable = _balanceRefundable.add(refundable[_from][_sender][i + 1]);  
-                    for (uint256 j = 0; j < _lockupsLength; j = j + 2) {
-                        if (lockups[_from][j] == refundable[_from][_sender][i] && lockups[_from][j + 1] == refundable[_from][_sender][i + 1]) {
-                            lockups[_from][j] = 0;
-                            lockups[_from][j + 1] = 0;
-                            break;
-                        }
-                    }   
+                    _balanceRefundable = _balanceRefundable.add(refundable[_from][_sender][i + 1]);
                     refundable[_from][_sender][i] = 0;
-                    refundable[_from][_sender][i + 1] = 0;                 
+                    refundable[_from][_sender][i + 1] = 0;
+                    _lockupIdx = indexes[_from][_sender][i];
+                    lockups[_from][_lockupIdx] = 0;
+                    lockups[_from][_lockupIdx + 1] = 0;       
                 }    
             }
 
@@ -269,6 +269,8 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
         if (_lockupsLength > 0) {
             uint256 _balanceLokedUp = 0;
             address _sender = msg.sender;
+            uint256 _lockupIdx;
+            uint256 _refundIdx;
             for (uint256 i = 0; i < _lockupsLength; i = i + 2) {
                 if (_lockups[i] > block.timestamp) { // solium-disable-line security/no-block-members
                     lockups[_who].push(_lockups[i]);
@@ -277,6 +279,9 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
                     if (_refundable) {
                         refundable[_who][_sender].push(_lockups[i]);
                         refundable[_who][_sender].push(_lockups[i + 1]);
+                        _lockupIdx = lockups[_who].length - 2;
+                        _refundIdx = refundable[_who][_sender].length - 2;
+                        indexes[_who][_sender][_refundIdx] = _lockupIdx;
                     }
                 }
             }

@@ -1,5 +1,6 @@
 const PlatinTGE = artifacts.require('PlatinTGE');
 const PlatinTokenMock = artifacts.require('PlatinTokenMock');
+const PlatinTGEMock = artifacts.require('PlatinTGEMock');
 
 const { advanceBlock } = require('./helpers/advanceToBlock');
 const { EVMRevert } = require('./helpers/EVMRevert');
@@ -236,8 +237,8 @@ contract('PlatinTGE', (accounts) => {
     it('should not be able to allocate wrong total supply during TGE', async() => {
         const token = await PlatinTokenMock.new().should.be.fulfilled;
 
-        const tge = await PlatinTGE.new(
-            env.token.address,
+        const tge = await PlatinTGEMock.new(
+            token.address,
             env.preIcoPool.address,
             env.ico.address,
             env.miningPool,

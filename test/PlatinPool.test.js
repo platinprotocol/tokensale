@@ -233,15 +233,15 @@ contract('PlatinPool', (accounts) => {
         });       
 
         it('should not be able to add distribution with zero amount', async() => {
-            const beneficiary = zeroAddress;
+            const beneficiary = accounts[1];
             const zero = new BigNumber(0);
 
             await env.pool.addDistribution(beneficiary, zero, [], false).should.be.rejectedWith(EVMRevert);
-        });       
+        }); 
 
 
         it('should not be able to add distribution with the locked up amount > amount of distribution', async() => {
-            const beneficiary = zeroAddress;
+            const beneficiary = accounts[1];
             const distr = new BigNumber(1);
             const releaseTime = new BigNumber(env.closingTime);
 

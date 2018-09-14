@@ -35,10 +35,10 @@ Adding of distribution records is limited to the pool balance, or, if there no b
 
 ## Notes:
 
-1. We use duplicated code blocks for the constructor with token (PlatinPreICO, PlatinPayoutProgram) and to set TGE contract (PlatinToken, PlatinPreICO, PlatinICO, PlatinPayoutProgram) to avoid circular importing issues.
-2. Due to the solidity inheritance limitations the code of OpenZeppelin's FinalizableCrowdsale contract is copied directly to the PlatinICO contract to use it's finalize feature.
-3. Additional Token capabilities that tweak transfer functionality obviously increase the price for a token transfers. It's acceptable for the PTNX Token economic model.
-4. In our tests we are based on a fact that Open Zeppelin had tested and audited their contracts we extended so we omited test duplication.
+1. We used duplicated code blocks to set TGE contract (PlatinToken, PlatinICO) to avoid circular importing issues.
+2. Due to the solidity inheritance limitations the code of OpenZeppelin's FinalizableCrowdsale contract was copied directly to the PlatinICO contract to use it's finalize feature.
+3. Additional Token capabilities that tweak transfer functionality obviously increase the price for the token transfers. It's acceptable for the PTNX Token economic model.
+4. In our tests we based on the fact that Open Zeppelin had tested and audited their contracts we extended so we omited test duplication.
 5. To run tests or migrations the truffle framework should be installed.
 6. Before every run of the tests please (re)start the ganache-cli manually with the following parameters: 
 ```

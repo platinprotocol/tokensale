@@ -27,7 +27,7 @@ contract('Authorizable', (accounts) => {
         isAuthorized.should.be.equal(true);        
     });
 
-    it('should be able to unAthorize address', async() => {
+    it('should be able to unAuthorize address', async() => {
         const targetAddress = accounts[1];
         await env.auth.authorize(targetAddress).should.be.fulfilled;  
         await expectEvent.inTransaction(

@@ -178,7 +178,7 @@ contract('PlatinICO', (accounts) => {
             await env.ico.finalize().should.be.rejectedWith(EVMRevert);            
         });     
 
-        it('should nbe able to do finalization by owner only', async() => {
+        it('should not be able to do finalization by owner only', async() => {
             const notOwner = accounts[1];
             await performTge(env);
             await env.ico.finalize({ from: notOwner }).should.be.rejectedWith(EVMRevert);            

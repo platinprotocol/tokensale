@@ -16,7 +16,7 @@ import "./PlatinTGE.sol";
  * Token contract holds list of token holders, the list includes holders with positive balance only.
  * Authorized holders can transfer token with lockup(s). Lockups can be refundable. 
  * Lockups is a list of releases dates and releases amounts in a form [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...])
- * In case of refund previous holder can get back locked up tokens. Only still locked up amounts can be transfered back.
+ * In case of refund previous holder can get back locked up tokens. Only still locked up amounts can be transferred back.
  */
 contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     using SafeMath for uint256;
@@ -91,7 +91,7 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
 
     /**
      * @dev Get the lockups list count
-     * @param _who address Address owns lockedup list
+     * @param _who address Address owns locked up list
      * @return uint256 Lockups list count     
      */
     function lockupsCount(address _who) public view returns (uint256) {
@@ -109,7 +109,7 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
 
     /**
      * @dev Get balance locked up at the current moment of time
-     * @param _who address Address owns lockedup amounts
+     * @param _who address Address owns locked up amounts
      * @return uint256 Balance locked up at the current moment of time     
      */       
     function balanceLockedUp(address _who) public view returns (uint256) {
@@ -124,8 +124,8 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
 
     /**
      * @dev Get refundable locked up balance at the current moment of time
-     * @param _who address Address owns lockedup amounts
-     * @param _sender address Address owned lockedup amounts
+     * @param _who address Address owns locked up amounts
+     * @param _sender address Address owned locked up amounts
      * @return uint256 Locked up refundable balance at the current moment of time     
      */       
     function balanceRefundable(address _who, address _sender) public view returns (uint256) {
@@ -215,7 +215,7 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     }     
 
     /**
-     * @dev Refund refundable lockedup amount
+     * @dev Refund refundable locked up amount
      * @param _from address The address which you want to refund tokens from
      * @return uint256 Returns amount of refunded tokens   
      */
@@ -252,7 +252,7 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
 
     /**
      * @dev Lockup amount till release time
-     * @param _who address Address gets the lockedup amount
+     * @param _who address Address gets the locked up amount
      * @param _amount uint256 Amount to lockup
      * @param _lockups uint256[] List of lockups    
      * @param _refundable bool Is locked up amount refundable     

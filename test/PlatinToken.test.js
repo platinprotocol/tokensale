@@ -240,7 +240,7 @@ contract('PlatinToken', (accounts) => {
             refundableBalanceExpected.should.be.bignumber.equal(refundableBalanceActual);
         });      
 
-        it('should be able perform transferWithLockup and transferFromWithLockup with empty lockups list and nosense refundable flag', async() => {
+        it('should be able perform transferWithLockup and transferFromWithLockup with empty lockups list and nonsense refundable flag', async() => {
             const from = accounts[0];
             const to = accounts[1];
             const value = ether(1);
@@ -353,7 +353,7 @@ contract('PlatinToken', (accounts) => {
             startLockedUpBalance.should.be.bignumber.equal(endLockedUpBalance);
         });        
 
-        it('should not be able lockup more amount than tranferred', async() => {
+        it('should not be able lockup more amount than transferred', async() => {
             const from = accounts[0];
             const to = accounts[1];
             const value = ether(1);
@@ -481,7 +481,7 @@ contract('PlatinToken', (accounts) => {
     });
 
     describe('balance', function () {             
-        it('should be able calculate full, spot, lockedup and refundable balance', async() => {
+        it('should be able calculate full, spot, locked up and refundable balance', async() => {
             const from = accounts[0];
             const to = accounts[1];
             const value = ether(1);

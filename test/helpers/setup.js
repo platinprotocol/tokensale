@@ -11,13 +11,20 @@ const AdvisorsPool = artifacts.require("./pools/AdvisorsPool.sol");
 const FoundersPool = artifacts.require("./pools/FoundersPool.sol");
 const PreIcoPool = artifacts.require("./pools/PreIcoPool.sol");
 
+const BigNumber = web3.BigNumber;
+
 module.exports = async function(accounts, env) {
-    env.unsoldReserve = '0xef34779Ad86Cd818E86e0ec1096186D35377c474';
-    env.miningPool = '0x378135f66fFC9F70Bb522b3c9b25ed4b8c23dE50';
-    env.employeesPool = '0xB3c518D4C15567De725d535F47e755196A3310A4';
-    env.airdropsPool = '0x4575479B1dF9305c0594542Dc66cdAD37932177F';
-    env.reservesPool = '0x4fFcaee0380Da173538A333d01E7718c533b935f';
-    env.ecosystemPool = '0xE375e16FFbc36216F2708D668eBa131E64A4aC81';
+    env.unsoldReserve = '0xef34779Ad86Cd818E86e0ec1096186D35377c474'; // NOTICE: Keep in sync
+    env.miningPool = '0x378135f66fFC9F70Bb522b3c9b25ed4b8c23dE50'; // NOTICE: Keep in sync
+    env.employeesPool = '0xB3c518D4C15567De725d535F47e755196A3310A4'; // NOTICE: Keep in sync
+    env.airdropsPool = '0x4575479B1dF9305c0594542Dc66cdAD37932177F'; // NOTICE: Keep in sync
+    env.reservesPool = '0x4fFcaee0380Da173538A333d01E7718c533b935f'; // NOTICE: Keep in sync
+    env.ecosystemPool = '0xE375e16FFbc36216F2708D668eBa131E64A4aC81'; // NOTICE: Keep in sync
+
+    env.poolInitial = new BigNumber("10000000000000000");
+    env.advisorsPoolInitial = new BigNumber("100000000000000000000000000");
+    env.foundersPoolInitial = new BigNumber("190000000000000000000000000");
+    env.preIcoPoolInitial = new BigNumber("13472416000000000000000000");   
 
     let rate = 1000;
     let wallet = accounts[0];
@@ -28,20 +35,24 @@ module.exports = async function(accounts, env) {
 
     env.token = await PlatinToken.new();
 
-    env.advisorsPool = await AdvisorsPool.new(
-        env.token.address
+    env.pool = await PlatinPool.new(
+        env.token.address,
+        env.poolInitial
     );
 
-    env.pool = await PlatinPool.new(
-        env.token.address
-    );    
+    env.advisorsPool = await AdvisorsPool.new(
+        env.token.address,
+        env.advisorsPoolInitial
+    ); 
 
     env.foundersPool = await FoundersPool.new(
-        env.token.address
+        env.token.address,
+        env.foundersPoolInitial
     );
 
     env.preIcoPool = await PreIcoPool.new(
-        env.token.address
+        env.token.address,
+        env.preIcoPoolInitial
     );
 
     env.ico = await PlatinICO.new(

@@ -228,7 +228,6 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
         uint256 _balanceRefundable = 0;
         uint256 _refundableLength = refundable[_from][_sender].length;
         if (_refundableLength > 0) {
-            uint256 _lockupsLength = lockups[_from].length;
             uint256 _lockupIdx;
             for (uint256 i = 0; i < _refundableLength; i = i + 2) {
                 if (refundable[_from][_sender][i] > block.timestamp) { // solium-disable-line security/no-block-members

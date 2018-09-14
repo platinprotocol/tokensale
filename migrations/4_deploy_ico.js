@@ -9,8 +9,8 @@ module.exports =  function(deployer, network, accounts) {
     rate = 1000;
 
     wallet = accounts[0]; // TODO change to the real one
-    openingTime = 1540728000 // 2018-10-28 12:00 NOTE: Keep in sync
-    closingTime = 1543622400 // 2018-12-01 00:00 NOTE: Keep in sync
+    openingTime = 1540728000 // 2018-10-28 12:00 NOTICE: Keep in sync
+    closingTime = 1543622400 // 2018-12-01 00:00 NOTICE: Keep in sync
 
     deployer.deploy(
         PlatinICO,                       

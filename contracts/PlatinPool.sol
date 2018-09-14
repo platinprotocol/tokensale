@@ -12,12 +12,17 @@ import "./PlatinTGE.sol";
  * @dev Pool contract holds a pool distribution table and provide pool distribution logic. 
  * Distribution itself is a public function.
  * Distribution can have lockups, lockups can be refundable.
+ * Adding of distribution records is limited to the pool balance, or, if there no balance yet, initial supply.
+ * When pool gets its first balance initial supply will be reset.
  */
 contract PlatinPool is HasNoEther, Authorizable {
     using SafeMath for uint256;
 
     // Platin Token contract
     PlatinToken public token;  
+
+    // initial supply
+    uint256 public initial;
 
     // allocated to distribution
     uint256 public allocated;
@@ -45,15 +50,17 @@ contract PlatinPool is HasNoEther, Authorizable {
 
     // distribute event logging
     event Distribute(address indexed to, uint256 amount);
-
+    
 
     /**
      * @dev Constructor
      * @param _token address PlatinToken contract address  
+     * @param _initial uint256 Initial distribution 
      */
-    constructor(PlatinToken _token) public {
+    constructor(PlatinToken _token, uint256 _initial) public {
         require(_token != address(0), "Token address can't be zero.");
-        token = _token;       
+        token = _token;    
+        initial = _initial;   
     }
 
     /**
@@ -74,6 +81,21 @@ contract PlatinPool is HasNoEther, Authorizable {
         require(_beneficiary != address(0), "Beneficiary address can't be zero.");      
         require(_amount > 0, "Amount can't be zero.");            
         require(distribution[_beneficiary].amount == 0, "Beneficiary is already listed.");
+
+        uint256 _distributable = 0;
+        uint256 _balance = token.balanceOf(address(this));
+
+        if (_balance > 0) {
+            initial = 0;
+        }    
+
+        if (initial > 0) {
+            _distributable = initial.sub(allocated);
+        } else {
+            _distributable = _balance.sub(allocated);
+        }
+
+        require(_amount <= _distributable, "Amount isn't distributible.");        
         
         uint256 _amountLokedUp = 0;
         uint256 _lockupsLength = _lockups.length;
@@ -116,6 +138,9 @@ contract PlatinPool is HasNoEther, Authorizable {
             _lockups, 
             _refundable);
 
+        // reset initial in case of successful transfer of tokens
+        initial = 0;
+
         distributed = distributed.add(_amount);
         distribution[_beneficiary].distributed = true;
 
@@ -137,7 +162,7 @@ contract PlatinPool is HasNoEther, Authorizable {
      */   
     function getLockups(address _beneficiary) public view returns (uint256[]) {
         return distribution[_beneficiary].lockups;
-    }    
+    }
 
     /**
      * @dev Refund refundable lockedup amount

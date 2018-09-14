@@ -4,7 +4,7 @@ module.exports = {
     testrpcOptions: "--port 8555 --gasLimit 0xfffffffffff",
     skipFiles: [
         'Migrations.sol',
-        'mocks',
+        'mocks'
     ],
     copyPackages: ['openzeppelin-solidity']
 };

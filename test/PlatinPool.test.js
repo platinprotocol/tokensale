@@ -33,6 +33,7 @@ contract('PlatinPool', (accounts) => {
     it('should not be able instantiate contract with zero ICO addresses', async() => {
         await PlatinPool.new(
             zeroAddress,
+            env.poolInitial
         ).should.be.rejectedWith(EVMRevert);      
     });    
 
@@ -123,7 +124,7 @@ contract('PlatinPool', (accounts) => {
             const beneficiary2 = accounts[2];
             const beneficiary3 = accounts[3];
             const beneficiary4 = accounts[4];
-            const totalPoolAmount = await env.tge.PRE_ICO_POOL_AMOUNT();
+            const totalPoolAmount = await env.poolInitial;
             const distr1 = totalPoolAmount.div(4);
             const distr2 = totalPoolAmount.div(5);
             const distr3_1 = totalPoolAmount.div(5);
@@ -191,6 +192,55 @@ contract('PlatinPool', (accounts) => {
             distribution4[3].should.be.equal(false);
             lockups4.should.be.deep.equal([]);        
         });    
+
+        it('should be able to add distribution <= initial/balance', async() => { 
+            const beneficiary1 = accounts[1];
+            const beneficiary2 = accounts[2];
+            const beneficiary3 = accounts[3];
+
+            await expectEvent.inTransaction(
+                env.pool.addDistribution(beneficiary1, env.poolInitial, [], false),
+                'AddDistribution'
+            );      
+
+            const allocated = await env.pool.allocated();
+
+            allocated.should.be.bignumber.equal(env.poolInitial);
+            
+            const tge = await PlatinTGE.new(
+                env.token.address,
+                env.pool.address,
+                env.ico.address,
+                env.miningPool,
+                env.foundersPool.address,
+                env.employeesPool,
+                env.airdropsPool,
+                env.reservesPool,
+                env.advisorsPool.address,
+                env.ecosystemPool,
+                env.unsoldReserve
+            );
+
+            await performTge(env, tge);
+            
+            await expectEvent.inTransaction(
+                env.pool.addDistribution(beneficiary2, env.preIcoPoolInitial.sub(env.poolInitial), [], false),
+                'AddDistribution'
+            );      
+            
+            await env.pool.addDistribution(beneficiary3, new BigNumber(1), [], false).should.be.rejectedWith(EVMRevert);
+        });             
+        
+        it('should not be able to add distribution if there is no initial/balance', async() => { 
+            const beneficiary = accounts[1];
+            
+            const pool = await PlatinPool.new(
+                env.token.address,
+                0
+            );
+
+            await pool.addDistribution(beneficiary, new BigNumber(1), [], false).should.be.rejectedWith(EVMRevert);
+        });
 
         it('should be able to add distribution from an authorized address', async() => {
             const authorized = accounts[1];
@@ -405,7 +455,7 @@ contract('PlatinPool', (accounts) => {
     describe('refund', function () {    
         it('should be able to refund refundable locked up amount', async() => {
             const beneficiary = accounts[1];
-            const totalPoolAmount = await env.tge.PRE_ICO_POOL_AMOUNT();
+            const totalPoolAmount = await env.preIcoPoolInitial
             const distr = totalPoolAmount.div(2);
             const zero = new BigNumber(0);
 
@@ -426,41 +476,68 @@ contract('PlatinPool', (accounts) => {
             );
 
             await performTge(env, tge);
-            await env.token.authorize(env.pool.address);        
+            await env.token.authorize(env.pool.address);     
+            
+            const startAllocated = await env.pool.allocated();
+            const startDistributed = await env.pool.distributed();
 
+            // add distribution
             await env.pool.addDistribution(
-                beneficiary, distr, [releaseTime, distr], true
+                beneficiary, distr, [releaseTime, distr.div(2)], true
             ).should.be.fulfilled;
+
+            const addedAllocated = await env.pool.allocated();
+            const addedDistributed = await env.pool.distributed();
 
             const beforeDistr = await env.token.balanceOf(beneficiary);
             beforeDistr.should.be.bignumber.equal(zero);
 
+            // distribute
             await env.pool.distribute(beneficiary).should.be.fulfilled;
+
+            const distributedAllocated = await env.pool.allocated();
+            const distributedDistributed = await env.pool.distributed();            
 
             const afterDistr = await env.token.balanceOf(beneficiary);
             afterDistr.should.be.bignumber.equal(distr);
 
             const afterDistrLockedUp = await env.token.balanceLockedUp(beneficiary);
-            afterDistrLockedUp.should.be.bignumber.equal(distr);
+            afterDistrLockedUp.should.be.bignumber.equal(distr.div(2));
 
             const afterDistrRefundable= await env.token.balanceRefundable(beneficiary, env.pool.address);
-            afterDistrRefundable.should.be.bignumber.equal(distr);   
+            afterDistrRefundable.should.be.bignumber.equal(distr.div(2));   
 
             const beforePoolBalance = await env.token.balanceOf(env.pool.address);
 
+            // refund
             await env.pool.refundLockedUp(beneficiary).should.be.fulfilled;
             await increaseTimeTo(releaseTime);
 
+            const refundedAllocated = await env.pool.allocated();
+            const refundedDistributed = await env.pool.distributed();              
+
             const releasedDistr = await env.token.balanceOf(beneficiary);
-            releasedDistr.should.be.bignumber.equal(zero);
+            releasedDistr.should.be.bignumber.equal(distr.div(2));
 
             const afterPoolBalance = await env.token.balanceOf(env.pool.address);   
             
             afterPoolBalance.should.be.bignumber.equal(beforePoolBalance.add(afterDistrRefundable));
-            afterPoolBalance.should.be.bignumber.equal(totalPoolAmount);
+            afterPoolBalance.should.be.bignumber.equal(totalPoolAmount.mul(3).div(4));
 
             const distribution = await env.pool.distribution(beneficiary);
             distribution[1].should.be.bignumber.equal(afterDistrRefundable); // refunded field
+
+            startAllocated.should.be.bignumber.equal(new BigNumber(0));
+            startDistributed.should.be.bignumber.equal(new BigNumber(0));
+
+            addedAllocated.should.be.bignumber.equal(distr);
+            addedDistributed.should.be.bignumber.equal(new BigNumber(0));
+
+            distributedAllocated.should.be.bignumber.equal(distr);
+            distributedDistributed.should.be.bignumber.equal(distr);            
+
+            refundedAllocated.should.be.bignumber.equal(distr.div(2));
+            refundedDistributed.should.be.bignumber.equal(distr.div(2));
         });
 
         it('should not be able to get refund for non refundable locked up amount', async() => { 

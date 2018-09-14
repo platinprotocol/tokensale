@@ -1,12 +1,12 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.4.24; // solium-disable-line linebreak-style
+
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
 
 import "../PlatinTGE.sol";
-
-
-import "../capabilities/IVesting.sol";
-import "../PlatinPayoutProgram.sol";
 import "../PlatinToken.sol";
-import "../PlatinPreICO.sol";
 import "../PlatinICO.sol";
 
 
@@ -14,24 +14,29 @@ contract PlatinTGEMock is PlatinTGE {
 
     constructor(
         PlatinToken _token, 
-        PlatinPreICO _preIco, 
-        PlatinICO _ico, 
-        PlatinPayoutProgram _ppp,
-        IVesting _holderVesting, 
-        IVesting _unsoldVesting
+        address _preIcoPool, 
+        address _ico,
+        address _miningPool,
+        address _foundersPool,
+        address _employeesPool,
+        address _airdropsPool,
+        address _reservesPool,
+        address _advisorsPool,
+        address _ecosystemPool,
+        address _unsoldReserve
     )
-    PlatinTGE(_token, _preIco, _ico, _ppp, _holderVesting, _unsoldVesting)
+    PlatinTGE(_token, _preIcoPool, _ico, _miningPool, _foundersPool, _employeesPool, _airdropsPool, _reservesPool, _advisorsPool, _ecosystemPool, _unsoldReserve)
     public {}
 
     function allocateZeroAddress() public {
-        token.allocate(address(0), 1, address(0));
+        token.allocate(address(0), 1);
     }
 
     function allocateZeroAmount() public {
-        token.allocate(address(1), 0, address(0));
+        token.allocate(address(1), 0);
     }    
 
     function allocateMore() public {
-        token.allocate(address(1), TOTAL_SUPPLY.add(1), address(0));
+        token.allocate(address(1), TOTAL_SUPPLY.add(1));
     }    
 }

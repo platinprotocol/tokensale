@@ -1,3 +1,8 @@
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
+
 const setup = require('./helpers/setup');
 const performTge = require('./helpers/performTge');
 
@@ -8,6 +13,7 @@ const { zeroAddress }  = require('./helpers/zeroAddress');
 const { EVMRevert } = require('./helpers/EVMRevert');
 const { increaseTimeTo, duration } = require('.//helpers/increaseTime');
 const { ether } = require('./helpers/ether');
+const expectEvent = require('./helpers/expectEvent');
 
 const BigNumber = web3.BigNumber;
 
@@ -49,7 +55,7 @@ contract('PlatinICO', (accounts) => {
     });
 
     describe('purchase', function () {
-        it('should be able purchase tokens', async() => {
+        it('should be able to purchase tokens using direct send', async() => {
             const purchaser = accounts[0];
             const value = ether(1); 
             
@@ -60,7 +66,7 @@ contract('PlatinICO', (accounts) => {
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
-            await env.ico.buyTokens(purchaser, { value: value, from: purchaser }).should.be.fulfilled;  
+            await env.ico.send(value, { from: purchaser }).should.be.fulfilled;
             
             const balanceExpected = tokens;
             const balanceActual = await env.token.balanceOf(purchaser);
@@ -68,7 +74,26 @@ contract('PlatinICO', (accounts) => {
             balanceExpected.should.be.bignumber.equal(balanceActual);               
         });  
 
-        it('should be able purchase lockup tokens', async() => {
+        it('should be able to purchase tokens using buy function', async() => {
+            const purchaser = accounts[0];
+            const value = ether(1); 
+            
+            const rate = await env.tge.TOKEN_RATE();
+            const tokens = value.mul(rate);
+
+            await performTge(env);
+
+            await increaseTimeTo(env.openingTime);
+            await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
+            await env.ico.buyTokens(purchaser, { from: purchaser, value: value }).should.be.fulfilled;
+            
+            const balanceExpected = tokens;
+            const balanceActual = await env.token.balanceOf(purchaser);
+            
+            balanceExpected.should.be.bignumber.equal(balanceActual);               
+        });         
+
+        it('should be able to purchase lockup tokens', async() => {
             const purchaser = accounts[0];
             const value = ether(1); 
             
@@ -79,7 +104,7 @@ contract('PlatinICO', (accounts) => {
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
-            await env.ico.purchaseLockupTokens({ value: value, from: purchaser }).should.be.fulfilled;
+            await env.ico.buyLockupTokens(purchaser, { from: purchaser, value: value }).should.be.fulfilled;
             
             const balanceLockupExpected = tokens;
             const balanceLockupActual = await env.token.balanceLockedUp(purchaser);
@@ -87,7 +112,26 @@ contract('PlatinICO', (accounts) => {
             balanceLockupExpected.should.be.bignumber.equal(balanceLockupActual);               
         });
 
-        it('should not be able purchase tokens with less than min purchase amount of funds', async() => {
+        it('should be able to purchase lockup tokens to zero address beneficiary', async() => {
+            const purchaser = accounts[0];
+            const value = ether(1);
+
+            const rateLockup = await env.tge.TOKEN_RATE_LOCKUP();
+            const tokens = value.mul(rateLockup);
+
+            await performTge(env);
+
+            await increaseTimeTo(env.openingTime);
+            await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
+            await env.ico.buyLockupTokens(zeroAddress, { from: purchaser, value: value }).should.be.fulfilled;
+
+            const balanceLockupExpected = tokens;
+            const balanceLockupActual = await env.token.balanceLockedUp(purchaser);
+
+            balanceLockupExpected.should.be.bignumber.equal(balanceLockupActual);
+        });
+
+        it('should not be able to purchase tokens with less than min purchase amount of funds', async() => {
             const purchaser = accounts[0];
             const minPurchase = await env.tge.MIN_PURCHASE_AMOUNT();
             const value = minPurchase.sub(ether(0.1));
@@ -96,28 +140,33 @@ contract('PlatinICO', (accounts) => {
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
-            await env.ico.buyTokens(purchaser, { value: value, from: purchaser }).should.be.rejectedWith(EVMRevert);           
+            await env.icoRegular.send(value, { from: purchaser }).should.be.rejectedWith(EVMRevert);
         });  
 
-        it('should not be able purchase tokens more than ico supply', async() => {
+        it('should not be able to purchase tokens more than ico supply', async() => {
             const purchaser = accounts[0];
             const minPurchase = await env.tge.MIN_PURCHASE_AMOUNT();
             const value = minPurchase.add(ether(0.1));
 
             const tgeMock = await PlatinTGEMinICOMock.new(
                 env.token.address,
-                env.preIco.address,
+                env.preIcoPool.address,
                 env.ico.address,
-                env.ppp.address,
-                env.stdVesting.address,
-                env.unsVesting.address
+                env.miningPool,
+                env.foundersPool.address,
+                env.employeesPool,
+                env.airdropsPool,
+                env.reservesPool,
+                env.advisorsPool.address,
+                env.ecosystemPool,
+                env.unsoldReserve
             ).should.be.fulfilled;
 
             await performTge(env, tgeMock);
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
-            await env.ico.buyTokens(purchaser, { value: value, from: purchaser }).should.be.rejectedWith(EVMRevert);             
+            await env.icoRegular.send(value, { from: purchaser }).should.be.rejectedWith(EVMRevert);
         });         
     });
 
@@ -126,12 +175,18 @@ contract('PlatinICO', (accounts) => {
             await performTge(env);
 
             await increaseTimeTo(env.closingTime + duration.minutes(1));
-            await env.ico.finalize().should.be.fulfilled;
+            const balanceExpectedReserve = await env.token.balanceOf(env.ico.address);
+            await expectEvent.inTransaction(
+                env.ico.finalize(),
+                'Finalized'
+            );    
 
             const balanceExpected = new BigNumber(0);
             const balanceActual = await env.token.balanceOf(env.ico.address);
-            
-            balanceExpected.should.be.bignumber.equal(balanceActual);              
+            const balanceReserve = await env.token.balanceOf(await env.tge.UNSOLD_RESERVE());
+
+            balanceExpected.should.be.bignumber.equal(balanceActual);
+            balanceExpectedReserve.should.be.bignumber.equal(balanceReserve);
         });
 
         it('should not be able to do finalization twice', async() => {
@@ -145,6 +200,12 @@ contract('PlatinICO', (accounts) => {
             await performTge(env);
             await env.ico.finalize().should.be.rejectedWith(EVMRevert);            
         });     
+
+        it('should be able to do finalization by owner only', async() => {
+            const notOwner = accounts[1];
+            await performTge(env);
+            await env.ico.finalize({ from: notOwner }).should.be.rejectedWith(EVMRevert);            
+        });
         
         it('should not be able to do zero balance finalization distribution', async() => {
             const purchaser = accounts[0];
@@ -152,26 +213,26 @@ contract('PlatinICO', (accounts) => {
 
             const tgeMock = await PlatinTGEMinICOMock.new(
                 env.token.address,
-                env.preIco.address,
+                env.preIcoPool.address,
                 env.ico.address,
-                env.ppp.address,
-                env.stdVesting.address,
-                env.unsVesting.address
+                env.miningPool,
+                env.foundersPool.address,
+                env.employeesPool,
+                env.airdropsPool,
+                env.reservesPool,
+                env.advisorsPool.address,
+                env.ecosystemPool,
+                env.unsoldReserve
             ).should.be.fulfilled;  
 
             await performTge(env, tgeMock);
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
-            await env.ico.buyTokens(purchaser, { value: value, from: purchaser }).should.be.fulfilled;         
+            await env.icoRegular.send(value, { from: purchaser }).should.be.fulfilled;
 
             await increaseTimeTo(env.closingTime + duration.minutes(1));
             await env.ico.finalize().should.be.fulfilled;
-            
-            const balanceExpected = new BigNumber(0);
-            const balanceActual = await env.token.balanceOf(env.ppp.address);
-
-            balanceExpected.should.be.bignumber.equal(balanceActual);
         });          
     });
 });

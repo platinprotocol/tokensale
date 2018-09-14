@@ -5,12 +5,11 @@ pragma solidity ^0.4.24; // solium-disable-line linebreak-style
  * @author Platin Limited, platin.io (platin@platin.io)
  */
 
-import "../HoldersToken.sol";
+import "../Authorizable.sol";
 
 
-contract HoldersTokenMock is HoldersToken {
+contract AuthorizableMock is Authorizable {
 
-    function removeZeroHolder() public {
-        _removeHolder(address(0));
-    }
+    function doSmth() public view onlyAuthorized {}
+
 }

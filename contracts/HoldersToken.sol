@@ -1,4 +1,9 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.4.24; // solium-disable-line linebreak-style
+
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
 
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
@@ -7,6 +12,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 /**
  * @title Holders Token
  * @dev Extension to the OpenZepellin's StandardToken contract to track token holders.
+ * Only holders with the non-zero balance are listed.
  */
 contract HoldersToken is StandardToken {
     using SafeMath for uint256;    

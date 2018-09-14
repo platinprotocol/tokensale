@@ -1,3 +1,8 @@
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
+
 const BigNumber = web3.BigNumber;
 
 require('chai')
@@ -9,9 +14,7 @@ module.exports = async function(env, _tge) {
     const tge = typeof _tge === 'undefined' ? env.tge : _tge;
 
     await env.token.setTGE(tge.address).should.be.fulfilled;
-    await env.preIco.setTGE(tge.address).should.be.fulfilled;
     await env.ico.setTGE(tge.address).should.be.fulfilled;
-    await env.ppp.setTGE(tge.address).should.be.fulfilled;
 
     await tge.allocate().should.be.fulfilled;
 };

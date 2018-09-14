@@ -28,20 +28,20 @@ module.exports = {
         ropsten: {
             provider: () => new HDWalletProvider(secrets.mnemonic, 'https://ropsten.infura.io/' + secrets.infuraApiKey),
             network_id: 3,
-            gas: 5200000,
-            gasPrice: 2000000000 // 20 Gwei
+            gas: 6700000,
+            gasPrice: 500000000 // 5 Gwei
         },
         rinkeby: {
             provider: () => new HDWalletProvider(secrets.mnemonic, 'https://rinkeby.infura.io/' + secrets.infuraApiKey),
             network_id: 4,
-            gas: 5200000,
-            gasPrice: 20000000000 // 20 Gwei
+            gas: 6700000,
+            gasPrice: 5000000000 // 5 Gwei
         },
         mainnet: {
             provider: () => new HDWalletProvider(secrets.mnemonic, 'https://mainnet.infura.io/' + secrets.infuraApiKey),
             network_id: 1,
-            gas: 5200000,
-            gasPrice: 20000000000 // 20 Gwei
+            gas: 8000000,
+            gasPrice: 10000000000 // 10 Gwei
         }
     },
     mocha: {

@@ -1,4 +1,9 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.4.24; // solium-disable-line linebreak-style
+
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
 
 import "openzeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/validation/TimedCrowdsale.sol";
@@ -14,7 +19,7 @@ import "./PlatinTGE.sol";
  * @dev Platin public sales contract. Before purchase customers should be whitelisted
  * during KYC/AML procedure. Tokens can be purchased with and without lockup.
  * Locked up tokens purchase has special token rate. When ICO ends, unsold tokens are
- * distributed to the unsold token holders (with/without vesting) and the Platin Payout Program.
+ * distributed to the unsold token reserve.
  * All constants for processing purchases and for finalization are stored in the TGE contract.
  * Due to the solidity inheritance limitations the code of OpenZeppelin's FinalizableCrowdsale
  * contract is copied directly to this contract to use it's finalize feature.
@@ -70,11 +75,14 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
     }
 
     /**
-     * @dev Purchase and lockup purchased tokens for the sender
+     * @dev Purchase and lockup purchased tokens
      */
-    function purchaseLockupTokens() external payable {
+    function buyLockupTokens(address _beneficiary) external payable {
         lockup = true;
-        buyTokens(msg.sender);
+        if (_beneficiary == address(0x0))
+            buyTokens(msg.sender);
+        else
+            buyTokens(_beneficiary);
     }  
 
     /**
@@ -104,10 +112,14 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
         internal
     {
         if (lockup) {
+            uint256[] memory _lockups = new uint256[](2);
+            _lockups[0] = block.timestamp + tge.ICO_LOCKUP_PERIOD(); // solium-disable-line security/no-block-members
+            _lockups[1] = _tokenAmount;
             PlatinToken(token).transferWithLockup(
                 _beneficiary, 
                 _tokenAmount,
-                block.timestamp + tge.ICO_LOCKUP_PERIOD()); // solium-disable-line security/no-block-members
+                _lockups,
+                false);
             lockup = false;   
         } else {
             PlatinToken(token).transfer(
@@ -127,37 +139,20 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
     )
         internal
     {
-        require(sold.add(_tokenAmount) <= tge.ICO_AMOUNT(), "Can't sold more than ICO amount.");
+        require(sold.add(_tokenAmount) <= tge.ICO_AMOUNT(), "Can't be sold more than ICO amount.");
         sold = sold.add(_tokenAmount);
         super._processPurchase(_beneficiary, _tokenAmount);
     }  
 
     /**
-     * @dev Finalization, transfer unsold tokens to the unsold tokens holders
+     * @dev Finalization, transfer unsold tokens to the reserve address with lockup
      */    
     function finalization() internal {
         uint256 _unsold = token.balanceOf(this);
-        if (_unsold > 0) {
-            uint256 _share;
-            
-            // transfer holder01 unsold share
-            _share = _unsold.mul(tge.UNSOLD_HOLDER01_SHARE()).div(100);
-            token.transfer(tge.HOLDER01(), _share);
-
-            // transfer holder04 unsold share, with unsold vesting
-            _share = _unsold.mul(tge.UNSOLD_HOLDER04_SHARE()).div(100);
-            PlatinToken(token).transferWithVesting(tge.HOLDER04(), _share, tge.unsoldVesting());
-
-            // transfer holder06_02 share
-            _share = _unsold.mul(tge.UNSOLD_HOLDER06_02_SHARE()).div(100);
-            token.transfer(tge.HOLDER06_02(), _share);
-
-            // transfer Platin Payout Program share
-            _share = _unsold.mul(tge.UNSOLD_PPP_SHARE()).div(100);
-            token.transfer(tge.ppp(), _share);
-
-            // transfer remains to the Platin Payout Program 
-            token.transfer(tge.ppp(), token.balanceOf(this));
+        if (_unsold > 0) {         
+            PlatinToken(token).transfer(
+                tge.UNSOLD_RESERVE(),
+                _unsold);
         }
     }
 

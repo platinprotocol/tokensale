@@ -51,9 +51,6 @@ contract PlatinTGE {
     // Unsold tokens reserve address
     address public UNSOLD_RESERVE; // solium-disable-line mixedcase
 
-    // Unsold tokens reserve lockup period
-    uint256 public constant UNSOLD_LOCKUP_PERIOD = 182 days;
-
     // Tokens ico sale with lockup period
     uint256 public constant ICO_LOCKUP_PERIOD = 182 days;
     

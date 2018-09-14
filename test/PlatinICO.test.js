@@ -154,8 +154,7 @@ contract('PlatinICO', (accounts) => {
             const balanceExpectedReserve = await env.token.balanceOf(env.ico.address);
             await expectEvent.inTransaction(
                 env.ico.finalize(),
-                'Finalized',
-                {}
+                'Finalized'
             );    
 
             const balanceExpected = new BigNumber(0);
@@ -178,7 +177,7 @@ contract('PlatinICO', (accounts) => {
             await env.ico.finalize().should.be.rejectedWith(EVMRevert);            
         });     
 
-        it('should not be able to do finalization by owner only', async() => {
+        it('should be able to do finalization by owner only', async() => {
             const notOwner = accounts[1];
             await performTge(env);
             await env.ico.finalize({ from: notOwner }).should.be.rejectedWith(EVMRevert);            

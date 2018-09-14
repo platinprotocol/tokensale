@@ -46,5 +46,9 @@ module.exports = function(deployer) {
         return tge.ECOSYSTEM_POOL();
     }).then(ecosystemPool => {
         return token.authorize(ecosystemPool);
-    });    
+    }).then(() => {
+        return tge.UNSOLD_RESERVE();
+    }).then(unsold_reserve => {
+        return token.authorize(unsold_reserve);
+    });
 };

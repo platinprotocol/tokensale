@@ -184,15 +184,45 @@ contract('PlatinTGE', (accounts) => {
         ).should.be.rejectedWith(EVMRevert);
     });
   
-    it('should be able to allocate tokens during TGE', async() => {
+    it('should be able to correctly allocate tokens during TGE', async() => {
         const totalSupplyBeforeExpected = new BigNumber(0);
         const totalSupplyAfterExpected = await env.tge.TOTAL_SUPPLY();
         
+        const salesSupplyExpected = await env.tge.SALES_SUPPLY();
+        const miningPoolSupplyExpected = await env.tge.MINING_POOL_SUPPLY();
+        const foundersAndEmployeesSupplyExpected = await env.tge.FOUNDERS_AND_EMPLOYEES_SUPPLY();
+        const airdropsSupplyExpected = await env.tge.AIRDROPS_POOL_SUPPLY();
+        const reservesSupplyExpected = await env.tge.RESERVES_POOL_SUPPLY();
+        const advisorsSupplyExpected = await env.tge.ADVISORS_POOL_SUPPLY();
+        const ecosystemSupplyExpected = await env.tge.ECOSYSTEM_POOL_SUPPLY();
+
         const totalSupplyBeforeActual = await env.token.totalSupply();
 
         await performTge(env);
 
+        const preIcoPoolSupply = await env.token.balanceOf(await env.tge.PRE_ICO_POOL());
+        const icoSupply = await  env.token.balanceOf(await env.tge.ICO());
+        const foundersPoolSupply = await env.token.balanceOf(await env.tge.FOUNDERS_POOL());
+        const employeesPoolSupply = await env.token.balanceOf(await env.tge.EMPLOYEES_POOL()); 
+
+        const salesSupplyActual = preIcoPoolSupply.add(icoSupply);
+        const miningPoolSupplyActual= await env.token.balanceOf(await env.tge.MINING_POOL());
+        const foundersAndEmployeesSupplyActual = foundersPoolSupply.add(employeesPoolSupply);
+        const airdropsSupplyActual = await env.token.balanceOf(await env.tge.AIRDROPS_POOL());
+        const reservesSupplyActual = await env.token.balanceOf(await env.tge.RESERVES_POOL());
+        const advisorsSupplyActual = await env.token.balanceOf(await env.tge.ADVISORS_POOL());
+        const ecosystemSupplyActual = await env.token.balanceOf(await env.tge.ECOSYSTEM_POOL());        
+
         const totalSupplyAfterActual = await env.token.totalSupply();
+
+
+        salesSupplyExpected.should.be.bignumber.equal(salesSupplyActual);
+        miningPoolSupplyExpected.should.be.bignumber.equal(miningPoolSupplyActual);
+        foundersAndEmployeesSupplyExpected.should.be.bignumber.equal(foundersAndEmployeesSupplyActual);
+        airdropsSupplyExpected.should.be.bignumber.equal(airdropsSupplyActual);
+        reservesSupplyExpected.should.be.bignumber.equal(reservesSupplyActual);
+        advisorsSupplyExpected.should.be.bignumber.equal(advisorsSupplyActual);
+        ecosystemSupplyExpected.should.be.bignumber.equal(ecosystemSupplyActual);
 
         totalSupplyBeforeActual.should.be.bignumber.equal(totalSupplyBeforeExpected);
         totalSupplyAfterActual.should.be.bignumber.equal(totalSupplyAfterExpected);
@@ -222,5 +252,5 @@ contract('PlatinTGE', (accounts) => {
         
         await token.setTGE(tge.address).should.be.fulfilled;
         await tge.allocate().should.be.rejectedWith(EVMRevert);
-    });      
+    });   
 });

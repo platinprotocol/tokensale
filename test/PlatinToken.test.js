@@ -272,7 +272,25 @@ contract('PlatinToken', (accounts) => {
             startLockedUpBalance.should.be.bignumber.equal(endLockedUpBalance);
         });
 
-        it('should be able refund', async() => {
+        it('should not be able lockup more amount than tranferred', async() => {
+            const from = accounts[1];
+            const to = accounts[2];
+            const value = ether(1);
+
+            const rate = await env.tge.TOKEN_RATE();
+            const tokens = value.mul(rate);
+
+            await performTge(env);
+            await increaseTimeTo(env.openingTime);
+            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
+            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
+
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.add(1)], false, { from: from }).should.be.rejectedWith(EVMRevert);
+        });        
+    });
+
+    describe('refund', function () {        
+        it('should be able to do refund', async() => {
             const from = accounts[0];
             const to = accounts[1];
             const value = ether(1);
@@ -290,9 +308,52 @@ contract('PlatinToken', (accounts) => {
             await env.token.transferWithLockup(to, tokens, [env.closingTime, tokens], true, { from: from }).should.be.fulfilled;
 
             const startLockedUpBalance = await env.token.balanceLockedUp(to);
+            const startRefundableBalance = await env.token.balanceRefundable(to, from);
 
             expectedStartLockBalance.should.be.bignumber.equal(startLockedUpBalance);
+            startRefundableBalance.should.be.bignumber.equal(startLockedUpBalance);
 
+            const startFromBalance = await env.token.balanceOf(from);
+
+            await env.token.refundLockedUp(to, { from: from }).should.be.fulfilled;
+
+            const expectedEndLockBalance = new BigNumber(0);
+            const endLockedUpBalance = await env.token.balanceLockedUp(to);
+            const endRefundableBalance = await env.token.balanceRefundable(to, from);
+
+            expectedEndLockBalance.should.be.bignumber.equal(endLockedUpBalance);
+            endRefundableBalance.should.be.bignumber.equal(expectedEndLockBalance);
+
+            const endFromBalance = await env.token.balanceOf(from);
+            startFromBalance.should.be.bignumber.equal(new BigNumber(0));
+            endFromBalance.should.be.bignumber.equal(tokens);
+        });
+
+        it('should not be able to get refund for non refundable locked up amount', async() => {
+            const from = accounts[0];
+            const to = accounts[1];
+            const value = ether(1);
+
+            const rate = await env.tge.TOKEN_RATE();
+            const tokens = value.mul(rate);
+
+            const expectedStartLockBalance = tokens;
+
+            await performTge(env);
+            await increaseTimeTo(env.openingTime);
+            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
+            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
+
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime, tokens.div(2)], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.div(2)], true, { from: from }).should.be.fulfilled;
+
+            const startLockedUpBalance = await env.token.balanceLockedUp(to);
+
+            expectedStartLockBalance.should.be.bignumber.equal(startLockedUpBalance);
+            
+            const startFromBalance = await env.token.balanceOf(from);
+
+            await increaseTimeTo(env.closingTime + duration.weeks(1));
             await env.token.refundLockedUp(to, { from: from }).should.be.fulfilled;
 
             const expectedEndLockBalance = new BigNumber(0);
@@ -300,27 +361,15 @@ contract('PlatinToken', (accounts) => {
 
             expectedEndLockBalance.should.be.bignumber.equal(endLockedUpBalance);
 
-        });
+            const endFromBalance = await env.token.balanceOf(from);
 
-
-        // it('shoud not be able perform lockup to zero address', async() => {
-        //     const tokenLockupMock = await TokenLockupMock.new().should.be.fulfilled;
-        //     await tokenLockupMock.zeroAddressLockup().should.be.rejectedWith(EVMRevert);
-        // });
-        //
-        // it('shoud not be able perform lockup with zero amount', async() => {
-        //     const tokenLockupMock = await TokenLockupMock.new().should.be.fulfilled;
-        //     await tokenLockupMock.zeroAmountLockup().should.be.rejectedWith(EVMRevert);
-        // });
-        //
-        // it('shoud not be able perform lockup in the past', async() => {
-        //     const tokenLockupMock = await TokenLockupMock.new().should.be.fulfilled;
-        //     await tokenLockupMock.lockupInPast().should.be.rejectedWith(EVMRevert);
-        // });
+            startFromBalance.should.be.bignumber.equal(new BigNumber(0));
+            endFromBalance.should.be.bignumber.equal(new BigNumber(0));            
+        });        
     });
 
     describe('balance', function () {             
-        it('should be able calculate full, spot, lockedup and vested balance', async() => {
+        it('should be able calculate full, spot, lockedup and refundable balance', async() => {
             const from = accounts[0];
             const to = accounts[1];
             const value = ether(1);
@@ -331,22 +380,25 @@ contract('PlatinToken', (accounts) => {
             const fullBalanceExpected = tokens;
             const lockedUpBalanceExpected = tokens;
             const spotBalanceExpected = new BigNumber(0);
+            const refundableBalanceExpected = tokens.div(2);
 
             await performTge(env);
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.div(2)], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.div(2)], true, { from: from }).should.be.fulfilled;
             await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.div(2)], false, { from: from }).should.be.fulfilled;
 
             const fullBalanceActual = await env.token.balanceOf(to);
             const spotBalanceActual = await env.token.balanceSpot(to);
             const lockedUpBalanceActual = await env.token.balanceLockedUp(to);
+            const refundableBalanceActual = await env.token.balanceRefundable(to, from);
 
             fullBalanceActual.should.be.bignumber.equal(fullBalanceExpected);
             spotBalanceActual.should.be.bignumber.equal(spotBalanceExpected);
             lockedUpBalanceActual.should.be.bignumber.equal(lockedUpBalanceExpected);
+            refundableBalanceActual.should.be.bignumber.equal(refundableBalanceExpected);
         });    
 
         it('should not be able to transfer or transferFrom more than balance spot', async() => {

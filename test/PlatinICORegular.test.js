@@ -1,9 +1,11 @@
-const PlatinICORegular = artifacts.require('PlatinICOLockup');
-
 const setup = require('./helpers/setup');
 const performTge = require('./helpers/performTge');
 
+const PlatinICORegular = artifacts.require('PlatinICORegular');
+
 const { advanceBlock } = require('./helpers/advanceToBlock');
+const { zeroAddress }  = require('./helpers/zeroAddress');
+const { EVMRevert } = require('./helpers/EVMRevert');
 const { increaseTimeTo } = require('.//helpers/increaseTime');
 const { ether } = require('./helpers/ether');
 
@@ -14,7 +16,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('PlatinICO', (accounts) => {
+contract('PlatinICORegular', (accounts) => {
 
     let env = {};
 

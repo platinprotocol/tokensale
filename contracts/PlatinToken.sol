@@ -105,9 +105,9 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     }    
 
     /**
-     * @dev Get balance locked up to the current moment of time
+     * @dev Get balance locked up at the current moment of time
      * @param _who address Address owns lockedup amounts
-     * @return uint256 Balance locked up to the current moment of time     
+     * @return uint256 Balance locked up at the current moment of time     
      */       
     function balanceLockedUp(address _who) public view returns (uint256) {
         uint256 _balanceLokedUp = 0;
@@ -117,6 +117,24 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
                 _balanceLokedUp = _balanceLokedUp.add(lockups[_who][i + 1]);
         }
         return _balanceLokedUp;
+    }
+
+    /**
+     * @dev Get refundable locked up balance at the current moment of time
+     * @param _who address Address owns lockedup amounts
+     * @param _sender address Address owned lockedup amounts
+     * @return uint256 Locked up refundable balance at the current moment of time     
+     */       
+    function balanceRefundable(address _who, address _sender) public view returns (uint256) {
+        uint256 _balanceRefundable = 0;
+        uint256 _refundableLength = refundable[_who][_sender].length;
+        if (_refundableLength > 0) {
+            for (uint256 i = 0; i < _refundableLength; i = i + 2) {
+                if (refundable[_who][_sender][i] > block.timestamp) // solium-disable-line security/no-block-members
+                    _balanceRefundable = _balanceRefundable.add(refundable[_who][_sender][i + 1]);  
+            }
+        }
+        return _balanceRefundable;
     }
 
     /**
@@ -204,13 +222,13 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     public onlyAuthorized returns (uint256)
     {
         address _sender = msg.sender;
-        uint256 _refubdableLength = refundable[_from][_sender].length;
-        uint256 _balanceLokedUp = 0;
-        if (_refubdableLength > 0) {
+        uint256 _balanceRefundable = 0;
+        uint256 _refundableLength = refundable[_from][_sender].length;
+        if (_refundableLength > 0) {
             uint256 _lockupsLength = lockups[_from].length;
-            for (uint256 i = 0; i < _refubdableLength; i = i + 2) {
+            for (uint256 i = 0; i < _refundableLength; i = i + 2) {
                 if (refundable[_from][_sender][i] > block.timestamp) { // solium-disable-line security/no-block-members
-                    _balanceLokedUp = _balanceLokedUp.add(refundable[_from][_sender][i + 1]);  
+                    _balanceRefundable = _balanceRefundable.add(refundable[_from][_sender][i + 1]);  
                     for (uint256 j = 0; j < _lockupsLength; j = j + 2) {
                         if (lockups[_from][j] == refundable[_from][_sender][i] && lockups[_from][j + 1] == refundable[_from][_sender][i + 1]) {
                             lockups[_from][j] = 0;
@@ -223,16 +241,14 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
                 }    
             }
 
-            if (_balanceLokedUp > 0) {
-                require(_balanceLokedUp <= balances[_from], "Refund request less than balance.");
-
-                balances[_from] = balances[_from].sub(_balanceLokedUp);
-                balances[_sender] = balances[_sender].add(_balanceLokedUp);
-                emit Refund(_from, _sender, _balanceLokedUp);
-                emit Transfer(_from, _sender, _balanceLokedUp);
+            if (_balanceRefundable > 0) {
+                balances[_from] = balances[_from].sub(_balanceRefundable);
+                balances[_sender] = balances[_sender].add(_balanceRefundable);
+                emit Refund(_from, _sender, _balanceRefundable);
+                emit Transfer(_from, _sender, _balanceRefundable);
             }
         }
-        return _balanceLokedUp;
+        return _balanceRefundable;
     }
 
     /**
@@ -251,9 +267,6 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     {
         uint256 _lockupsLength = _lockups.length;
         if (_lockupsLength > 0) {
-            require(_who != address(0), "Lockup target address can't be zero.");
-            require(_amount > 0, "Lockup amount should be > 0.");   
-
             uint256 _balanceLokedUp = 0;
             address _sender = msg.sender;
             for (uint256 i = 0; i < _lockupsLength; i = i + 2) {

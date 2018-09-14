@@ -6,8 +6,10 @@ const PlatinTGE = artifacts.require('PlatinTGE');
 const PlatinICO = artifacts.require('PlatinICO');
 const PlatinICORegular = artifacts.require('PlatinICORegular');
 const PlatinICOLockup = artifacts.require('PlatinICOLockup');
+const PlatinPool = artifacts.require("./pools/PlatinPool.sol");
 const AdvisorsPool = artifacts.require("./pools/AdvisorsPool.sol");
 const FoundersPool = artifacts.require("./pools/FoundersPool.sol");
+const PreIcoPool = artifacts.require("./pools/PreIcoPool.sol");
 
 module.exports = async function(accounts, env) {
     env.unsoldReserve = '0xef34779Ad86Cd818E86e0ec1096186D35377c474';
@@ -29,6 +31,10 @@ module.exports = async function(accounts, env) {
     env.advisorsPool = await AdvisorsPool.new(
         env.token.address
     );
+
+    env.pool = await PlatinPool.new(
+        env.token.address
+    );    
 
     env.foundersPool = await FoundersPool.new(
         env.token.address
@@ -69,24 +75,12 @@ module.exports = async function(accounts, env) {
     );
 
     await env.token.authorize(await env.tge.PRE_ICO_POOL());
-
     await env.token.authorize(await env.tge.ICO());
-
     await env.token.authorize(await env.tge.MINING_POOL());
-
     await env.token.authorize(await env.tge.FOUNDERS_POOL());
-
     await env.token.authorize(await env.tge.EMPLOYEES_POOL());
-
     await env.token.authorize(await env.tge.AIRDROPS_POOL());
-
     await env.token.authorize(await env.tge.RESERVES_POOL());
-
     await env.token.authorize(await env.tge.ADVISORS_POOL());
-
     await env.token.authorize(await env.tge.ECOSYSTEM_POOL());
-
 };
-
-
-const PreIcoPool = artifacts.require("./pools/PreIcoPool.sol");

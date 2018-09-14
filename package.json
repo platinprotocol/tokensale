@@ -1,6 +1,6 @@
 {
   "name": "platin-ico",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Platin TGE and ICO solidity contracts",
   "main": "contracts",
   "directories": {

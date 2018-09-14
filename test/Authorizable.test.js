@@ -2,7 +2,7 @@ const AuthorizableMock = artifacts.require('AuthorizableMock');
 
 const { EVMRevert } = require('./helpers/EVMRevert');
 const { zeroAddress }  = require('./helpers/zeroAddress');
-
+const expectEvent = require('./helpers/expectEvent');
 
 require('chai')
   .use(require('chai-as-promised'))
@@ -18,13 +18,25 @@ contract('Authorizable', (accounts) => {
 
     it('should be able to authorize address', async() => {
         const targetAddress = accounts[1];
-        await env.auth.authorize(targetAddress).should.be.fulfilled;        
+        await expectEvent.inTransaction(
+            env.auth.authorize(targetAddress),
+            'Authorize',
+            { who: targetAddress }
+        );    
+        const isAuthorized = await env.auth.authorized(targetAddress);
+        isAuthorized.should.be.equal(true);        
     });
 
     it('should be able to unAthorize address', async() => {
         const targetAddress = accounts[1];
         await env.auth.authorize(targetAddress).should.be.fulfilled;  
-        await env.auth.unAuthorize(targetAddress).should.be.fulfilled;       
+        await expectEvent.inTransaction(
+             env.auth.unAuthorize(targetAddress),
+            'UnAuthorize',
+            { who: targetAddress }
+        );
+        const isAuthorized = await env.auth.authorized(targetAddress);
+        isAuthorized.should.be.equal(false);        
     });    
 
     it('should be query authorized address', async() => {

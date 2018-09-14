@@ -1,10 +1,7 @@
 const HoldersTokenMock = artifacts.require('HoldersTokenMock');
-const PlatinTGEMock = artifacts.require('PlatinTGEMock');
 
-const { zeroAddress }  = require('./helpers/zeroAddress');
-const { EVMRevert } = require('./helpers/EVMRevert');
 const { advanceBlock } = require('./helpers/advanceToBlock');
-const { increaseTimeTo, duration } = require('.//helpers/increaseTime');
+const { increaseTimeTo } = require('.//helpers/increaseTime');
 const { ether } = require('./helpers/ether');
 
 const setup = require('./helpers/setup');
@@ -17,7 +14,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('PlatinToken', (accounts) => {
+contract('HoldersToken', (accounts) => {
 
     let env = {};
 

@@ -6,9 +6,9 @@
 2. PlatinToken contract. The ERC20 Token contract with additional capabilities as follows:
 - Holders List. Contract tracks token holders by itself. Note that the list of holders consists holders with the non-zero balance only.
 - Lockup. A token holder can have locked up (till some release time) amounts on his balance, each locked up amount have it's own release time. Untill release time locked up amount can't be transfered from the balance. Lockups can be refundable. In case of refund previous holder can get back locked up tokens. Only still locked up amounts can be transfered back. Lokups is placed using special tranfer functions transferWithLockup and transferFromWithLockup. Only authorized holders can do transfers with lockups.
-3. PlatinICO contract. Platin public sales contract. Before purchase customers should be whitelisted during KYC/AML procedure. Tokens can be purchased with and without lockup. Locked up tokens purchase has special token rate. When ICO ends, unsold tokens are distributed to the unsold token reserve with lockup. All constants for processing purchases and for the finalization are stored in the TGE contract.
+3. PlatinICO contract. Platin public sales contract. It has start and end date and finalization functionality. Before purchase customers should be whitelisted during KYC/AML procedure. Tokens can be purchased with and without lockup. Locked up tokens purchase has special token rate. When ICO ends, unsold tokens are distributed to the unsold token reserve with lockup. All constants for processing purchases and for the finalization are stored in the TGE contract.
 4. PlatinICOLockup and PlatinICORegular. Proxy contracts that receives ether directly and sends it to the PlatinICO contract calling appropriate buying function.
-5. PlatinPool contract. This contract is developed to distribute tokens (with/without lockups) according to the distribution table. Only authorized addresess can add distribution records to the pool and call refund for the distributed lockuped (and refundable) amounts. But distribution itself can be invoked publically. This contract is used to create PreIco, Founders and Advisors pools and can be used to create pools in the future. 
+5. PlatinPool contract. This contract is developed to distribute tokens (with/without lockups) according to the distribution table. Only authorized addresess can add distribution records to the pool and call refund for the distributed and lockuped (with refundable feature) amounts. But distribution itself can be invoked publically. This contract is used to create PreIco, Founders and Advisors pools and can be used to create pools in the future. 
 6. AdvisorsPool, FoundersPool and PreIcoPool contracts. PlatinPool contracts that get it's supplies during initial token allocation, holds distribution tables for advisors, founders and pre ico supplies and provide distribution capability for that supplies.
 
 
@@ -37,20 +37,21 @@
 1. We use duplicated code blocks for the constructor with token (PlatinPreICO, PlatinPayoutProgram) and to set TGE contract (PlatinToken, PlatinPreICO, PlatinICO, PlatinPayoutProgram) to avoid circular importing issues.
 2. Due to the solidity inheritance limitations the code of OpenZeppelin's FinalizableCrowdsale contract is copied directly to the PlatinICO contract to use it's finalize feature.
 3. Additional Token capabilities that tweak transfer functionality obviously increase the price for a token transfers. It's acceptable for the PTNX Token economic model.
-4. To run tests or migrations the truffle framework should be installed.
-5. Before every run of the tests please start the ganache-cli manually with the following parameters: 
+4. In our tests we are based on a fact that Open Zeppelin had tested and audited their contracts we extended so we omited test duplication.
+5. To run tests or migrations the truffle framework should be installed.
+6. Before every run of the tests please (re)start the ganache-cli manually with the following parameters: 
 ```
 ./node_modules/.bin/ganache-cli -p 8545 --gasLimit 0x7a1200
 ```
-6. To run test call 
+7. To run test call 
 ```
 npm run test
 ```
-7. Before every run of the test coverage please start the testrpc-sc manually with the following parameters: 
+8. Before every run of the test coverage please (re)start the testrpc-sc manually with the following parameters: 
 ```
 ./node_modules/.bin/testrpc-sc -p 8555 --gasLimit 0xfffffffffff
 ```
-8. To run test coverage call 
+9. To run test coverage call 
 ```
 npm run coverage
 ```

@@ -1,3 +1,11 @@
+/**
+ * Script that distribute all beneficiaries in pool contract.
+ * Script expect two parameters.
+ * @param rpc url.
+ * @param pool address
+ *
+ */
+
 const fs = require('fs');
 const abiTGE = JSON.parse(fs.readFileSync("./build/contracts/PlatinTGE.json")).abi;
 const byteCodeTGE = JSON.parse(fs.readFileSync("./build/contracts/PlatinTGE.json")).bytecode;

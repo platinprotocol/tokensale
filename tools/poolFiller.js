@@ -1,3 +1,12 @@
+/**
+ * Script that add distribution from csv file to pool contract
+ * Script expect three parameters.
+ * @param rpc url.
+ * @param pool address
+ * @param Path to csv file with beneficiaries.
+ *
+ */
+
 const  { mapArgPool }  = require('../test/helpers/argMapper.js');
 const fs = require('fs');
 const abi = JSON.parse(fs.readFileSync("./build/contracts/PlatinPool.json")).abi;

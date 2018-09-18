@@ -9,6 +9,8 @@ const { EVMRevert } = require('./helpers/EVMRevert');
 const { increaseTimeTo, duration } = require('.//helpers/increaseTime');
 const { ether } = require('./helpers/ether');
 const expectEvent = require('./helpers/expectEvent');
+var abi = require('ethereumjs-abi');
+var Tx = require('ethereumjs-tx');
 
 const BigNumber = web3.BigNumber;
 
@@ -71,8 +73,8 @@ contract('PlatinICO', (accounts) => {
 
         it('should be able to purchase tokens using buy function', async() => {
             const purchaser = accounts[0];
-            const value = ether(1); 
-            
+            const value = ether(1);
+
             const rate = await env.tge.TOKEN_RATE();
             const tokens = value.mul(rate);
 
@@ -81,12 +83,12 @@ contract('PlatinICO', (accounts) => {
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
             await env.ico.buyTokens(purchaser, { from: purchaser, value: value }).should.be.fulfilled;
-            
+
             const balanceExpected = tokens;
             const balanceActual = await env.token.balanceOf(purchaser);
-            
-            balanceExpected.should.be.bignumber.equal(balanceActual);               
-        });         
+
+            balanceExpected.should.be.bignumber.equal(balanceActual);
+        });
 
         it('should be able to purchase lockup tokens', async() => {
             const purchaser = accounts[0];
@@ -99,6 +101,7 @@ contract('PlatinICO', (accounts) => {
 
             await increaseTimeTo(env.openingTime);
             await env.ico.addAddressToWhitelist(purchaser).should.be.fulfilled;
+
             await env.ico.buyLockupTokens(purchaser, { from: purchaser, value: value }).should.be.fulfilled;
             
             const balanceLockupExpected = tokens;

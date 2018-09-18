@@ -16,6 +16,7 @@ contract PlatinTGEMinICOMock is PlatinTGE {
     uint256 public constant PRE_ICO_POOL_AMOUNT = SALES_SUPPLY - ICO_AMOUNT; 
 
     constructor(
+        uint256 _tgeTime,
         PlatinToken _token, 
         address _preIcoPool, 
         address _ico,
@@ -28,7 +29,7 @@ contract PlatinTGEMinICOMock is PlatinTGE {
         address _ecosystemPool,
         address _unsoldReserve
     )
-    PlatinTGE(_token, _preIcoPool, _ico, _miningPool, _foundersPool, _employeesPool, _airdropsPool, _reservesPool, _advisorsPool, _ecosystemPool, _unsoldReserve)
+    PlatinTGE(_tgeTime, _token, _preIcoPool, _ico, _miningPool, _foundersPool, _employeesPool, _airdropsPool, _reservesPool, _advisorsPool, _ecosystemPool, _unsoldReserve)
     public {}
   
     function allocate() public {   

@@ -6,11 +6,11 @@
 const { duration } = require('./increaseTime');
 const { latestTime } = require('./latestTime');
 
-const PlatinToken = artifacts.require('PlatinToken');
-const PlatinTGE = artifacts.require('PlatinTGE');
-const PlatinICO = artifacts.require('PlatinICO');
-const PlatinICORegular = artifacts.require('PlatinICORegular');
-const PlatinICOLockup = artifacts.require('PlatinICOLockup');
+const PlatinToken = artifacts.require('PlatinToken.sol');
+const PlatinTGE = artifacts.require('PlatinTGE.sol');
+const PlatinICO = artifacts.require('PlatinICO.sol');
+const PlatinICORegular = artifacts.require('PlatinICORegular.sol');
+const PlatinICOLockup = artifacts.require('PlatinICOLockup.sol');
 const PlatinPool = artifacts.require("./pools/PlatinPool.sol");
 const AdvisorsPool = artifacts.require("./pools/AdvisorsPool.sol");
 const FoundersPool = artifacts.require("./pools/FoundersPool.sol");
@@ -33,6 +33,8 @@ module.exports = async function(accounts, env) {
 
     let rate = 1000;
     let wallet = accounts[0];
+
+    env.tgeTime = (await latestTime()) + duration.days(1);
 
     env.openingTime = (await latestTime()) + duration.weeks(1);
     env.closingTime = env.openingTime + duration.weeks(1);
@@ -69,6 +71,7 @@ module.exports = async function(accounts, env) {
     );
 
     env.tge = await PlatinTGE.new(
+        env.tgeTime,
         env.token.address,
         env.preIcoPool.address,
         env.ico.address,

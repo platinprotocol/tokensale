@@ -149,6 +149,7 @@ contract('PlatinICO', (accounts) => {
             const value = minPurchase.add(ether(0.1));
 
             const tgeMock = await PlatinTGEMinICOMock.new(
+                env.tgeTime,
                 env.token.address,
                 env.preIcoPool.address,
                 env.ico.address,
@@ -212,6 +213,7 @@ contract('PlatinICO', (accounts) => {
             const value = await env.tge.MIN_PURCHASE_AMOUNT();
 
             const tgeMock = await PlatinTGEMinICOMock.new(
+                env.tgeTime,
                 env.token.address,
                 env.preIcoPool.address,
                 env.ico.address,

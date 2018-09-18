@@ -51,6 +51,7 @@ contract('PlatinPool', (accounts) => {
             const releaseTime = new BigNumber(env.closingTime);
 
             const tge = await PlatinTGE.new(
+                env.tgeTime,
                 env.token.address,
                 env.pool.address,
                 env.ico.address,
@@ -213,6 +214,7 @@ contract('PlatinPool', (accounts) => {
             allocated.should.be.bignumber.equal(env.poolInitial);
             
             const tge = await PlatinTGE.new(
+                env.tgeTime,
                 env.token.address,
                 env.pool.address,
                 env.ico.address,
@@ -319,6 +321,7 @@ contract('PlatinPool', (accounts) => {
             const releaseTime = new BigNumber(env.closingTime);
 
             const tge = await PlatinTGE.new(
+                env.tgeTime,
                 env.token.address,
                 env.pool.address,
                 env.ico.address,
@@ -426,6 +429,7 @@ contract('PlatinPool', (accounts) => {
             const distr = new BigNumber(1);
 
             const tge = await PlatinTGE.new(
+                env.tgeTime,
                 env.token.address,
                 env.pool.address,
                 env.ico.address,
@@ -467,6 +471,7 @@ contract('PlatinPool', (accounts) => {
             const releaseTime = new BigNumber(env.closingTime);
 
             const tge = await PlatinTGE.new(
+                env.tgeTime,
                 env.token.address,
                 env.pool.address,
                 env.ico.address,
@@ -554,6 +559,7 @@ contract('PlatinPool', (accounts) => {
             const releaseTime = new BigNumber(env.closingTime);
 
             const tge = await PlatinTGE.new(
+                env.tgeTime,
                 env.token.address,
                 env.pool.address,
                 env.ico.address,

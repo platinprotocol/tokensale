@@ -78,6 +78,7 @@ contract('PlatinToken', (accounts) => {
         
         it('should not be able allocate tokens to zero address', async() => {
             const tgeMock = await PlatinTGEMock.new(
+                env.tgeTime,
                 env.token.address,
                 env.preIcoPool.address,
                 env.ico.address,
@@ -96,6 +97,7 @@ contract('PlatinToken', (accounts) => {
     
         it('should not be able allocate tokens with zero amount', async() => {
             const tgeMock = await PlatinTGEMock.new(
+                env.tgeTime,
                 env.token.address,
                 env.preIcoPool.address,
                 env.ico.address,
@@ -114,6 +116,7 @@ contract('PlatinToken', (accounts) => {
     
         it('should not be able allocate more than total supply', async() => {
             const tgeMock = await PlatinTGEMock.new(
+                env.tgeTime,
                 env.token.address,
                 env.preIcoPool.address,
                 env.ico.address,

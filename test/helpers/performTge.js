@@ -3,6 +3,8 @@
  * @author Platin Limited, platin.io (platin@platin.io)
  */
 
+const { increaseTimeTo } = require('./increaseTime');
+
 const BigNumber = web3.BigNumber;
 
 require('chai')
@@ -15,6 +17,8 @@ module.exports = async function(env, _tge) {
 
     await env.token.setTGE(tge.address).should.be.fulfilled;
     await env.ico.setTGE(tge.address).should.be.fulfilled;
+
+    await increaseTimeTo(env.tgeTime);
 
     await tge.allocate().should.be.fulfilled;
 };

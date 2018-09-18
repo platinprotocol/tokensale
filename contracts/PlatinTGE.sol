@@ -71,9 +71,13 @@ contract PlatinTGE {
     // Platin Token contract
     PlatinToken public token;
 
+    // TGE time
+    uint256 public tgeTime;
+
 
     /**
      * @dev Constructor
+     * @param _tgeTime uint256 TGE moment of time
      * @param _token address Address of the Platin Token contract       
      * @param _preIcoPool address Address of the Platin PreICO Pool  
      * @param _ico address Address of the Platin ICO contract
@@ -87,6 +91,7 @@ contract PlatinTGE {
      * @param _unsoldReserve address Address of the Platin Unsold Reserve                                 
      */  
     constructor(
+        uint256 _tgeTime,
         PlatinToken _token, 
         address _preIcoPool, 
         address _ico,
@@ -99,6 +104,7 @@ contract PlatinTGE {
         address _ecosystemPool,
         address _unsoldReserve
     ) public {
+        require(_tgeTime >= block.timestamp, "TGE time should be >= current time."); // solium-disable-line security/no-block-members
         require(_token != address(0), "Token address can't be zero.");
         require(_preIcoPool != address(0), "PreICO Pool address can't be zero.");
         require(_ico != address(0), "ICO address can't be zero.");
@@ -110,6 +116,9 @@ contract PlatinTGE {
         require(_advisorsPool != address(0), "Advisors Pool address can't be zero.");
         require(_ecosystemPool != address(0), "Ecosystem Pool address can't be zero.");
         require(_unsoldReserve != address(0), "Unsold reserve address can't be zero.");
+
+        // Setup tge time
+        tgeTime = _tgeTime;
 
         // Setup token address
         token = _token;
@@ -134,6 +143,9 @@ contract PlatinTGE {
      * It makes initial token allocation according to the initial token supply constants.
      */
     function allocate() public {
+
+        // Should be called just after tge time
+        require(block.timestamp >= tgeTime, "Should be called just after tge time."); // solium-disable-line security/no-block-members
 
         // Should not be allocated already
         require(token.totalSupply() == 0, "Allocation is already done.");

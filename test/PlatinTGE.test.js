@@ -6,6 +6,8 @@
 const PlatinTGE = artifacts.require('PlatinTGE');
 const PlatinTokenMock = artifacts.require('PlatinTokenMock');
 const PlatinTGEMock = artifacts.require('PlatinTGEMock');
+const { increaseTimeTo, duration } = require('./helpers/increaseTime');
+const { latestTime } = require('./helpers/latestTime');
 
 const { advanceBlock } = require('./helpers/advanceToBlock');
 const { EVMRevert } = require('./helpers/EVMRevert');
@@ -36,6 +38,7 @@ contract('PlatinTGE', (accounts) => {
 
     it('should not be able instantiate TGE with zero addresses', async() => {
         await PlatinTGE.new(
+            env.tgeTime,
             zeroAddress,
             env.preIcoPool.address,
             env.ico.address,
@@ -50,6 +53,7 @@ contract('PlatinTGE', (accounts) => {
         ).should.be.rejectedWith(EVMRevert);       
 
         await PlatinTGE.new(
+            env.tgeTime,
             env.token.address,
             zeroAddress,
             env.ico.address,
@@ -64,6 +68,7 @@ contract('PlatinTGE', (accounts) => {
         ).should.be.rejectedWith(EVMRevert); 
 
         await PlatinTGE.new(
+            env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
             zeroAddress,
@@ -78,6 +83,7 @@ contract('PlatinTGE', (accounts) => {
         ).should.be.rejectedWith(EVMRevert);
 
         await PlatinTGE.new(
+            env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
@@ -92,6 +98,7 @@ contract('PlatinTGE', (accounts) => {
         ).should.be.rejectedWith(EVMRevert); 
 
         await PlatinTGE.new(
+            env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
@@ -106,6 +113,7 @@ contract('PlatinTGE', (accounts) => {
         ).should.be.rejectedWith(EVMRevert);
 
         await PlatinTGE.new(
+            env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
@@ -120,6 +128,7 @@ contract('PlatinTGE', (accounts) => {
         ).should.be.rejectedWith(EVMRevert);
 
         await PlatinTGE.new(
+            env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
@@ -134,6 +143,7 @@ contract('PlatinTGE', (accounts) => {
         ).should.be.rejectedWith(EVMRevert);
 
         await PlatinTGE.new(
+            env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
@@ -148,6 +158,7 @@ contract('PlatinTGE', (accounts) => {
         ).should.be.rejectedWith(EVMRevert);
 
         await PlatinTGE.new(
+            env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
@@ -162,6 +173,7 @@ contract('PlatinTGE', (accounts) => {
         ).should.be.rejectedWith(EVMRevert);
 
         await PlatinTGE.new(
+            env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
@@ -176,6 +188,7 @@ contract('PlatinTGE', (accounts) => {
         ).should.be.rejectedWith(EVMRevert);
 
         await PlatinTGE.new(
+            env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
             env.ico.address,
@@ -221,7 +234,6 @@ contract('PlatinTGE', (accounts) => {
 
         const totalSupplyAfterActual = await env.token.totalSupply();
 
-
         salesSupplyExpected.should.be.bignumber.equal(salesSupplyActual);
         miningPoolSupplyExpected.should.be.bignumber.equal(miningPoolSupplyActual);
         foundersAndEmployeesSupplyExpected.should.be.bignumber.equal(foundersAndEmployeesSupplyActual);
@@ -234,6 +246,29 @@ contract('PlatinTGE', (accounts) => {
         totalSupplyAfterActual.should.be.bignumber.equal(totalSupplyAfterExpected);
     });   
 
+    it('should not be able to instantiate TGE contract with TGE time in the past', async() => {
+        const tgePastTime = (await latestTime()) - duration.seconds(1);
+        await PlatinTGE.new(
+            tgePastTime,
+            env.token.address,
+            env.preIcoPool.address,
+            env.ico.address,
+            env.miningPool,
+            env.foundersPool.address,
+            env.employeesPool,
+            env.airdropsPool,
+            env.reservesPool,
+            env.advisorsPool.address,
+            zeroAddress,
+            env.unsoldReserve
+        ).should.be.rejectedWith(EVMRevert);
+    });   
+
+    it('should not be able to allocate tokens before TGE time', async() => {
+        await env.token.setTGE(env.tge.address).should.be.fulfilled;        
+        await env.tge.allocate().should.be.rejectedWith(EVMRevert);
+    });    
+
     it('should not be able to allocate tokens during TGE twice', async() => {
         await performTge(env);
         env.tge.allocate().should.be.rejectedWith(EVMRevert);
@@ -243,6 +278,7 @@ contract('PlatinTGE', (accounts) => {
         const token = await PlatinTokenMock.new().should.be.fulfilled;
 
         const tge = await PlatinTGEMock.new(
+            env.tgeTime,
             token.address,
             env.preIcoPool.address,
             env.ico.address,
@@ -257,6 +293,7 @@ contract('PlatinTGE', (accounts) => {
         ).should.be.fulfilled;
         
         await token.setTGE(tge.address).should.be.fulfilled;
+        await increaseTimeTo(env.tgeTime);
         await tge.allocate().should.be.rejectedWith(EVMRevert);
     });   
 });

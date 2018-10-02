@@ -26,10 +26,10 @@ module.exports = async function(accounts, env) {
     env.reservesPool = '0x4fFcaee0380Da173538A333d01E7718c533b935f'; // NOTICE: Keep in sync
     env.ecosystemPool = '0xE375e16FFbc36216F2708D668eBa131E64A4aC81'; // NOTICE: Keep in sync
 
-    env.poolInitial = new BigNumber("10000000000000000");
-    env.advisorsPoolInitial = new BigNumber("100000000000000000000000000");
-    env.foundersPoolInitial = new BigNumber("190000000000000000000000000");
-    env.preIcoPoolInitial = new BigNumber("13472416000000000000000000");   
+    env.poolInitial = new BigNumber("10000000000000000"); // NOTICE: Keep in sync
+    env.advisorsPoolInitial = new BigNumber("70000000000000000000000000"); // NOTICE: Keep in sync
+    env.foundersPoolInitial = new BigNumber("190000000000000000000000000"); // NOTICE: Keep in sync
+    env.preIcoPoolInitial = new BigNumber("13472416000000000000000000"); // NOTICE: Keep in sync
 
     let rate = 1000;
     let wallet = accounts[0];

@@ -113,13 +113,15 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
         internal
     {
         if (lockup) {
-            uint256[] memory _lockups = new uint256[](2);
-            _lockups[0] = block.timestamp + tge.ICO_LOCKUP_PERIOD(); // solium-disable-line security/no-block-members
-            _lockups[1] = _tokenAmount;
+            uint256[] memory _lockupReleases = new uint256[](1);
+            uint256[] memory _lockupAmounts = new uint256[](1);
+            _lockupReleases[0] = block.timestamp + tge.ICO_LOCKUP_PERIOD(); // solium-disable-line security/no-block-members
+            _lockupAmounts[0] = _tokenAmount;
             PlatinToken(token).transferWithLockup(
                 _beneficiary, 
                 _tokenAmount,
-                _lockups,
+                _lockupReleases,
+                _lockupAmounts,
                 false);
             lockup = false;   
         } else {

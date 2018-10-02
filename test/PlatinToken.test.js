@@ -151,8 +151,8 @@ contract('PlatinToken', (accounts) => {
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
             await expectEvent.inTransaction(
-                env.token.transferWithLockup(to, tokens, [env.closingTime + duration.weeks(1), tokens], false, { from: from }),
-                'Lockup'
+                env.token.transferWithLockup(to, tokens, [env.closingTime + duration.weeks(1)], [tokens], false, { from: from }),
+                'SetLockups'
             );            
             const endhasLockups = await env.token.hasLockups(to);
 
@@ -175,12 +175,12 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.div(2)], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1)], [tokens.div(2)], false, { from: from }).should.be.fulfilled;
             
             const endLockedUpCount= await env.token.lockupsCount(to);
             
             startLockedUpCount.should.be.bignumber.equal(new BigNumber(0));
-            endLockedUpCount.should.be.bignumber.equal(new BigNumber(2));
+            endLockedUpCount.should.be.bignumber.equal(new BigNumber(1));
         });           
         
         it('should free locked up amount after release time', async() => {
@@ -196,7 +196,7 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            await env.token.transferWithLockup(to, tokens, [env.closingTime + duration.weeks(1), tokens], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens, [env.closingTime + duration.weeks(1)], [tokens], false, { from: from }).should.be.fulfilled;
             
             const startBalanceSpotExpected = new BigNumber(0);
             const startBalanceSpotActual = await env.token.balanceSpot(to);  
@@ -233,11 +233,11 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            await env.token.transferWithLockup(to, tokens.div(4), [env.closingTime + duration.weeks(1), tokens.div(4)], false, { from: from }).should.be.fulfilled;
-            await env.token.transferWithLockup(to, tokens.div(4), [env.closingTime + duration.weeks(2), tokens.div(4)], true, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(4), [env.closingTime + duration.weeks(1)], [tokens.div(4)], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(4), [env.closingTime + duration.weeks(2)], [tokens.div(4)], true, { from: from }).should.be.fulfilled;
             await env.token.approve(from, tokens.div(2)).should.be.fulfilled;
-            await env.token.transferFromWithLockup(from, to, tokens.div(4), [env.closingTime + duration.weeks(3), tokens.div(4)], false, { from: from }).should.be.fulfilled;
-            await env.token.transferFromWithLockup(from, to, tokens.div(4), [env.closingTime + duration.weeks(4), tokens.div(4)], true, { from: from }).should.be.fulfilled;
+            await env.token.transferFromWithLockup(from, to, tokens.div(4), [env.closingTime + duration.weeks(3)], [tokens.div(4)], false, { from: from }).should.be.fulfilled;
+            await env.token.transferFromWithLockup(from, to, tokens.div(4), [env.closingTime + duration.weeks(4)], [tokens.div(4)], true, { from: from }).should.be.fulfilled;
 
             const fullBalanceActual = await env.token.balanceOf(to);
             const lockedUpBalanceActual = await env.token.balanceLockedUp(to);
@@ -265,9 +265,9 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            await env.token.transferWithLockup(to, tokens.div(2), [], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [], [], false, { from: from }).should.be.fulfilled;
             await env.token.approve(from, tokens.div(2));
-            await env.token.transferFromWithLockup(from, to, tokens.div(2), [], true, { from: from }).should.be.fulfilled;
+            await env.token.transferFromWithLockup(from, to, tokens.div(2), [], [], true, { from: from }).should.be.fulfilled;
 
             const fullBalanceActual = await env.token.balanceOf(to);
             const lockedUpBalanceActual = await env.token.balanceLockedUp(to);
@@ -294,9 +294,9 @@ contract('PlatinToken', (accounts) => {
 
             await env.token.authorize(from).should.be.fulfilled;
             await env.token.authorize(approved).should.be.fulfilled;
-            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.div(2)], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1)], [tokens.div(2)], false, { from: from }).should.be.fulfilled;
             await env.token.approve(from, tokens.div(2), { from: from }).should.be.fulfilled;
-            await env.token.transferFromWithLockup(from, to, tokens.div(4), [env.closingTime + duration.weeks(2), tokens.div(4)], true, { from: from }).should.be.fulfilled;            
+            await env.token.transferFromWithLockup(from, to, tokens.div(4), [env.closingTime + duration.weeks(2)], [tokens.div(4)], true, { from: from }).should.be.fulfilled;            
     });   
 
         it('should not be able perform transferWithLockup and transferFromWithLockup by the unauthorized address', async() => {
@@ -312,9 +312,9 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.div(2)], false, { from: from }).should.be.rejectedWith(EVMRevert);
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1)], [tokens.div(2)], false, { from: from }).should.be.rejectedWith(EVMRevert);
             await env.token.approve(from, tokens.div(2)).should.be.fulfilled;
-            await env.token.transferFromWithLockup(from, to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.div(2)], false, { from: from }).should.be.rejectedWith(EVMRevert);
+            await env.token.transferFromWithLockup(from, to, tokens.div(2), [env.closingTime + duration.weeks(1)], [tokens.div(2)], false, { from: from }).should.be.rejectedWith(EVMRevert);
         });   
 
         it('should not be able get locked up amount with zero release time', async() => {
@@ -332,7 +332,7 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            await env.token.transferWithLockup(to, tokens, [0, tokens], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens, [0], [tokens], false, { from: from }).should.be.fulfilled;
             
             const endLockedUpBalance = await env.token.balanceLockedUp(to);   
             
@@ -354,12 +354,28 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            await env.token.transferWithLockup(to, tokens, [env.closingTime, 0], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens, [env.closingTime], [0], false, { from: from }).should.be.fulfilled;
             
             const endLockedUpBalance = await env.token.balanceLockedUp(to);   
             
             startLockedUpBalance.should.be.bignumber.equal(endLockedUpBalance);
-        });        
+        });
+        
+        it('should not be able get locked up amount with inconsistent lockup lists', async() => {
+            const from = accounts[0];
+            const to = accounts[1];
+            const value = ether(1);
+
+            const rate = await env.tge.TOKEN_RATE();
+            const tokens = value.mul(rate);
+
+            await performTge(env);
+            await increaseTimeTo(env.openingTime);
+            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
+            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
+
+            await env.token.transferWithLockup(to, tokens, [env.closingTime], [], false, { from: from }).should.be.rejectedWith(EVMRevert);
+        });          
 
         it('should not be able lockup more amount than transferred', async() => {
             const from = accounts[0];
@@ -374,7 +390,7 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens], false, { from: from }).should.be.rejectedWith(EVMRevert);
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1)], [tokens], false, { from: from }).should.be.rejectedWith(EVMRevert);
         });   
 
         it('should not be able perform lockup more than 1000 times per address', async() => {
@@ -392,17 +408,18 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            let lockups = [];
+            let lockupReleases = [];
+            let lockupAmounts = [];
             for (let i = 0; i < 100; i++) {
-                lockups.push(env.closingTime);
-                lockups.push(tokensTransfer);
+                lockupReleases.push(env.closingTime);
+                lockupAmounts.push(tokensTransfer);
             }
 
             for (let j = 0; j < 10; j ++) {
-                await env.token.transferWithLockup(to, tokensTransfer.mul(100), lockups, false, { from: from }).should.be.fulfilled;
+                await env.token.transferWithLockup(to, tokensTransfer.mul(100), lockupReleases, lockupAmounts, false, { from: from }).should.be.fulfilled;
             }
 
-            await env.token.transferWithLockup(to, tokensTransfer, [env.closingTime, tokensTransfer], false, { from: from }).should.be.rejectedWith(EVMRevert);
+            await env.token.transferWithLockup(to, tokensTransfer, [env.closingTime], [tokensTransfer], false, { from: from }).should.be.rejectedWith(EVMRevert);
         });
     });
 
@@ -422,8 +439,8 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime, tokens.div(2)], false, { from: from }).should.be.fulfilled;
-            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime, tokens.div(2)], true, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime], [tokens.div(2)], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime], [tokens.div(2)], true, { from: from }).should.be.fulfilled;
 
             const startLockedUpBalance = await env.token.balanceLockedUp(to);
             const startRefundableBalance = await env.token.balanceRefundable(to, from);
@@ -475,7 +492,7 @@ contract('PlatinToken', (accounts) => {
             isFromHolder.should.be.bignumber.above(new BigNumber(0));
             isToHolder.should.be.bignumber.equal(new BigNumber(0));
 
-            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime, tokens.div(2)], true, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime], [tokens.div(2)], true, { from: from }).should.be.fulfilled;
 
             isFromHolder = await env.token.holderNumber(from);
             isToHolder = await env.token.holderNumber(to);
@@ -483,7 +500,7 @@ contract('PlatinToken', (accounts) => {
             isFromHolder.should.be.bignumber.above(new BigNumber(0));
             isToHolder.should.be.bignumber.above(new BigNumber(0));
 
-            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime, tokens.div(2)], true, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime], [tokens.div(2)], true, { from: from }).should.be.fulfilled;
             isFromHolder = await env.token.holderNumber(from);
             isToHolder = await env.token.holderNumber(to);
 
@@ -517,8 +534,8 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime, tokens.div(2)], false, { from: from }).should.be.fulfilled;
-            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.div(2)], true, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime], [tokens.div(2)], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1)], [tokens.div(2)], true, { from: from }).should.be.fulfilled;
 
             const startLockedUpBalance = await env.token.balanceLockedUp(to);
 
@@ -554,7 +571,7 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            await env.token.transferWithLockup(to, tokens.div(2), [], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [], [], false, { from: from }).should.be.fulfilled;
 
             const startFromBalance = await env.token.balanceOf(from);
 
@@ -587,8 +604,8 @@ contract('PlatinToken', (accounts) => {
             await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
-            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.div(2)], true, { from: from }).should.be.fulfilled;
-            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens.div(2)], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1)], [tokens.div(2)], true, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1)], [tokens.div(2)], false, { from: from }).should.be.fulfilled;
 
             const fullBalanceActual = await env.token.balanceOf(to);
             const spotBalanceActual = await env.token.balanceSpot(to);
@@ -615,8 +632,8 @@ contract('PlatinToken', (accounts) => {
             await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
 
             await env.token.transfer(to, tokens.div(3), { from: from }).should.be.fulfilled;
-            await env.token.transferWithLockup(to, tokens.div(3), [env.closingTime + duration.weeks(1), tokens.div(3)], false, { from: from }).should.be.fulfilled;
-            await env.token.transferWithLockup(to, tokens.div(3), [env.closingTime + duration.weeks(1), tokens.div(3)], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(3), [env.closingTime + duration.weeks(1)], [tokens.div(3)], false, { from: from }).should.be.fulfilled;
+            await env.token.transferWithLockup(to, tokens.div(3), [env.closingTime + duration.weeks(1)], [tokens.div(3)], false, { from: from }).should.be.fulfilled;
 
             await env.token.transfer(from, tokens.div(3).add(1), { from: to }).should.be.rejectedWith(EVMRevert);
             await env.token.approve(from, tokens.div(3).add(1), { from: to }).should.be.fulfilled;

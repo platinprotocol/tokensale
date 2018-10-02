@@ -72,16 +72,18 @@ contract('PlatinPool', (accounts) => {
             beforeMembersCount.should.be.bignumber.equal(zero);
 
             let distribution = await env.pool.distribution(beneficiary);            
-            let lockups = await env.pool.getLockups(beneficiary);   
+            let lockupReleases = await env.pool.getLockupReleases(beneficiary);
+            let lockupAmounts = await env.pool.getLockupAmounts(beneficiary);
 
             distribution[0].should.be.bignumber.equal(zero); // amount field
             distribution[1].should.be.bignumber.equal(zero); // refunded field
             distribution[2].should.be.equal(false); // refundable field
             distribution[3].should.be.equal(false); // distributed field
-            lockups.should.be.deep.equal([]); // lockups field
+            lockupReleases.should.be.deep.equal([]); // lockup releases field
+            lockupAmounts.should.be.deep.equal([]); // lockup amounts field
 
             await expectEvent.inTransaction(
-                env.pool.addDistribution(beneficiary, distr, [releaseTime, distr], true),
+                env.pool.addDistribution(beneficiary, distr, [releaseTime], [distr], true),
                 'AddDistribution'
             );    
 
@@ -89,13 +91,15 @@ contract('PlatinPool', (accounts) => {
             afterMembersCount.should.be.bignumber.equal(new BigNumber(1));            
 
             distribution = await env.pool.distribution(beneficiary);            
-            lockups = await env.pool.getLockups(beneficiary);   
+            lockupReleases = await env.pool.getLockupReleases(beneficiary);
+            lockupAmounts = await env.pool.getLockupAmounts(beneficiary); 
 
             distribution[0].should.be.bignumber.equal(distr); // amount field
             distribution[1].should.be.bignumber.equal(zero); // refunded field
             distribution[2].should.be.equal(true); // refundable field
-            distribution[3].should.be.equal(false); // distributed field
-            lockups.should.be.deep.equal([releaseTime, distr]); // lockups field                   
+            distribution[3].should.be.equal(false); // distributed field 
+            lockupReleases.should.be.deep.equal([releaseTime]); // lockup releases field
+            lockupAmounts.should.be.deep.equal([distr]); // lockup amounts field               
 
             await expectEvent.inTransaction(
                 env.pool.distribute(beneficiary),
@@ -103,24 +107,28 @@ contract('PlatinPool', (accounts) => {
             );
 
             distribution = await env.pool.distribution(beneficiary);            
-            lockups = await env.pool.getLockups(beneficiary);   
+            lockupReleases = await env.pool.getLockupReleases(beneficiary);
+            lockupAmounts = await env.pool.getLockupAmounts(beneficiary);
 
             distribution[0].should.be.bignumber.equal(distr); // amount field
             distribution[1].should.be.bignumber.equal(zero); // refunded field
             distribution[2].should.be.equal(true); // refundable field
             distribution[3].should.be.equal(true); // distributed field
-            lockups.should.be.deep.equal([releaseTime, distr]); // lockups field                
+            lockupReleases.should.be.deep.equal([releaseTime]); // lockup releases field
+            lockupAmounts.should.be.deep.equal([distr]); // lockup amounts field               
 
             await env.pool.refundLockedUp(beneficiary).should.be.fulfilled;
 
             distribution = await env.pool.distribution(beneficiary);            
-            lockups = await env.pool.getLockups(beneficiary);   
+            lockupReleases = await env.pool.getLockupReleases(beneficiary);
+            lockupAmounts = await env.pool.getLockupAmounts(beneficiary);   
 
             distribution[0].should.be.bignumber.equal(distr); // amount field
             distribution[1].should.be.bignumber.equal(distr); // refunded field
             distribution[2].should.be.equal(true); // refundable field
             distribution[3].should.be.equal(true); // distributed field
-            lockups.should.be.deep.equal([releaseTime, distr]); // lockups field
+            lockupReleases.should.be.deep.equal([releaseTime]); // lockup releases field
+            lockupAmounts.should.be.deep.equal([distr]); // lockup amounts field
         });
     })    
 
@@ -142,61 +150,69 @@ contract('PlatinPool', (accounts) => {
             const releaseTime2 = new BigNumber(env.closingTime + duration.weeks(1));
 
             await expectEvent.inTransaction(
-                env.pool.addDistribution(beneficiary1, distr1, [releaseTime1, distr1], true),
+                env.pool.addDistribution(beneficiary1, distr1, [releaseTime1], [distr1], true),
                 'AddDistribution'
             );    
 
             await expectEvent.inTransaction(
-                env.pool.addDistribution(beneficiary2, distr2, [releaseTime1, distr2], false),
+                env.pool.addDistribution(beneficiary2, distr2, [releaseTime2], [distr2], false),
                 'AddDistribution'
             );        
 
             await expectEvent.inTransaction(
                 env.pool.addDistribution(
-                    beneficiary3, distr3_1.add(distr3_2), [releaseTime1, distr3_1, releaseTime2, distr3_2], true),
+                    beneficiary3, distr3_1.add(distr3_2), [releaseTime1, releaseTime2], [distr3_1, distr3_2], true),
                 'AddDistribution'
             );    
 
             await expectEvent.inTransaction(
-                env.pool.addDistribution(beneficiary4, distr4, [], false),
+                env.pool.addDistribution(beneficiary4, distr4, [], [], false),
                 'AddDistribution'
             );
 
             const distribution1 = await env.pool.distribution(beneficiary1);
-            const lockups1 = await env.pool.getLockups(beneficiary1);
+            const lockupReleases1 = await env.pool.getLockupReleases(beneficiary1);
+            const lockupAmounts1 = await env.pool.getLockupAmounts(beneficiary1); 
 
             distribution1[0].should.be.bignumber.equal(distr1); // amount field
             distribution1[1].should.be.bignumber.equal(zero); // refunded field
             distribution1[2].should.be.equal(true); // refundable field
             distribution1[3].should.be.equal(false); // distributed field
-            lockups1.should.be.deep.equal([releaseTime1, distr1]);
+            lockupReleases1.should.be.deep.equal([releaseTime1]); // lockup releases field
+            lockupAmounts1.should.be.deep.equal([distr1]); // lockup amounts field
 
             const distribution2 = await env.pool.distribution(beneficiary2);
-            const lockups2 = await env.pool.getLockups(beneficiary2);
+            const lockupReleases2 = await env.pool.getLockupReleases(beneficiary2);
+            const lockupAmounts2 = await env.pool.getLockupAmounts(beneficiary2);
 
             distribution2[0].should.be.bignumber.equal(distr2);
             distribution2[1].should.be.bignumber.equal(zero);
             distribution2[2].should.be.equal(false);
             distribution2[3].should.be.equal(false);
-            lockups2.should.be.deep.equal([releaseTime1, distr2]);
+            lockupReleases2.should.be.deep.equal([releaseTime2]);
+            lockupAmounts2.should.be.deep.equal([distr2]);
             
             const distribution3 = await env.pool.distribution(beneficiary3);
-            const lockups3 = await env.pool.getLockups(beneficiary3);
+            const lockupReleases3 = await env.pool.getLockupReleases(beneficiary3);
+            const lockupAmounts3 = await env.pool.getLockupAmounts(beneficiary3);
 
             distribution3[0].should.be.bignumber.equal(distr3_1.add(distr3_2));
             distribution3[1].should.be.bignumber.equal(zero);
             distribution3[2].should.be.equal(true);
             distribution3[3].should.be.equal(false);
-            lockups3.should.be.deep.equal([releaseTime1, distr3_1, releaseTime2, distr3_2]);
+            lockupReleases3.should.be.deep.equal([releaseTime1, releaseTime2]);
+            lockupAmounts3.should.be.deep.equal([distr3_1, distr3_2]);
             
             const distribution4 = await env.pool.distribution(beneficiary4);
-            const lockups4 = await env.pool.getLockups(beneficiary4);
+            const lockupReleases4 = await env.pool.getLockupReleases(beneficiary4);
+            const lockupAmounts4 = await env.pool.getLockupAmounts(beneficiary4);
 
             distribution4[0].should.be.bignumber.equal(distr4);
             distribution4[1].should.be.bignumber.equal(zero);
             distribution4[2].should.be.equal(false);
             distribution4[3].should.be.equal(false);
-            lockups4.should.be.deep.equal([]);        
+            lockupReleases4.should.be.deep.equal([]);
+            lockupAmounts4.should.be.deep.equal([]);       
         });    
 
         it('should be able to add distribution <= initial/balance', async() => { 
@@ -205,7 +221,7 @@ contract('PlatinPool', (accounts) => {
             const beneficiary3 = accounts[3];
 
             await expectEvent.inTransaction(
-                env.pool.addDistribution(beneficiary1, env.poolInitial, [], false),
+                env.pool.addDistribution(beneficiary1, env.poolInitial, [], [], false),
                 'AddDistribution'
             );      
 
@@ -231,11 +247,11 @@ contract('PlatinPool', (accounts) => {
             await performTge(env, tge);
             
             await expectEvent.inTransaction(
-                env.pool.addDistribution(beneficiary2, env.preIcoPoolInitial.sub(env.poolInitial), [], false),
+                env.pool.addDistribution(beneficiary2, env.preIcoPoolInitial.sub(env.poolInitial), [], [], false),
                 'AddDistribution'
             );      
             
-            await env.pool.addDistribution(beneficiary3, new BigNumber(1), [], false).should.be.rejectedWith(EVMRevert);
+            await env.pool.addDistribution(beneficiary3, new BigNumber(1), [], [], false).should.be.rejectedWith(EVMRevert);
         });
 
         it('should be able to add distribution and distribute in interleaving mode', async() => {
@@ -248,12 +264,12 @@ contract('PlatinPool', (accounts) => {
             const distribute3 = env.preIcoPoolInitial.sub(distribute1).sub(distribute2);
 
             await expectEvent.inTransaction(
-                env.preIcoPool.addDistribution(beneficiary1, distribute1, [], false),
+                env.preIcoPool.addDistribution(beneficiary1, distribute1, [], [], false),
                 'AddDistribution'
             );
 
             await expectEvent.inTransaction(
-                env.preIcoPool.addDistribution(beneficiary2, distribute2, [], false),
+                env.preIcoPool.addDistribution(beneficiary2, distribute2, [], [], false),
                 'AddDistribution'
             );
 
@@ -270,7 +286,7 @@ contract('PlatinPool', (accounts) => {
             );
 
             await expectEvent.inTransaction(
-                env.preIcoPool.addDistribution(beneficiary3, distribute3, [], false),
+                env.preIcoPool.addDistribution(beneficiary3, distribute3, [], [], false),
                 'AddDistribution'
             );
         });
@@ -283,7 +299,7 @@ contract('PlatinPool', (accounts) => {
                 0
             );
 
-            await pool.addDistribution(beneficiary, new BigNumber(1), [], false).should.be.rejectedWith(EVMRevert);
+            await pool.addDistribution(beneficiary, new BigNumber(1), [], [], false).should.be.rejectedWith(EVMRevert);
         });
 
         it('should be able to add distribution from an authorized address', async() => {
@@ -294,7 +310,7 @@ contract('PlatinPool', (accounts) => {
 
             await env.pool.authorize(authorized).should.be.fulfilled;
             await expectEvent.inTransaction(
-                env.pool.addDistribution(beneficiary, distr, [], false, { from: authorized }),
+                env.pool.addDistribution(beneficiary, distr, [], [], false, { from: authorized }),
                 'AddDistribution'
             );  
         });    
@@ -305,7 +321,7 @@ contract('PlatinPool', (accounts) => {
             const beneficiary = accounts[2];
             const distr = new BigNumber(1);  
 
-            await env.pool.addDistribution(beneficiary, distr, [], false, { from: notAuthorized }).should.be.rejectedWith(EVMRevert);
+            await env.pool.addDistribution(beneficiary, distr, [], [], false, { from: notAuthorized }).should.be.rejectedWith(EVMRevert);
         });    
 
         it('should not be able to add distribution for the same beneficiary twice', async() => {
@@ -313,39 +329,45 @@ contract('PlatinPool', (accounts) => {
             const distr = new BigNumber(1);
 
             await expectEvent.inTransaction(
-                env.pool.addDistribution(beneficiary, distr, [], false),
+                env.pool.addDistribution(beneficiary, distr, [], [], false),
                 'AddDistribution'
             );  
-            await env.pool.addDistribution(beneficiary, distr, [], false).should.be.rejectedWith(EVMRevert);
+            await env.pool.addDistribution(beneficiary, distr, [], [], false).should.be.rejectedWith(EVMRevert);
         });      
         
         it('should not be able to add distribution for the zero address', async() => {
             const beneficiary = zeroAddress;
             const distr = new BigNumber(1);
 
-            await env.pool.addDistribution(beneficiary, distr, [], false).should.be.rejectedWith(EVMRevert);
+            await env.pool.addDistribution(beneficiary, distr, [], [], false).should.be.rejectedWith(EVMRevert);
         });       
 
         it('should not be able to add distribution with zero amount', async() => {
             const beneficiary = accounts[1];
             const zero = new BigNumber(0);
 
-            await env.pool.addDistribution(beneficiary, zero, [], false).should.be.rejectedWith(EVMRevert);
+            await env.pool.addDistribution(beneficiary, zero, [], [], false).should.be.rejectedWith(EVMRevert);
         }); 
 
+        it('should not be able to add distribution with inconsistent lockup lists', async() => {
+            const beneficiary = accounts[1];
+            const distr = new BigNumber(1);
+
+            await env.pool.addDistribution(beneficiary, distr, [env.closingTime], [], false).should.be.rejectedWith(EVMRevert);
+        });         
 
         it('should not be able to add distribution with the locked up amount > amount of distribution', async() => {
             const beneficiary = accounts[1];
             const distr = new BigNumber(1);
-            const releaseTime = new BigNumber(env.closingTime);
+            const releaseTime = env.closingTime;
 
-            await env.pool.addDistribution(beneficiary, distr, [releaseTime, distr.add(1)], false).should.be.rejectedWith(EVMRevert);
+            await env.pool.addDistribution(beneficiary, distr, [releaseTime], [distr.add(1)], false).should.be.rejectedWith(EVMRevert);
         });      
         
     });    
 
     describe('distribution', function () {    
-        it('should be able to do distribution (publicly)', async() => {
+        it('should be able to do distribution (publically)', async() => {
             const beneficiary1 = accounts[1];
             const beneficiary2 = accounts[2];
             const beneficiary3 = accounts[3];
@@ -376,15 +398,15 @@ contract('PlatinPool', (accounts) => {
             await env.token.authorize(env.pool.address);
 
             await env.pool.addDistribution(
-                beneficiary1, distr1, [releaseTime, distr1], true
+                beneficiary1, distr1, [releaseTime], [distr1], true
             ).should.be.fulfilled;
 
             await env.pool.addDistribution(
-                beneficiary2, distr2, [releaseTime, distr2], false
+                beneficiary2, distr2, [releaseTime], [distr2], false
             ).should.be.fulfilled;
 
             await env.pool.addDistribution(
-                beneficiary3, distr3, [], false
+                beneficiary3, distr3, [], [], false
             ).should.be.fulfilled;
 
             const beforDistr1 = await env.token.balanceOf(beneficiary1);
@@ -484,7 +506,7 @@ contract('PlatinPool', (accounts) => {
             await env.token.authorize(env.pool.address);
 
             await expectEvent.inTransaction(
-                env.pool.addDistribution(beneficiary, distr, [], false),
+                env.pool.addDistribution(beneficiary, distr, [], [], false),
                 'AddDistribution'
             );          
 
@@ -530,7 +552,7 @@ contract('PlatinPool', (accounts) => {
 
             // add distribution
             await env.pool.addDistribution(
-                beneficiary, distr, [releaseTime, distr.div(2)], true
+                beneficiary, distr, [releaseTime], [distr.div(2)], true
             ).should.be.fulfilled;
 
             const addedAllocated = await env.pool.allocated();
@@ -614,7 +636,7 @@ contract('PlatinPool', (accounts) => {
             await env.token.authorize(env.pool.address);        
 
             await env.pool.addDistribution(
-                beneficiary, distr, [releaseTime, distr], false
+                beneficiary, distr, [releaseTime], [distr], false
             ).should.be.fulfilled;
 
             const beforeDistr = await env.token.balanceOf(beneficiary);

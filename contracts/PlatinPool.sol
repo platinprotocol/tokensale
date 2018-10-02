@@ -38,7 +38,8 @@ contract PlatinPool is HasNoEther, Authorizable {
     // distribution struct (record)
     struct Distribution {
         uint256 amount; // amount of distribution
-        uint256[] lockups; // amount lockups in a form [releaseDate1, releaseAmount1, releaseDate2, releaseAmount2, ...]
+        uint256[] lockupReleases; // lockup releases dates (if there is lockups for amount)
+        uint256[] lockupAmounts; // lockup amounts (if there is lockups for amount)
         uint256 refunded; // refunded from distribution (if applicable and happened)       
         bool refundable; // is locked up amounts refundable        
         bool distributed; // is amount already distributed
@@ -51,7 +52,7 @@ contract PlatinPool is HasNoEther, Authorizable {
     address[] public members;
 
     // add distribution record event logging
-    event AddDistribution(address indexed beneficiary, uint256 amount, uint256[] lockups, bool refundable);
+    event AddDistribution(address indexed beneficiary, uint256 amount, bool lockups, bool refundable);
 
     // distribute event logging
     event Distribute(address indexed to, uint256 amount);
@@ -72,20 +73,23 @@ contract PlatinPool is HasNoEther, Authorizable {
      * @dev Add distribution record
      * @param _beneficiary address Address who gets the tokens
      * @param _amount uint256 Amount of the distribution
-     * @param _lockups uint256[] Lockups list
+     * @param _lockupReleases uint256[] List of lockup releases   
+     * @param _lockupAmounts uint256[] List of lockup amounts
      * @param _refundable bool Is lockuped amount refundable
      */
     function addDistribution(
         address _beneficiary, 
         uint256 _amount, 
-        uint256[] _lockups, 
+        uint256[] _lockupReleases,
+        uint256[] _lockupAmounts,
         bool _refundable
     ) 
-    public onlyAuthorized
+    external onlyAuthorized
     {
         require(_beneficiary != address(0), "Beneficiary address can't be zero.");      
         require(_amount > 0, "Amount can't be zero.");            
         require(distribution[_beneficiary].amount == 0, "Beneficiary is already listed.");
+        require(_lockupReleases.length == _lockupAmounts.length, "Length of lockup releases and amounts lists should be equal.");
 
         uint256 _distributable = 0;
         uint256 _balance = token.balanceOf(address(this));
@@ -103,15 +107,15 @@ contract PlatinPool is HasNoEther, Authorizable {
         require(_amount <= _distributable, "Amount isn't distributible.");        
         
         uint256 _amountLokedUp = 0;
-        uint256 _lockupsLength = _lockups.length;
-        for (uint256 i = 1; i < _lockupsLength; i = i + 2) {
-            _amountLokedUp = _amountLokedUp.add(_lockups[i]);
+        for (uint256 i = 0; i < _lockupAmounts.length; i++) {
+            _amountLokedUp = _amountLokedUp.add(_lockupAmounts[i]);
         }
 
         require(_amountLokedUp <= _amount, "Can't lockup more than amount of distribution.");
 
         distribution[_beneficiary].amount = _amount;
-        distribution[_beneficiary].lockups = _lockups;
+        distribution[_beneficiary].lockupReleases = _lockupReleases;
+        distribution[_beneficiary].lockupAmounts = _lockupAmounts;
         distribution[_beneficiary].refundable = _refundable;
         distribution[_beneficiary].distributed = false;
 
@@ -121,7 +125,7 @@ contract PlatinPool is HasNoEther, Authorizable {
         emit AddDistribution(
             _beneficiary, 
             _amount, 
-            _lockups, 
+            _lockupReleases.length > 0, 
             _refundable);
     }    
 
@@ -134,13 +138,15 @@ contract PlatinPool is HasNoEther, Authorizable {
         require(!distribution[_beneficiary].distributed, "Already distributed.");
 
         uint256 _amount = distribution[_beneficiary].amount;
-        uint256[] storage _lockups = distribution[_beneficiary].lockups;
+        uint256[] storage _lockupReleases = distribution[_beneficiary].lockupReleases;
+        uint256[] storage _lockupAmounts = distribution[_beneficiary].lockupAmounts;
         bool _refundable = distribution[_beneficiary].refundable;
 
         token.transferWithLockup(
             _beneficiary, 
             _amount, 
-            _lockups, 
+            _lockupReleases,
+            _lockupAmounts,
             _refundable);
 
         // reset initial in case of successful transfer of tokens
@@ -176,11 +182,20 @@ contract PlatinPool is HasNoEther, Authorizable {
     }
 
     /**
-     * @dev Get list of lockups from the distribution record
+     * @dev Get list of lockup releases dates from the distribution record
      * @param _beneficiary address Address who has a distribution record    
      * @return uint256 Members count
      */   
-    function getLockups(address _beneficiary) public view returns (uint256[]) {
-        return distribution[_beneficiary].lockups;
+    function getLockupReleases(address _beneficiary) public view returns (uint256[]) {
+        return distribution[_beneficiary].lockupReleases;
     }
+
+    /**
+     * @dev Get list of lockup amounts from the distribution record
+     * @param _beneficiary address Address who has a distribution record    
+     * @return uint256 Members count
+     */   
+    function getLockupAmounts(address _beneficiary) public view returns (uint256[]) {
+        return distribution[_beneficiary].lockupAmounts;
+    }    
 }

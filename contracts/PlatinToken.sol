@@ -95,68 +95,6 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     }  
 
     /**
-     * @dev Get the lockups list count
-     * @param _who address Address owns locked up list
-     * @return uint256 Lockups list count     
-     */
-    function lockupsCount(address _who) public view returns (uint256) {
-        return lockups[_who].length;
-    }
-
-    /**
-     * @dev Find out if the address has lockups
-     * @param _who address Address checked for lockups
-     * @return bool Returns true if address has lockups  
-     */    
-    function hasLockups(address _who) public view returns (bool) {
-        return lockups[_who].length > 0;
-    }    
-
-    /**
-     * @dev Get balance locked up at the current moment of time
-     * @param _who address Address owns locked up amounts
-     * @return uint256 Balance locked up at the current moment of time     
-     */       
-    function balanceLockedUp(address _who) public view returns (uint256) {
-        uint256 _balanceLokedUp = 0;
-        uint256 _lockupsLength = lockups[_who].length;
-        for (uint256 i = 0; i < _lockupsLength; i = i + 2) {
-            if (lockups[_who][i] > block.timestamp) // solium-disable-line security/no-block-members
-                _balanceLokedUp = _balanceLokedUp.add(lockups[_who][i + 1]);
-        }
-        return _balanceLokedUp;
-    }
-
-    /**
-     * @dev Get refundable locked up balance at the current moment of time
-     * @param _who address Address owns locked up amounts
-     * @param _sender address Address owned locked up amounts
-     * @return uint256 Locked up refundable balance at the current moment of time     
-     */       
-    function balanceRefundable(address _who, address _sender) public view returns (uint256) {
-        uint256 _balanceRefundable = 0;
-        uint256 _refundableLength = refundable[_who][_sender].length;
-        if (_refundableLength > 0) {
-            for (uint256 i = 0; i < _refundableLength; i = i + 2) {
-                if (refundable[_who][_sender][i] > block.timestamp) // solium-disable-line security/no-block-members
-                    _balanceRefundable = _balanceRefundable.add(refundable[_who][_sender][i + 1]);  
-            }
-        }
-        return _balanceRefundable;
-    }
-
-    /**
-     * @dev Get balance spot for the current moment of time
-     * @param _who address Address owns balance spot
-     * @return uint256 Balance spot for the current moment of time     
-     */   
-    function balanceSpot(address _who) public view returns (uint256) {
-        uint256 _balanceSpot = balanceOf(_who);
-        _balanceSpot = _balanceSpot.sub(balanceLockedUp(_who));      
-        return _balanceSpot;
-    }         
-
-    /**
      * @dev Transfer tokens from one address to another
      * @param _to address The address which you want to transfer to
      * @param _value uint256 The amount of tokens to be transferred
@@ -253,6 +191,68 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
             }
         }
         return _balanceRefundable;
+    }
+
+    /**
+     * @dev Get the lockups list count
+     * @param _who address Address owns locked up list
+     * @return uint256 Lockups list count
+     */
+    function lockupsCount(address _who) public view returns (uint256) {
+        return lockups[_who].length;
+    }
+
+    /**
+     * @dev Find out if the address has lockups
+     * @param _who address Address checked for lockups
+     * @return bool Returns true if address has lockups
+     */
+    function hasLockups(address _who) public view returns (bool) {
+        return lockups[_who].length > 0;
+    }
+
+    /**
+     * @dev Get balance locked up at the current moment of time
+     * @param _who address Address owns locked up amounts
+     * @return uint256 Balance locked up at the current moment of time
+     */
+    function balanceLockedUp(address _who) public view returns (uint256) {
+        uint256 _balanceLokedUp = 0;
+        uint256 _lockupsLength = lockups[_who].length;
+        for (uint256 i = 0; i < _lockupsLength; i = i + 2) {
+            if (lockups[_who][i] > block.timestamp) // solium-disable-line security/no-block-members
+                _balanceLokedUp = _balanceLokedUp.add(lockups[_who][i + 1]);
+        }
+        return _balanceLokedUp;
+    }
+
+    /**
+     * @dev Get refundable locked up balance at the current moment of time
+     * @param _who address Address owns locked up amounts
+     * @param _sender address Address owned locked up amounts
+     * @return uint256 Locked up refundable balance at the current moment of time
+     */
+    function balanceRefundable(address _who, address _sender) public view returns (uint256) {
+        uint256 _balanceRefundable = 0;
+        uint256 _refundableLength = refundable[_who][_sender].length;
+        if (_refundableLength > 0) {
+            for (uint256 i = 0; i < _refundableLength; i = i + 2) {
+                if (refundable[_who][_sender][i] > block.timestamp) // solium-disable-line security/no-block-members
+                    _balanceRefundable = _balanceRefundable.add(refundable[_who][_sender][i + 1]);
+            }
+        }
+        return _balanceRefundable;
+    }
+
+    /**
+     * @dev Get balance spot for the current moment of time
+     * @param _who address Address owns balance spot
+     * @return uint256 Balance spot for the current moment of time
+     */
+    function balanceSpot(address _who) public view returns (uint256) {
+        uint256 _balanceSpot = balanceOf(_who);
+        _balanceSpot = _balanceSpot.sub(balanceLockedUp(_who));
+        return _balanceSpot;
     }
 
     /**

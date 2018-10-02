@@ -153,6 +153,21 @@ contract PlatinPool is HasNoEther, Authorizable {
     }
 
     /**
+     * @dev Refund refundable locked up amount
+     * @param _from address The address which you want to refund tokens from
+     */
+    function refundLockedUp(
+        address _from
+    )
+    public onlyAuthorized returns (uint256)
+    {
+        uint256 _refunded = token.refundLockedUp(_from);
+        allocated = allocated.sub(_refunded);
+        distributed = distributed.sub(_refunded);
+        distribution[_from].refunded = _refunded;
+    }
+
+    /**
      * @dev Get members count
      * @return uint256 Members count
      */   
@@ -168,19 +183,4 @@ contract PlatinPool is HasNoEther, Authorizable {
     function getLockups(address _beneficiary) public view returns (uint256[]) {
         return distribution[_beneficiary].lockups;
     }
-
-    /**
-     * @dev Refund refundable locked up amount
-     * @param _from address The address which you want to refund tokens from
-     */
-    function refundLockedUp(
-        address _from
-    )
-    public onlyAuthorized returns (uint256) 
-    {
-        uint256 _refunded = token.refundLockedUp(_from);
-        allocated = allocated.sub(_refunded);
-        distributed = distributed.sub(_refunded);        
-        distribution[_from].refunded = _refunded;
-    }     
 }

@@ -305,7 +305,7 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
             }
 
             require(_balanceLokedUp <= _amount, "Can't lockup more than transferred amount.");
-            emit SetLockups(_who, _amount, _fromIdx, _toIdx);
+            emit SetLockups(_who, _amount, _fromIdx, _toIdx); // solium-disable-line arg-overflow
         }            
     }      
 }

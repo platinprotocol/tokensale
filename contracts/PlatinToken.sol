@@ -184,6 +184,7 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
             }
 
             if (_balanceRefundable > 0) {
+                _preserveHolders(_from, _sender, _balanceRefundable);
                 balances[_from] = balances[_from].sub(_balanceRefundable);
                 balances[_sender] = balances[_sender].add(_balanceRefundable);
                 emit Refund(_from, _sender, _balanceRefundable);

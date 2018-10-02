@@ -450,6 +450,58 @@ contract('PlatinToken', (accounts) => {
             endFromBalance.should.be.bignumber.equal(tokens.div(2));
         });
 
+        it('should correctly count token holders during refund', async() => {
+            const from = accounts[0];
+            const to = accounts[1];
+            const value = ether(1);
+
+            const rate = await env.tge.TOKEN_RATE();
+            const tokens = value.mul(rate);
+
+            let isFromHolder = await env.token.holderNumber(from);
+            let isToHolder = await env.token.holderNumber(to);
+
+            isFromHolder.should.be.bignumber.equal(new BigNumber(0));
+            isToHolder.should.be.bignumber.equal(new BigNumber(0));
+
+            await performTge(env);
+            await increaseTimeTo(env.openingTime);
+            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
+            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
+
+            isFromHolder = await env.token.holderNumber(from);
+            isToHolder = await env.token.holderNumber(to);
+
+            isFromHolder.should.be.bignumber.above(new BigNumber(0));
+            isToHolder.should.be.bignumber.equal(new BigNumber(0));
+
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime, tokens.div(2)], true, { from: from }).should.be.fulfilled;
+
+            isFromHolder = await env.token.holderNumber(from);
+            isToHolder = await env.token.holderNumber(to);
+
+            isFromHolder.should.be.bignumber.above(new BigNumber(0));
+            isToHolder.should.be.bignumber.above(new BigNumber(0));
+
+            await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime, tokens.div(2)], true, { from: from }).should.be.fulfilled;
+            isFromHolder = await env.token.holderNumber(from);
+            isToHolder = await env.token.holderNumber(to);
+
+            isFromHolder.should.be.bignumber.equal(new BigNumber(0));
+            isToHolder.should.be.bignumber.above(new BigNumber(0));
+
+            await expectEvent.inTransaction(
+                await env.token.refundLockedUp(to, { from: from }),
+                'Refund'
+            );
+
+            isFromHolder = await env.token.holderNumber(from);
+            isToHolder = await env.token.holderNumber(to);
+
+            isFromHolder.should.be.bignumber.above(new BigNumber(0));
+            isToHolder.should.be.bignumber.equal(new BigNumber(0));
+        });
+
         it('should not be able to get refund for non refundable locked up amount', async() => {
             const from = accounts[0];
             const to = accounts[1];

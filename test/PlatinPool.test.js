@@ -236,7 +236,44 @@ contract('PlatinPool', (accounts) => {
             );      
             
             await env.pool.addDistribution(beneficiary3, new BigNumber(1), [], false).should.be.rejectedWith(EVMRevert);
-        });             
+        });
+
+        it('should be able to add distribution and distribute in interleaving mode', async() => {
+            const beneficiary1 = accounts[1];
+            const beneficiary2 = accounts[2];
+            const beneficiary3 = accounts[3];
+
+            const distribute1 = env.preIcoPoolInitial.div(3);
+            const distribute2 = env.preIcoPoolInitial.div(4);
+            const distribute3 = env.preIcoPoolInitial.sub(distribute1).sub(distribute2);
+
+            await expectEvent.inTransaction(
+                env.preIcoPool.addDistribution(beneficiary1, distribute1, [], false),
+                'AddDistribution'
+            );
+
+            await expectEvent.inTransaction(
+                env.preIcoPool.addDistribution(beneficiary2, distribute2, [], false),
+                'AddDistribution'
+            );
+
+            await performTge(env);
+
+            await expectEvent.inTransaction(
+                env.preIcoPool.distribute(beneficiary1),
+                'Distribute'
+            );
+
+            await expectEvent.inTransaction(
+                env.preIcoPool.distribute(beneficiary2),
+                'Distribute'
+            );
+
+            await expectEvent.inTransaction(
+                env.preIcoPool.addDistribution(beneficiary3, distribute3, [], false),
+                'AddDistribution'
+            );
+        });
         
         it('should not be able to add distribution if there is no initial/balance', async() => { 
             const beneficiary = accounts[1];

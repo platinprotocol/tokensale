@@ -97,7 +97,7 @@ contract PlatinPool is HasNoEther, Authorizable {
         if (initial > 0) {
             _distributable = initial.sub(allocated);
         } else {
-            _distributable = _balance.sub(allocated);
+            _distributable = _balance.sub(allocated.sub(distributed));
         }
 
         require(_amount <= _distributable, "Amount isn't distributible.");        

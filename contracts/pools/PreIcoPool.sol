@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24; // solium-disable-line linebreak-style
+pragma solidity ^0.4.25; // solium-disable-line linebreak-style
 
 import "../PlatinPool.sol";
 

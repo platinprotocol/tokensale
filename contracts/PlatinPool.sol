@@ -161,6 +161,7 @@ contract PlatinPool is HasNoEther, Authorizable {
     /**
      * @dev Refund refundable locked up amount
      * @param _from address The address which you want to refund tokens from
+     * @return uint256 Returns amount of refunded tokens
      */
     function refundLockedUp(
         address _from
@@ -171,6 +172,7 @@ contract PlatinPool is HasNoEther, Authorizable {
         allocated = allocated.sub(_refunded);
         distributed = distributed.sub(_refunded);
         distribution[_from].refunded = _refunded;
+        return _refunded;
     }
 
     /**

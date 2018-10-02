@@ -13,7 +13,7 @@ module.exports =  function(deployer) {
 
     const advisorsPoolInitial = "70000000000000000000000000"; // NOTICE: Keep in sync
     const foundersPoolInitial = "190000000000000000000000000"; // NOTICE: Keep in sync
-    const preIcoPoolInitial = "13472416000000000000000000"; // NOTICE: Keep in sync
+    const preIcoPoolInitial = "13473782000000000000000000"; // NOTICE: Keep in sync
 
     deployer.deploy(
         AdvisorsPool,

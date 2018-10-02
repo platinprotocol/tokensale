@@ -270,6 +270,7 @@ contract PlatinToken is HoldersToken, NoOwner, Authorizable, Pausable {
     internal 
     {
         uint256 _lockupsLength = _lockups.length;
+        require(_lockupsLength.add(lockups[_who].length) <= 2000, "Can't be more than 1000 lockups per address.");
         if (_lockupsLength > 0) {
             uint256 _balanceLokedUp = 0;
             address _sender = msg.sender;

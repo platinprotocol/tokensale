@@ -376,6 +376,34 @@ contract('PlatinToken', (accounts) => {
 
             await env.token.transferWithLockup(to, tokens.div(2), [env.closingTime + duration.weeks(1), tokens], false, { from: from }).should.be.rejectedWith(EVMRevert);
         });   
+
+        it('should not be able perform lockup more than 1000 times per address', async() => {
+            const from = accounts[0];
+            const to = accounts[1];
+            const value = ether(1);
+
+            const rate = await env.tge.TOKEN_RATE();
+            const tokens = value.mul(rate);
+
+            const tokensTransfer = tokens.div(2000);
+
+            await performTge(env);
+            await increaseTimeTo(env.openingTime);
+            await env.ico.addAddressToWhitelist(from).should.be.fulfilled;
+            await env.ico.buyTokens(from, { value: value, from: from }).should.be.fulfilled;
+
+            let lockups = [];
+            for (let i = 0; i < 100; i++) {
+                lockups.push(env.closingTime);
+                lockups.push(tokensTransfer);
+            }
+
+            for (let j = 0; j < 10; j ++) {
+                await env.token.transferWithLockup(to, tokensTransfer.mul(100), lockups, false, { from: from }).should.be.fulfilled;
+            }
+
+            await env.token.transferWithLockup(to, tokensTransfer, [env.closingTime, tokensTransfer], false, { from: from }).should.be.rejectedWith(EVMRevert);
+        });
     });
 
     describe('refund', function () {        
@@ -485,7 +513,7 @@ contract('PlatinToken', (accounts) => {
 
             startFromBalance.should.be.bignumber.equal(tokens.div(2));
             endFromBalance.should.be.bignumber.equal(tokens.div(2));            
-        });            
+        });
     });
 
     describe('balance', function () {             

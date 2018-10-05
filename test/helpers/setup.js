@@ -29,7 +29,7 @@ module.exports = async function(accounts, env) {
     env.poolInitial = new BigNumber("10000000000000000"); // NOTICE: Keep in sync
     env.advisorsPoolInitial = new BigNumber("70000000000000000000000000"); // NOTICE: Keep in sync
     env.foundersPoolInitial = new BigNumber("190000000000000000000000000"); // NOTICE: Keep in sync
-    env.preIcoPoolInitial = new BigNumber("13473782000000000000000000"); // NOTICE: Keep in sync
+    env.preIcoPoolInitial = new BigNumber("20000000000000000000000000"); // NOTICE: Keep in sync
 
     let rate = 1000;
     let wallet = accounts[0];

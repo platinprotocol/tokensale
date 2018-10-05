@@ -47,8 +47,8 @@ contract PlatinTGE {
 
     // HOLDER AMOUNT AS PART OF SUPPLY
     // SALES_SUPPLY = PRE_ICO_POOL_AMOUNT + ICO_AMOUNT
-    uint256 public constant PRE_ICO_POOL_AMOUNT = 13473782 * (10 ** uint256(decimals)); // 13,473,782 PTNX
-    uint256 public constant ICO_AMOUNT = 286526218 * (10 ** uint256(decimals)); // 286,526,218 PTNX
+    uint256 public constant PRE_ICO_POOL_AMOUNT = 20000000 * (10 ** uint256(decimals)); // 20,000,000 PTNX
+    uint256 public constant ICO_AMOUNT = 280000000 * (10 ** uint256(decimals)); // 280,000,000 PTNX
     // FOUNDERS_AND_EMPLOYEES_SUPPLY = FOUNDERS_POOL_AMOUNT + EMPLOYEES_POOL_AMOUNT
     uint256 public constant FOUNDERS_POOL_AMOUNT = 190000000 * (10 ** uint256(decimals)); // 190,000,000 PTNX
     uint256 public constant EMPLOYEES_POOL_AMOUNT = 10000000 * (10 ** uint256(decimals)); // 10,000,000 PTNX

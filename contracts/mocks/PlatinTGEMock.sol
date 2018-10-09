@@ -16,6 +16,7 @@ contract PlatinTGEMock is PlatinTGE {
         uint256 _tgeTime,        
         PlatinToken _token, 
         address _preIcoPool, 
+        address _liquidPool,
         address _ico,
         address _miningPool,
         address _foundersPool,
@@ -26,7 +27,7 @@ contract PlatinTGEMock is PlatinTGE {
         address _ecosystemPool,
         address _unsoldReserve
     )
-    PlatinTGE(_tgeTime, _token, _preIcoPool, _ico, _miningPool, _foundersPool, _employeesPool, _airdropsPool, _reservesPool, _advisorsPool, _ecosystemPool, _unsoldReserve)
+    PlatinTGE(_tgeTime, _token, _preIcoPool, _liquidPool, _ico, _miningPool, _foundersPool, _employeesPool, _airdropsPool, _reservesPool, _advisorsPool, _ecosystemPool, _unsoldReserve)
     public {}
 
     function allocateZeroAddress() public {

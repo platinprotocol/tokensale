@@ -41,6 +41,7 @@ contract('PlatinTGE', (accounts) => {
             env.tgeTime,
             zeroAddress,
             env.preIcoPool.address,
+            env.liquidPool,
             env.ico.address,
             env.miningPool,
             env.foundersPool.address,
@@ -56,6 +57,7 @@ contract('PlatinTGE', (accounts) => {
             env.tgeTime,
             env.token.address,
             zeroAddress,
+            env.liquidPool,
             env.ico.address,
             env.miningPool,
             env.foundersPool.address,
@@ -72,6 +74,23 @@ contract('PlatinTGE', (accounts) => {
             env.token.address,
             env.preIcoPool.address,
             zeroAddress,
+            env.ico.address,
+            env.miningPool,
+            env.foundersPool.address,
+            env.employeesPool,
+            env.airdropsPool,
+            env.reservesPool,
+            env.advisorsPool.address,
+            env.ecosystemPool,
+            env.unsoldReserve
+        ).should.be.rejectedWith(EVMRevert);         
+
+        await PlatinTGE.new(
+            env.tgeTime,
+            env.token.address,
+            env.preIcoPool.address,
+            env.liquidPool,
+            zeroAddress,
             env.miningPool,
             env.foundersPool.address,
             env.employeesPool,
@@ -86,6 +105,7 @@ contract('PlatinTGE', (accounts) => {
             env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
+            env.liquidPool,
             env.ico.address,
             zeroAddress,
             env.foundersPool.address,
@@ -101,6 +121,7 @@ contract('PlatinTGE', (accounts) => {
             env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
+            env.liquidPool,
             env.ico.address,
             env.miningPool,
             zeroAddress,
@@ -116,6 +137,7 @@ contract('PlatinTGE', (accounts) => {
             env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
+            env.liquidPool,
             env.ico.address,
             env.miningPool,
             env.foundersPool.address,
@@ -131,6 +153,7 @@ contract('PlatinTGE', (accounts) => {
             env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
+            env.liquidPool,
             env.ico.address,
             env.miningPool,
             env.foundersPool.address,
@@ -146,6 +169,7 @@ contract('PlatinTGE', (accounts) => {
             env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
+            env.liquidPool,
             env.ico.address,
             env.miningPool,
             env.foundersPool.address,
@@ -161,6 +185,7 @@ contract('PlatinTGE', (accounts) => {
             env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
+            env.liquidPool,
             env.ico.address,
             env.miningPool,
             env.foundersPool.address,
@@ -176,6 +201,7 @@ contract('PlatinTGE', (accounts) => {
             env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
+            env.liquidPool,
             env.ico.address,
             env.miningPool,
             env.foundersPool.address,
@@ -191,6 +217,7 @@ contract('PlatinTGE', (accounts) => {
             env.tgeTime,
             env.token.address,
             env.preIcoPool.address,
+            env.liquidPool,
             env.ico.address,
             env.miningPool,
             env.foundersPool.address,
@@ -220,11 +247,12 @@ contract('PlatinTGE', (accounts) => {
         await performTge(env);
 
         const preIcoPoolSupply = await env.token.balanceOf(await env.tge.PRE_ICO_POOL());
+        const liquidPoolSupply = await env.token.balanceOf(await env.tge.LIQUID_POOL());
         const icoSupply = await  env.token.balanceOf(await env.tge.ICO());
         const foundersPoolSupply = await env.token.balanceOf(await env.tge.FOUNDERS_POOL());
         const employeesPoolSupply = await env.token.balanceOf(await env.tge.EMPLOYEES_POOL()); 
 
-        const salesSupplyActual = preIcoPoolSupply.add(icoSupply);
+        const salesSupplyActual = preIcoPoolSupply.add(liquidPoolSupply).add(icoSupply);
         const miningPoolSupplyActual= await env.token.balanceOf(await env.tge.MINING_POOL());
         const foundersAndEmployeesSupplyActual = foundersPoolSupply.add(employeesPoolSupply);
         const airdropsSupplyActual = await env.token.balanceOf(await env.tge.AIRDROPS_POOL());
@@ -252,6 +280,7 @@ contract('PlatinTGE', (accounts) => {
             tgePastTime,
             env.token.address,
             env.preIcoPool.address,
+            env.liquidPool,
             env.ico.address,
             env.miningPool,
             env.foundersPool.address,
@@ -281,6 +310,7 @@ contract('PlatinTGE', (accounts) => {
             env.tgeTime,
             token.address,
             env.preIcoPool.address,
+            env.liquidPool,
             env.ico.address,
             env.miningPool,
             env.foundersPool.address,

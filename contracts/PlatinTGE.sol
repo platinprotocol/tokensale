@@ -35,7 +35,8 @@ contract PlatinTGE {
     uint256 public constant ECOSYSTEM_POOL_SUPPLY = 30000000 * (10 ** uint256(decimals)); // 30,000,000 PTNX - 3%
 
     // HOLDERS
-    address public PRE_ICO_POOL; // solium-disable-line mixedcase 
+    address public PRE_ICO_POOL; // solium-disable-line mixedcase
+    address public LIQUID_POOL; // solium-disable-line mixedcase
     address public ICO; // solium-disable-line mixedcase
     address public MINING_POOL; // solium-disable-line mixedcase 
     address public FOUNDERS_POOL; // solium-disable-line mixedcase
@@ -46,9 +47,10 @@ contract PlatinTGE {
     address public ECOSYSTEM_POOL; // solium-disable-line mixedcase 
 
     // HOLDER AMOUNT AS PART OF SUPPLY
-    // SALES_SUPPLY = PRE_ICO_POOL_AMOUNT + ICO_AMOUNT
+    // SALES_SUPPLY = PRE_ICO_POOL_AMOUNT + LIQUID_POOL_AMOUNT + ICO_AMOUNT
     uint256 public constant PRE_ICO_POOL_AMOUNT = 20000000 * (10 ** uint256(decimals)); // 20,000,000 PTNX
-    uint256 public constant ICO_AMOUNT = 280000000 * (10 ** uint256(decimals)); // 280,000,000 PTNX
+    uint256 public constant LIQUID_POOL_AMOUNT = 100000000 * (10 ** uint256(decimals)); // 100,000,000 PTNX
+    uint256 public constant ICO_AMOUNT = 180000000 * (10 ** uint256(decimals)); // 180,000,000 PTNX
     // FOUNDERS_AND_EMPLOYEES_SUPPLY = FOUNDERS_POOL_AMOUNT + EMPLOYEES_POOL_AMOUNT
     uint256 public constant FOUNDERS_POOL_AMOUNT = 190000000 * (10 ** uint256(decimals)); // 190,000,000 PTNX
     uint256 public constant EMPLOYEES_POOL_AMOUNT = 10000000 * (10 ** uint256(decimals)); // 10,000,000 PTNX
@@ -79,7 +81,8 @@ contract PlatinTGE {
      * @dev Constructor
      * @param _tgeTime uint256 TGE moment of time
      * @param _token address Address of the Platin Token contract       
-     * @param _preIcoPool address Address of the Platin PreICO Pool  
+     * @param _preIcoPool address Address of the Platin PreICO Pool
+     * @param _liquidPool address Address of the Platin Liquid Pool
      * @param _ico address Address of the Platin ICO contract
      * @param _miningPool address Address of the Platin Mining Pool
      * @param _foundersPool address Address of the Platin Founders Pool
@@ -93,7 +96,8 @@ contract PlatinTGE {
     constructor(
         uint256 _tgeTime,
         PlatinToken _token, 
-        address _preIcoPool, 
+        address _preIcoPool,
+        address _liquidPool,
         address _ico,
         address _miningPool,
         address _foundersPool,
@@ -107,6 +111,7 @@ contract PlatinTGE {
         require(_tgeTime >= block.timestamp, "TGE time should be >= current time."); // solium-disable-line security/no-block-members
         require(_token != address(0), "Token address can't be zero.");
         require(_preIcoPool != address(0), "PreICO Pool address can't be zero.");
+        require(_liquidPool != address(0), "Liquid Pool address can't be zero.");
         require(_ico != address(0), "ICO address can't be zero.");
         require(_miningPool != address(0), "Mining Pool address can't be zero.");
         require(_foundersPool != address(0), "Founders Pool address can't be zero.");
@@ -125,6 +130,7 @@ contract PlatinTGE {
 
         // Setup holder addresses
         PRE_ICO_POOL = _preIcoPool;
+        LIQUID_POOL = _liquidPool;
         ICO = _ico;
         MINING_POOL = _miningPool;
         FOUNDERS_POOL = _foundersPool;
@@ -152,6 +158,7 @@ contract PlatinTGE {
 
         // SALES          
         token.allocate(PRE_ICO_POOL, PRE_ICO_POOL_AMOUNT);
+        token.allocate(LIQUID_POOL, LIQUID_POOL_AMOUNT);
         token.allocate(ICO, ICO_AMOUNT);
       
         // MINING POOL

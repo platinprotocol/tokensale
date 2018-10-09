@@ -20,6 +20,7 @@ const BigNumber = web3.BigNumber;
 
 module.exports = async function(accounts, env) {
     env.unsoldReserve = '0xef34779Ad86Cd818E86e0ec1096186D35377c474'; // NOTICE: Keep in sync
+    env.liquidPool = '0x50a9d515D3F3F8850BF7c65347D4D881F06a8b43'; // NOTICE: Keep in sync
     env.miningPool = '0x378135f66fFC9F70Bb522b3c9b25ed4b8c23dE50'; // NOTICE: Keep in sync
     env.employeesPool = '0xB3c518D4C15567De725d535F47e755196A3310A4'; // NOTICE: Keep in sync
     env.airdropsPool = '0x4575479B1dF9305c0594542Dc66cdAD37932177F'; // NOTICE: Keep in sync
@@ -74,6 +75,7 @@ module.exports = async function(accounts, env) {
         env.tgeTime,
         env.token.address,
         env.preIcoPool.address,
+        env.liquidPool,
         env.ico.address,
         env.miningPool,
         env.foundersPool.address,
@@ -94,6 +96,7 @@ module.exports = async function(accounts, env) {
     );
 
     await env.token.authorize(await env.tge.PRE_ICO_POOL());
+    await env.token.authorize(await env.tge.LIQUID_POOL());
     await env.token.authorize(await env.tge.ICO());
     await env.token.authorize(await env.tge.MINING_POOL());
     await env.token.authorize(await env.tge.FOUNDERS_POOL());

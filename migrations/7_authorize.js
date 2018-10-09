@@ -21,6 +21,10 @@ module.exports = function(deployer) {
     }).then(preIcoPool => {
         return token.authorize(preIcoPool);
     }).then(() => {
+        return tge.LIQUID_POOL();        
+    }).then(liquidPool => {
+        return token.authorize(liquidPool);        
+    }).then(() => {
         return tge.ICO();        
     }).then(ico => {
         return token.authorize(ico);

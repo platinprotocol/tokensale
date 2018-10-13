@@ -1,4 +1,9 @@
-pragma solidity ^0.4.24; // solium-disable-line linebreak-style
+pragma solidity ^0.4.25; // solium-disable-line linebreak-style
+
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./PlatinToken.sol";
@@ -30,7 +35,8 @@ contract PlatinTGE {
     uint256 public constant ECOSYSTEM_POOL_SUPPLY = 30000000 * (10 ** uint256(decimals)); // 30,000,000 PTNX - 3%
 
     // HOLDERS
-    address public PRE_ICO_POOL; // solium-disable-line mixedcase 
+    address public PRE_ICO_POOL; // solium-disable-line mixedcase
+    address public LIQUID_POOL; // solium-disable-line mixedcase
     address public ICO; // solium-disable-line mixedcase
     address public MINING_POOL; // solium-disable-line mixedcase 
     address public FOUNDERS_POOL; // solium-disable-line mixedcase
@@ -41,18 +47,16 @@ contract PlatinTGE {
     address public ECOSYSTEM_POOL; // solium-disable-line mixedcase 
 
     // HOLDER AMOUNT AS PART OF SUPPLY
-    // SALES_SUPPLY = PRE_ICO_POOL_AMOUNT + ICO_AMOUNT
-    uint256 public constant PRE_ICO_POOL_AMOUNT = 13472416 * (10 ** uint256(decimals)); // 13,472,416 PTNX
-    uint256 public constant ICO_AMOUNT = 286527584 * (10 ** uint256(decimals)); // 286,527,584 PTNX
+    // SALES_SUPPLY = PRE_ICO_POOL_AMOUNT + LIQUID_POOL_AMOUNT + ICO_AMOUNT
+    uint256 public constant PRE_ICO_POOL_AMOUNT = 20000000 * (10 ** uint256(decimals)); // 20,000,000 PTNX
+    uint256 public constant LIQUID_POOL_AMOUNT = 100000000 * (10 ** uint256(decimals)); // 100,000,000 PTNX
+    uint256 public constant ICO_AMOUNT = 180000000 * (10 ** uint256(decimals)); // 180,000,000 PTNX
     // FOUNDERS_AND_EMPLOYEES_SUPPLY = FOUNDERS_POOL_AMOUNT + EMPLOYEES_POOL_AMOUNT
     uint256 public constant FOUNDERS_POOL_AMOUNT = 190000000 * (10 ** uint256(decimals)); // 190,000,000 PTNX
     uint256 public constant EMPLOYEES_POOL_AMOUNT = 10000000 * (10 ** uint256(decimals)); // 10,000,000 PTNX
 
     // Unsold tokens reserve address
     address public UNSOLD_RESERVE; // solium-disable-line mixedcase
-
-    // Unsold tokens reserve lockup period
-    uint256 public constant UNSOLD_LOCKUP_PERIOD = 182 days;
 
     // Tokens ico sale with lockup period
     uint256 public constant ICO_LOCKUP_PERIOD = 182 days;
@@ -69,11 +73,16 @@ contract PlatinTGE {
     // Platin Token contract
     PlatinToken public token;
 
+    // TGE time
+    uint256 public tgeTime;
+
 
     /**
      * @dev Constructor
+     * @param _tgeTime uint256 TGE moment of time
      * @param _token address Address of the Platin Token contract       
-     * @param _preIcoPool address Address of the Platin PreICO Pool  
+     * @param _preIcoPool address Address of the Platin PreICO Pool
+     * @param _liquidPool address Address of the Platin Liquid Pool
      * @param _ico address Address of the Platin ICO contract
      * @param _miningPool address Address of the Platin Mining Pool
      * @param _foundersPool address Address of the Platin Founders Pool
@@ -85,8 +94,10 @@ contract PlatinTGE {
      * @param _unsoldReserve address Address of the Platin Unsold Reserve                                 
      */  
     constructor(
+        uint256 _tgeTime,
         PlatinToken _token, 
-        address _preIcoPool, 
+        address _preIcoPool,
+        address _liquidPool,
         address _ico,
         address _miningPool,
         address _foundersPool,
@@ -97,8 +108,10 @@ contract PlatinTGE {
         address _ecosystemPool,
         address _unsoldReserve
     ) public {
+        require(_tgeTime >= block.timestamp, "TGE time should be >= current time."); // solium-disable-line security/no-block-members
         require(_token != address(0), "Token address can't be zero.");
         require(_preIcoPool != address(0), "PreICO Pool address can't be zero.");
+        require(_liquidPool != address(0), "Liquid Pool address can't be zero.");
         require(_ico != address(0), "ICO address can't be zero.");
         require(_miningPool != address(0), "Mining Pool address can't be zero.");
         require(_foundersPool != address(0), "Founders Pool address can't be zero.");
@@ -109,11 +122,15 @@ contract PlatinTGE {
         require(_ecosystemPool != address(0), "Ecosystem Pool address can't be zero.");
         require(_unsoldReserve != address(0), "Unsold reserve address can't be zero.");
 
+        // Setup tge time
+        tgeTime = _tgeTime;
+
         // Setup token address
         token = _token;
 
         // Setup holder addresses
         PRE_ICO_POOL = _preIcoPool;
+        LIQUID_POOL = _liquidPool;
         ICO = _ico;
         MINING_POOL = _miningPool;
         FOUNDERS_POOL = _foundersPool;
@@ -133,11 +150,15 @@ contract PlatinTGE {
      */
     function allocate() public {
 
+        // Should be called just after tge time
+        require(block.timestamp >= tgeTime, "Should be called just after tge time."); // solium-disable-line security/no-block-members
+
         // Should not be allocated already
         require(token.totalSupply() == 0, "Allocation is already done.");
 
         // SALES          
         token.allocate(PRE_ICO_POOL, PRE_ICO_POOL_AMOUNT);
+        token.allocate(LIQUID_POOL, LIQUID_POOL_AMOUNT);
         token.allocate(ICO, ICO_AMOUNT);
       
         // MINING POOL

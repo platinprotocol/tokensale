@@ -1,3 +1,8 @@
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
+
 const AuthorizableMock = artifacts.require('AuthorizableMock');
 
 const { EVMRevert } = require('./helpers/EVMRevert');
@@ -78,7 +83,7 @@ contract('Authorizable', (accounts) => {
         await env.auth.unAuthorize(zeroAddress).should.be.rejectedWith(EVMRevert);       
     });    
 
-    it('should be not able to authorize address twice', async() => {
+    it('should not be able to authorize address twice', async() => {
         const targetAddress = accounts[1];
         await env.auth.authorize(targetAddress).should.be.fulfilled;        
         await env.auth.authorize(targetAddress).should.be.rejectedWith(EVMRevert);   

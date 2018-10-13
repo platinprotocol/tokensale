@@ -1,3 +1,8 @@
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
+
 const setup = require('./helpers/setup');
 const performTge = require('./helpers/performTge');
 
@@ -147,8 +152,10 @@ contract('PlatinICO', (accounts) => {
             const value = minPurchase.add(ether(0.1));
 
             const tgeMock = await PlatinTGEMinICOMock.new(
+                env.tgeTime,
                 env.token.address,
                 env.preIcoPool.address,
+                env.liquidPool,
                 env.ico.address,
                 env.miningPool,
                 env.foundersPool.address,
@@ -176,8 +183,7 @@ contract('PlatinICO', (accounts) => {
             const balanceExpectedReserve = await env.token.balanceOf(env.ico.address);
             await expectEvent.inTransaction(
                 env.ico.finalize(),
-                'Finalized',
-                {}
+                'Finalized'
             );    
 
             const balanceExpected = new BigNumber(0);
@@ -200,7 +206,7 @@ contract('PlatinICO', (accounts) => {
             await env.ico.finalize().should.be.rejectedWith(EVMRevert);            
         });     
 
-        it('should not be able to do finalization by owner only', async() => {
+        it('should be able to do finalization by owner only', async() => {
             const notOwner = accounts[1];
             await performTge(env);
             await env.ico.finalize({ from: notOwner }).should.be.rejectedWith(EVMRevert);            
@@ -211,8 +217,10 @@ contract('PlatinICO', (accounts) => {
             const value = await env.tge.MIN_PURCHASE_AMOUNT();
 
             const tgeMock = await PlatinTGEMinICOMock.new(
+                env.tgeTime,
                 env.token.address,
                 env.preIcoPool.address,
+                env.liquidPool,
                 env.ico.address,
                 env.miningPool,
                 env.foundersPool.address,

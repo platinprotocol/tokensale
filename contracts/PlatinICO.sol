@@ -1,5 +1,11 @@
-pragma solidity ^0.4.24; // solium-disable-line linebreak-style
+pragma solidity ^0.4.25; // solium-disable-line linebreak-style
 
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
+
+import "openzeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/validation/TimedCrowdsale.sol";
 import "openzeppelin-solidity/contracts/crowdsale/Crowdsale.sol";
@@ -13,17 +19,13 @@ import "./PlatinTGE.sol";
  * @title PlatinICO
  * @dev Platin public sales contract. Before purchase customers should be whitelisted
  * during KYC/AML procedure. Tokens can be purchased with and without lockup.
- * Locked up tokens purchase has special token rate. When ICO ends, unsold tokens are
- * distributed to the unsold token reserve with lockup.
+ * Locked up tokens purchase has special token rate. Locked up tokens purchase can be performed
+ * not more than 1000 times due to the limitation of lockups per one address.
+ * When ICO ends, unsold tokens are distributed to the unsold token reserve.
  * All constants for processing purchases and for finalization are stored in the TGE contract.
- * Due to the solidity inheritance limitations the code of OpenZeppelin's FinalizableCrowdsale
- * contract is copied directly to this contract to use it's finalize feature.
  */
-contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
+contract PlatinICO is FinalizableCrowdsale, WhitelistedCrowdsale, Pausable {
     using SafeMath for uint256;
-
-    // copied from the "openzeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol"
-    bool public isFinalized = false; 
 
     // Lockup purchase
     bool lockup;
@@ -33,10 +35,6 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
 
     // Platin TGE contract
     PlatinTGE public tge;
-
-    // copied from the "openzeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol"
-    event Finalized();   
-
 
     /**
      * @dev Constructor
@@ -78,22 +76,7 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
             buyTokens(msg.sender);
         else
             buyTokens(_beneficiary);
-    }  
-
-    /**
-     * @dev Must be called after crowdsale ends, to do some extra finalization
-     * work. Calls the contract's finalization function.
-     * copied from the "openzeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol"
-     */
-    function finalize() external onlyOwner {
-        require(!isFinalized, "ICO is already finalized.");
-        require(hasClosed(), "ICO should be closed.");
-
-        finalization();
-        emit Finalized();
-
-        isFinalized = true;
-    }     
+    }
 
     /**
      * @dev Extend parent behavior to deliver purchase
@@ -107,13 +90,15 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
         internal
     {
         if (lockup) {
-            uint256[] memory _lockups = new uint256[](2);
-            _lockups[0] = block.timestamp + tge.ICO_LOCKUP_PERIOD(); // solium-disable-line security/no-block-members
-            _lockups[1] = _tokenAmount;
+            uint256[] memory _lockupReleases = new uint256[](1);
+            uint256[] memory _lockupAmounts = new uint256[](1);
+            _lockupReleases[0] = block.timestamp + tge.ICO_LOCKUP_PERIOD(); // solium-disable-line security/no-block-members
+            _lockupAmounts[0] = _tokenAmount;
             PlatinToken(token).transferWithLockup(
                 _beneficiary, 
                 _tokenAmount,
-                _lockups,
+                _lockupReleases,
+                _lockupAmounts,
                 false);
             lockup = false;   
         } else {
@@ -144,15 +129,10 @@ contract PlatinICO is TimedCrowdsale, WhitelistedCrowdsale, Pausable {
      */    
     function finalization() internal {
         uint256 _unsold = token.balanceOf(this);
-        if (_unsold > 0) {
-            uint256[] memory _lockups = new uint256[](2);
-            _lockups[0] = block.timestamp + tge.UNSOLD_LOCKUP_PERIOD(); // solium-disable-line security/no-block-members
-            _lockups[1] = _unsold;            
-            PlatinToken(token).transferWithLockup(
+        if (_unsold > 0) {         
+            PlatinToken(token).transfer(
                 tge.UNSOLD_RESERVE(),
-                _unsold,
-                _lockups,
-                false);
+                _unsold);
         }
     }
 

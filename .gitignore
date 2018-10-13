@@ -36,6 +36,7 @@ node_modules
 .settings/
 *.sublime-workspace
 .vscode
+*.iml
 
 ### Linux ###
 *~

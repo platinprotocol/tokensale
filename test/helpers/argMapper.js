@@ -47,7 +47,7 @@ function mapPoolFile(filePath) {
             continue;
         let cells = rows[i].split(',');
         if (cells.length % 2 !== 1 && cells.length >= 3)
-            throw "Row length: " + cells.length + " is not correct in file: " + filePath;
+            throw "Row length: " + cells.length + " is not correct in file: " + filePath + " Row number: " + (i + 1);
 
         if (!isAddress(cells[addressIndex].toLowerCase()))
             throw "Address: " + cells[addressIndex] + " is not valid in row: " + (i + 1) + " file: " + filePath;
@@ -62,7 +62,8 @@ function mapPoolFile(filePath) {
         user.address = cells[addressIndex].toLowerCase();
         user.tokens = ethers.utils.parseUnits(cells[tokensIndex], decimalPlaces);
         user.refundable = !!+cells[refundableIndex];
-        user.lockups = Array();
+        user.lockupsT = Array();
+        user.lockupsA = Array();
 
         let totalLockup = new BigNumber(0);
         for (let j = 3; j < cells.length; j += 2) {
@@ -72,7 +73,9 @@ function mapPoolFile(filePath) {
                 throw "Lock up tokens amount: " + cells[j + 1] + " is not valid in row: " + (i + 1) + " file: " + filePath;
 
             totalLockup = totalLockup.add(ethers.utils.parseUnits(cells[j + 1], decimalPlaces));
-            user.lockups.push(cells[j], ethers.utils.parseUnits(cells[j + 1], decimalPlaces));
+
+            user.lockupsT.push(cells[j]);
+            user.lockupsA.push(ethers.utils.parseUnits(cells[j + 1], decimalPlaces));
         }
 
         if (totalLockup > user.tokens)

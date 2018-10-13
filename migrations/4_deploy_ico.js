@@ -1,11 +1,17 @@
+/**
+ * @author Anatolii Kucheruk (anatolii@platin.io)
+ * @author Platin Limited, platin.io (platin@platin.io)
+ */
+const thread = require("../tools/sleep.js");
 const PlatinToken = artifacts.require("PlatinToken.sol");
 const PlatinICO = artifacts.require("PlatinICO.sol");
 const PlatinICOLockup = artifacts.require("PlatinICOLockup.sol");
 const PlatinICORegular = artifacts.require("PlatinICORegular.sol");
 
+
 module.exports =  function(deployer, network, accounts) {
     let rate, wallet, openingTime, closingTime;
-
+    thread.sleep(20000);
     rate = 1000;
 
     wallet = accounts[0]; // TODO change to the real one
@@ -20,11 +26,13 @@ module.exports =  function(deployer, network, accounts) {
         openingTime,
         closingTime
     ).then(() => {
+        thread.sleep(20000);
         return deployer.deploy(
             PlatinICOLockup,
             PlatinICO.address
         );
     }).then(() => {
+        thread.sleep(20000);
         return deployer.deploy(
             PlatinICORegular,
             PlatinICO.address

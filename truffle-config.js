@@ -13,7 +13,7 @@ module.exports = {
     networks: {
         development: {
             host: 'localhost',
-            port: 8545,
+            port: 8555,
             network_id: '*',
             gas: 0x7a1200, // 8,000,000
             gasPrice: 2000000000 // 20 Gwei            
@@ -26,10 +26,10 @@ module.exports = {
             gasPrice: 0x01      
         },
         ropsten: {
-            provider: () => new HDWalletProvider(secrets.mnemonic, 'https://ropsten.infura.io/' + secrets.infuraApiKey),
+            provider: () => new HDWalletProvider(secrets.mnemonic, 'https://rbst1.betex.io/'),
             network_id: 3,
             gas: 6700000,
-            gasPrice: 500000000 // 5 Gwei
+            gasPrice: 90000000000 // 50 Gwei
         },
         rinkeby: {
             provider: () => new HDWalletProvider(secrets.mnemonic, 'https://rinkeby.infura.io/' + secrets.infuraApiKey),
@@ -41,7 +41,7 @@ module.exports = {
             provider: () => new HDWalletProvider(secrets.mnemonic, 'https://mainnet.infura.io/' + secrets.infuraApiKey),
             network_id: 1,
             gas: 8000000,
-            gasPrice: 10000000000 // 10 Gwei
+            gasPrice: 20000000000 // 20 Gwei
         }
     },
     mocha: {

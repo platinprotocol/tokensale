@@ -21,6 +21,7 @@ const mnemonic = JSON.parse(fs.readFileSync('secrets.json', 'utf8')).mnemonic;
 const privider = new providers.JsonRpcProvider( process.argv[2]);
 const mnemonicWallet = new Wallet.fromMnemonic(mnemonic);
 const wallet = new Wallet(mnemonicWallet.privateKey, privider);
+const thread = require("./sleep.js");
 
 fillInPools();
 
@@ -57,5 +58,6 @@ async function distribute(poolAddress, users) {
             console.log("-------------------------------------------------------------------------------------------------------------");
             throw ex;
         }
+        thread.sleep(20000);
     }
 }
